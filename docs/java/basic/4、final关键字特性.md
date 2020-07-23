@@ -1,43 +1,5 @@
-# 目录
 
-  * [final使用](#final使用)
-    * [final变量](#final变量)
-    * [final修饰基本数据类型变量和引用](#final修饰基本数据类型变量和引用)
-    * [final类](#final类)
-    * [final关键字的知识点](#final关键字的知识点)
-  * [final关键字的最佳实践](#final关键字的最佳实践)
-    * [final的用法](#final的用法)
-    * [关于空白final](#关于空白final)
-    * [final内存分配](#final内存分配)
-    * [使用final修饰方法会提高速度和效率吗](#使用final修饰方法会提高速度和效率吗)
-    * [使用final修饰变量会让变量的值不能被改变吗；](#使用final修饰变量会让变量的值不能被改变吗；)
-    * [如何保证数组内部不被修改](#如何保证数组内部不被修改)
-    * [final方法的三条规则](#final方法的三条规则)
-  * [final 和 jvm的关系](#final-和-jvm的关系)
-    * [写 final 域的重排序规则](#写-final-域的重排序规则)
-    * [读 final 域的重排序规则](#读-final-域的重排序规则)
-    * [如果 final 域是引用类型](#如果-final-域是引用类型)
-  * [参考文章](#参考文章)
-  * [微信公众号](#微信公众号)
-    * [Java技术江湖](#java技术江湖)
-    * [个人公众号：黄小斜](#个人公众号：黄小斜)
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章首发于我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《夯实Java基础系列博文》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-该系列博文会告诉你如何从入门到进阶，一步步地学习Java基础知识，并上手进行实战，接着了解每个Java知识点背后的实现原理，更完整地了解整个Java技术体系，形成自己的知识框架。为了更好地总结和检验你的学习成果，本系列文章也会提供每个知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-
-<!-- more -->
-final关键字在java中使用非常广泛，可以申明成员变量、方法、类、本地变量。一旦将引用声明为final，将无法再改变这个引用。final关键字还能保证内存同步，本博客将会从final关键字的特性到从java内存层面保证同步讲解。这个内容在面试中也有可能会出现。
+final关键字在java中使用非常广泛，可以声明成员变量、方法、类、本地变量。一旦将引用声明为final，将无法再改变这个引用。final关键字还能保证内存同步，本博客将会从final关键字的特性到从java内存层面保证同步讲解。这个内容在面试中也有可能会出现。
 
 ## final使用
 
@@ -45,51 +7,53 @@ final关键字在java中使用非常广泛，可以申明成员变量、方法�
 
 final变量有成员变量或者是本地变量(方法内的局部变量)，在类成员中final经常和static一起使用，作为类常量使用。**其中类常量必须在声明时初始化，final成员常量可以在构造函数初始化。**
 
-```
+```java
 public class Main {
-    public static final int i; //报错，必须初始化 因为常量在常量池中就存在了，调用时不需要类的初始化，所以必须在声明时初始化
+    //报错，必须初始化 因为常量在常量池中就存在了，调用时不需要类的初始化，所以必须在声明时初始化
+    public static final int i; 
     public static final int j;
     Main() {
         i = 2;
         j = 3;
     }
 }
-
 ```
 
 就如上所说的，对于类常量，JVM会缓存在常量池中，在读取该变量时不会加载这个类。
 
-```
+```java
 
 public class Main {
     public static final int i = 2;
     Main() {
-        System.out.println("调用构造函数"); // 该方法不会调用
+        // 该方法不会调用
+        System.out.println("调用构造函数"); 
     }
     public static void main(String[] args) {
         System.out.println(Main.i);
     }
 }
-
 ```
 ### final修饰基本数据类型变量和引用
-    @Test
-    public void final修饰基本类型变量和引用() {
-        final int a = 1;
-        final int[] b = {1};
-        final int[] c = {1};
+```java
+@Test
+public void final修饰基本类型变量和引用() {
+    final int a = 1;
+    final int[] b = {1};
+    final int[] c = {1};
     //  b = c;报错
-        b[0] = 1;
-        final String aa = "a";
-        final Fi f = new Fi();
-        //aa = "b";报错
-        // f = null;//报错
-        f.a = 1;
-    }
+    b[0] = 1;
+    final String aa = "a";
+    final Fi f = new Fi();
+    //aa = "b";报错
+    // f = null;//报错
+    f.a = 1;
+}
+```
 
 final方法表示该方法不能被子类的方法重写，将方法声明为final，在编译的时候就已经静态绑定了，不需要在运行时动态绑定。final方法调用时使用的是invokespecial指令。
 
-```
+```java
 class PersonalLoan{
     public final String getName(){
         return"personal loan”;
@@ -113,33 +77,35 @@ class CheapPersonalLoan extends PersonalLoan{
 
 final类不能被继承，final类中的方法默认也会是final类型的，java中的String类和Integer类都是final类型的。
 
-    class Si{
-        //一般情况下final修饰的变量一定要被初始化。
-        //只有下面这种情况例外，要求该变量必须在构造方法中被初始化。
-        //并且不能有空参数的构造方法。
-        //这样就可以让每个实例都有一个不同的变量，并且这个变量在每个实例中只会被初始化一次
-        //于是这个变量在单个实例里就是常量了。
-        final int s ;
-        Si(int s) {
-            this.s = s;
-        }
+```java
+class Si{
+    //一般情况下final修饰的变量一定要被初始化。
+    //只有下面这种情况例外，要求该变量必须在构造方法中被初始化。
+    //并且不能有空参数的构造方法。
+    //这样就可以让每个实例都有一个不同的变量，并且这个变量在每个实例中只会被初始化一次
+    //于是这个变量在单个实例里就是常量了。
+    final int s ;
+    Si(int s) {
+        this.s = s;
     }
-    class Bi {
-        final int a = 1;
-        final void go() {
-            //final修饰方法无法被继承
-        }
+}
+class Bi {
+    final int a = 1;
+    final void go() {
+        //final修饰方法无法被继承
     }
-    class Ci extends Bi {
-        final int a = 1;
-    //        void go() {
-    //            //final修饰方法无法被继承
-    //        }
-    }
-    final char[]a = {'a'};
-    final int[]b = {1};
-
+}
+class Ci extends Bi {
+    final int a = 1;
+//        void go() {
+//            //final修饰方法无法被继承
+//        }
+}
+final char[]a = {'a'};
+final int[]b = {1};
 ```
+
+```java
 final class PersonalLoan{}
 
 class CheapPersonalLoan extends PersonalLoan {  //编译错误，无法被继承 
@@ -147,25 +113,27 @@ class CheapPersonalLoan extends PersonalLoan {  //编译错误，无法被继承
 
 ```
 
-    @Test
-    public void final修饰类() {
-        //引用没有被final修饰，所以是可变的。
-        //final只修饰了Fi类型，即Fi实例化的对象在堆中内存地址是不可变的。
-        //虽然内存地址不可变，但是可以对内部的数据做改变。
-        Fi f = new Fi();
-        f.a = 1;
-        System.out.println(f);
-        f.a = 2;
-        System.out.println(f);
-        //改变实例中的值并不改变内存地址。
-    
-        Fi ff = f;
-        //让引用指向新的Fi对象，原来的f对象由新的引用ff持有。
-        //引用的指向改变也不会改变原来对象的地址
-        f = new Fi();
-        System.out.println(f);
-        System.out.println(ff);
-    }
+```java
+@Test
+public void final修饰类() {
+    //引用没有被final修饰，所以是可变的。
+    //final只修饰了Fi类型，即Fi实例化的对象在堆中内存地址是不可变的。
+    //虽然内存地址不可变，但是可以对内部的数据做改变。
+    Fi f = new Fi();
+    f.a = 1;
+    System.out.println(f);
+    f.a = 2;
+    System.out.println(f);
+    //改变实例中的值并不改变内存地址。
+
+    Fi ff = f;
+    //让引用指向新的Fi对象，原来的f对象由新的引用ff持有。
+    //引用的指向改变也不会改变原来对象的地址
+    f = new Fi();
+    System.out.println(f);
+    System.out.println(ff);
+}
+```
 
 ### final关键字的知识点
 
@@ -184,7 +152,6 @@ final方法的好处:
 2.  final变量在多线程中并发安全，无需额外的同步开销
 3.  final方法是静态编译的，提高了调用速度
 4.  **final类创建的对象是只可读的，在多线程可以安全共享**
-5.  
 ## final关键字的最佳实践
 
 ### final的用法 
@@ -195,21 +162,26 @@ final方法的好处:
 
 ### 关于空白final 
 final修饰的变量有三种：静态变量、实例变量和局部变量，分别表示三种类型的常量。  
-　另外，final变量定义的时候，可以先声明，而不给初值，这中变量也称为final空白，无论什么情况，编译器都确保空白final在使用之前必须被初始化。
-　
+
+另外，final变量定义的时候，可以先声明，而不给初值，这中变量也称为**final空白**，无论什么情况，编译器都确保空白final在使用之前必须被初始化。
+
 但是，final空白在final关键字final的使用上提供了更大的灵活性，为此，一个类中的final数据成员就可以实现依对象而有所不同，却有保持其恒定不变的特征。 
 
-    public class FinalTest { 
-    final int p; 
-    final int q=3; 
+```java
+public class FinalTest { 
+	final int p; 
+	final int q=3; 
+	
     FinalTest(){ 
-    p=1; 
-    } 
+		p=1; 
+	} 
+	
     FinalTest(int i){ 
-    p=i;//可以赋值，相当于直接定义p 
-    q=i;//不能为一个final变量赋值 
-    } 
-    } 
+		p=i;//可以赋值，相当于直接定义p 
+		q=i;//不能为一个final变量赋值 
+	} 
+} 
+```
 
 ### final内存分配 
 刚提到了内嵌机制，现在详细展开。 
@@ -217,19 +189,31 @@ final修饰的变量有三种：静态变量、实例变量和局部变量，分
 
 final修饰的函数会被编译器优化，优化的结果是减少了函数调用的次数。如何实现的，举个例子给你看：
 
-    public class Test{ 
-    final void func(){System.out.println("g");}; 
+```java
+public class Test{ 
+	final void func(){
+        System.out.println("g");
+    } 
+	public void main(String[] args){ 
+	for(int j=0;j<1000;j++)   
+	func(); 
+	}
+} 
+
+//经过编译器优化之后，这个类变成了相当于这样写： 
+public class Test{ 
+	final void func(){
+        System.out.println("g");
+    }
+	
     public void main(String[] args){ 
-    for(int j=0;j<1000;j++)   
-    func(); 
-    }} 
-    经过编译器优化之后，这个类变成了相当于这样写： 
-    public class Test{ 
-    final void func(){System.out.println("g");}; 
-    public void main(String[] args){ 
-    for(int j=0;j<1000;j++)  
-    {System.out.println("g");} 
-    }} 
+		for(int j=0;j<1000;j++)  
+		{
+            System.out.println("g");
+        } 
+	}
+} 
+```
 
 看出来区别了吧？编译器直接将func的函数体内嵌到了调用函数的地方，这样的结果是节省了1000次函数调用，当然编译器处理成字节码，只是我们可以想象成这样，看个明白。 
 
@@ -244,44 +228,42 @@ final修饰的函数会被编译器优化，优化的结果是减少了函数调
 见下面的测试代码，我会执行五次：
 
 
-    public class Test   
-    {   
-        public static void getJava()   
-        {   
-            String str1 = "Java ";   
-            String str2 = "final ";   
-            for (int i = 0; i < 10000; i++)   
-            {   
-                str1 += str2;   
-            }   
+```java
+public class Test   {   
+    
+    public static void getJava(){   
+        String str1 = "Java ";   
+        String str2 = "final ";   
+        for (int i = 0; i < 10000; i++){   
+            str1 += str2;   
         }   
-        public static final void getJava_Final()   
-        {   
-            String str1 = "Java ";   
-            String str2 = "final ";   
-            for (int i = 0; i < 10000; i++)   
-            {   
-                str1 += str2;   
-            }   
+    }   
+    
+    public static final void getJava_Final(){   
+        String str1 = "Java ";   
+        String str2 = "final ";   
+        for (int i = 0; i < 10000; i++){   
+            str1 += str2;   
         }   
-        public static void main(String[] args)   
-        {   
-            long start = System.currentTimeMillis();   
-            getJava();   
-            System.out.println("调用不带final修饰的方法执行时间为:" + (System.currentTimeMillis() - start) + "毫秒时间");   
-            start = System.currentTimeMillis();   
-            String str1 = "Java ";   
-            String str2 = "final ";   
-            for (int i = 0; i < 10000; i++)   
-            {   
-                str1 += str2;   
-            }   
-            System.out.println("正常的执行时间为:" + (System.currentTimeMillis() - start) + "毫秒时间");   
-            start = System.currentTimeMillis();   
-            getJava_Final();   
-            System.out.println("调用final修饰的方法执行时间为:" + (System.currentTimeMillis() - start) + "毫秒时间");   
+    }   
+    
+    public static void main(String[] args){   
+        long start = System.currentTimeMillis();   
+        getJava();   
+        System.out.println("调用不带final修饰的方法执行时间为:" + (System.currentTimeMillis() - start) + "毫秒时间");   
+        start = System.currentTimeMillis();   
+        String str1 = "Java ";   
+        String str2 = "final ";   
+        for (int i = 0; i < 10000; i++){   
+            str1 += str2;   
         }   
-    }  
+        System.out.println("正常的执行时间为:" + (System.currentTimeMillis() - start) + "毫秒时间");   
+        start = System.currentTimeMillis();   
+        getJava_Final();   
+        System.out.println("调用final修饰的方法执行时间为:" + (System.currentTimeMillis() - start) + "毫秒时间");   
+    }   
+}  
+```
 
 
     结果为： 
@@ -315,20 +297,19 @@ final修饰的函数会被编译器优化，优化的结果是减少了函数调
 见代码：
 
 
-    public class Final   
-    {   
-        public static void main(String[] args)   
-        {   
-            Color.color[3] = "white";   
-            for (String color : Color.color)   
-                System.out.print(color+" ");   
-        }   
+```java
+public class Final{   
+    public static void main(String[] args){   
+        Color.color[3] = "white";   
+        for (String color : Color.color)   
+            System.out.print(color+" ");   
     }   
-      
-    class Color   
-    {   
-        public static final String[] color = { "red", "blue", "yellow", "black" };   
-    }  
+}   
+  
+class Color{   
+    public static final String[] color = { "red", "blue", "yellow", "black" };   
+}  
+```
 
 
     执行结果： 
@@ -336,7 +317,6 @@ final修饰的函数会被编译器优化，优化的结果是减少了函数调
     看！，黑色变成了白色。 
 
 
-​    
 ​    在使用findbugs插件时，就会提示public static String[] color = { "red", "blue", "yellow", "black" };这行代码不安全，但加上final修饰，这行代码仍然是不安全的，因为final没有做到保证变量的值不会被修改！
 ​    
 ​    原因是：final关键字只能保证变量本身不能被赋与新值，而不能保证变量的内部结构不被修改。例如在main方法有如下代码Color.color = new String[]{""};就会报错了。
@@ -347,43 +327,38 @@ final修饰的函数会被编译器优化，优化的结果是减少了函数调
 
 解决这个问题见代码：
 
-    import java.util.AbstractList;   
-    import java.util.List;   
-    
-    public class Final   
-    {   
-        public static void main(String[] args)   
-        {   
-            for (String color : Color.color)   
-                System.out.print(color + " ");   
-            Color.color.set(3, "white");   
-        }   
+```java
+import java.util.AbstractList;   
+import java.util.List;   
+
+public class Final{   
+    public static void main(String[] args){   
+        for (String color : Color.color)   
+            System.out.print(color + " ");   
+        Color.color.set(3, "white");   
     }   
-      
-    class Color   
-    {   
-        private static String[] _color = { "red", "blue", "yellow", "black" };   
-        public static List<String> color = new AbstractList<String>()   
-        {   
-            @Override  
-            public String get(int index)   
-            {   
-                return _color[index];   
-            }   
-            @Override  
-            public String set(int index, String value)   
-            {   
-                throw new RuntimeException("为了代码安全,不能修改数组");   
-            }   
-            @Override  
-            public int size()   
-            {   
-                return _color.length;   
-            }   
-        };  
+}   
+  
+class Color{   
+    private static String[] _color = { "red", "blue", "yellow", "black" };   
+    public static List<String> color = new AbstractList<String>(){   
+        @Override  
+        public String get(int index){   
+            return _color[index];   
+        }   
+        @Override  
+        public String set(int index, String value){   
+            throw new RuntimeException("为了代码安全,不能修改数组");   
+        }   
+        @Override  
+        public int size(){   
+            return _color.length;   
+        }   
+    } 
+}
+```
 
 
-    }
 
 这样就OK了，既保证了代码安全，又能让数组中的元素被访问了。
 
@@ -398,37 +373,35 @@ final修饰的函数会被编译器优化，优化的结果是减少了函数调
 
 代码示例
 
-    规则1代码
-    
-    public class FinalMethodTest
-    {
-    	public final void test(){}
-    }
-    class Sub extends FinalMethodTest
-    {
-    	// 下面方法定义将出现编译错误，不能重写final方法
-    	public void test(){}
-    }
-    
-    规则2代码
-    
-    public class Finaloverload {
-    	//final 修饰的方法只是不能重写，完全可以重载
-    	public final void test(){}
-    	public final void test(String arg){}
-    }
-    
-    规则3代码
-    
-    public class PrivateFinalMethodTest
-    {
-    	private final void test(){}
-    }
-    class Sub extends PrivateFinalMethodTest
-    {
-    	// 下面方法定义将不会出现问题
-    	public void test(){}
-    }
+```java
+//规则1代码
+
+public class FinalMethodTest{
+	public final void test(){}
+}
+class Sub extends FinalMethodTest{
+	// 下面方法定义将出现编译错误，不能重写final方法
+	public void test(){}
+}
+
+//规则2代码
+
+public class Finaloverload {
+	//final 修饰的方法只是不能重写，完全可以重载
+	public final void test(){}
+	public final void test(String arg){}
+}
+
+//规则3代码
+
+public class PrivateFinalMethodTest{
+	private final void test(){}
+}
+class Sub extends PrivateFinalMethodTest{
+	// 下面方法定义将不会出现问题
+	public void test(){}
+}
+```
 
 
 ## final 和 jvm的关系
@@ -440,28 +413,29 @@ final修饰的函数会被编译器优化，优化的结果是减少了函数调
 
 下面，我们通过一些示例性的代码来分别说明这两个规则：
 
-<pre>public class FinalExample {
+
+```java
+public class FinalExample {
     int i;                            // 普通变量 
     final int j;                      //final 变量 
     static FinalExample obj;
-
+    
     public void FinalExample () {     // 构造函数 
         i = 1;                        // 写普通域 
         j = 2;                        // 写 final 域 
     }
-    
+
     public static void writer () {    // 写线程 A 执行 
         obj = new FinalExample ();
     }
-    
+
     public static void reader () {       // 读线程 B 执行 
         FinalExample object = obj;       // 读对象引用 
         int a = object.i;                // 读普通域 
         int b = object.j;                // 读 final 域 
     }
 }
-</pre>
-
+```
 这里假设一个线程 A 执行 writer () 方法，随后另一个线程 B 执行 reader () 方法。下面我们通过这两个线程的交互来说明这两个规则。
 
 ### 写 final 域的重排序规则
@@ -512,30 +486,37 @@ reader() 方法包含三个操作：
 
 请看下列示例代码：
 
-<pre>public class FinalReferenceExample {
-final int[] intArray;                     //final 是引用类型 
-static FinalReferenceExample obj;
+```java
+public class FinalReferenceExample {
+	final int[] intArray;                     //final 是引用类型 
+	static FinalReferenceExample obj;
+   
+    public FinalReferenceExample () {        // 构造函数 
+        intArray = new int[1];              //1
+        intArray[0] = 1;                   //2
+    }
 
-public FinalReferenceExample () {        // 构造函数 
-    intArray = new int[1];              //1
-    intArray[0] = 1;                   //2
-}
+    public static void writerOne () {          // 写线程 A 执行 
+        obj = new FinalReferenceExample ();  //3
+    }
 
-public static void writerOne () {          // 写线程 A 执行 
-    obj = new FinalReferenceExample ();  //3
-}
+    public static void writerTwo () {          // 写线程 B 执行 
+        obj.intArray[0] = 2;                 //4
+    }
 
-public static void writerTwo () {          // 写线程 B 执行 
-    obj.intArray[0] = 2;                 //4
-}
-
-public static void reader () {              // 读线程 C 执行 
-    if (obj != null) {                    //5
-        int temp1 = obj.intArray[0];       //6
+    public static void reader () {              // 读线程 C 执行 
+        if (obj != null) {                    //5
+            int temp1 = obj.intArray[0];       //6
+        }
     }
 }
-}
-</pre>
+
+
+
+
+```
+
+
 
 这里 final 域为一个引用类型，它引用一个 int 型的数组对象。对于引用类型，写 final 域的重排序规则对编译器和处理器增加了如下约束：
 
@@ -560,21 +541,3 @@ https://www.cnblogs.com/xiaoxi/p/6392154.html
 https://www.iteye.com/blog/cakin24-2334965
 https://blog.csdn.net/chengqiuming/article/details/70139503
 https://blog.csdn.net/hupuxiang/article/details/7362267
-
-## 微信公众号
-
-### Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的公众号【Java技术江湖】一位阿里 Java 工程师的技术小站，作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-**Java工程师必备学习资源:** 一些Java工程师常用学习资源，关注公众号后，后台回复关键字 **“Java”** 即可免费无套路获取。
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
-
-### 个人公众号：黄小斜
-
-作者是 985 硕士，蚂蚁金服 JAVA 工程师，专注于 JAVA 后端技术栈：SpringBoot、MySQL、分布式、中间件、微服务，同时也懂点投资理财，偶尔讲点算法和计算机理论基础，坚持学习和写作，相信终身学习的力量！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取。	
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
