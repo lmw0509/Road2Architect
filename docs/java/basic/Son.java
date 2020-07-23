@@ -1,8 +1,93 @@
-final int[]value={1,2,3} ；
-        int[]another={4,5,6};
-        value=another;    //编译器报错，final不可变 value用final修饰，编译器不允许我把value指向堆区另一个地址。
-        但如果我直接对数组元素动手，分分钟搞定。
+//Class类中封装了类型的各种信息。在jvm中就是通过Class类的实例来获取每个Java类的所有信息的。
+public class Class {
+    Class aClass = null;
 
-final int[]value={1,2,3};
-        value[2]=100;  //这时候数组里已经是{1,2,100}   所以String是不可变，关键是因为SUN公司的工程师。
-        在后面所有String的方法里很小心的没有去动Array里的元素，没有暴露内部成员字段。private final char value[]这一句里，private的私有访问权限的作用都比final大。而且设计师还很小心地把整个String设成final禁止继承，避免被其他人继承后破坏。所以String是不可变的关键都在底层的实现，而不是一个final。考验的是工程师构造数据类型，封装数据的功力。
+    private EnclosingMethodInfo getEnclosingMethodInfo() {
+        Object[] enclosingInfo = getEnclosingMethod0();
+        if (enclosingInfo == null)
+            return null;
+        else {
+            return new EnclosingMethodInfo(enclosingInfo);
+        }
+    }
+
+    /**提供原子类操作
+     * Atomic operations support.
+     */
+    private static class Atomic {
+        // initialize Unsafe machinery here, since we need to call Class.class instance method
+        // and have to avoid calling it in the static initializer of the Class class...
+        private static final Unsafe unsafe = Unsafe.getUnsafe();
+        // offset of Class.reflectionData instance field
+        private static final long reflectionDataOffset;
+        // offset of Class.annotationType instance field
+        private static final long annotationTypeOffset;
+        // offset of Class.annotationData instance field
+        private static final long annotationDataOffset;
+
+        static {
+            Field[] fields = Class.class.getDeclaredFields0(false); // bypass caches
+            reflectionDataOffset = objectFieldOffset(fields, "reflectionData");
+            annotationTypeOffset = objectFieldOffset(fields, "annotationType");
+            annotationDataOffset = objectFieldOffset(fields, "annotationData");
+        }
+
+    //提供反射信息
+    // reflection data that might get invalidated when JVM TI RedefineClasses() is called
+    private static class ReflectionData<T> {
+        volatile Field[] declaredFields;
+        volatile Field[] publicFields;
+        volatile Method[] declaredMethods;
+        volatile Method[] publicMethods;
+        volatile Constructor<T>[] declaredConstructors;
+        volatile Constructor<T>[] publicConstructors;
+        // Intermediate results for getFields and getMethods
+        volatile Field[] declaredPublicFields;
+        volatile Method[] declaredPublicMethods;
+        volatile Class<?>[] interfaces;
+
+        // Value of classRedefinedCount when we created this ReflectionData instance
+        final int redefinedCount;
+
+        ReflectionData(int redefinedCount) {
+            this.redefinedCount = redefinedCount;
+        }
+    }
+    //方法数组
+    static class MethodArray {
+        // Don't add or remove methods except by add() or remove() calls.
+        private Method[] methods;
+        private int length;
+        private int defaults;
+
+        MethodArray() {
+            this(20);
+        }
+
+        MethodArray(int initialSize) {
+            if (initialSize < 2)
+                throw new IllegalArgumentException("Size should be 2 or more");
+
+            methods = new Method[initialSize];
+            length = 0;
+            defaults = 0;
+        }
+
+    //注解信息
+    // annotation data that might get invalidated when JVM TI RedefineClasses() is called
+    private static class AnnotationData {
+        final Map<Class<? extends Annotation>, Annotation> annotations;
+        final Map<Class<? extends Annotation>, Annotation> declaredAnnotations;
+
+        // Value of classRedefinedCount when we created this AnnotationData instance
+        final int redefinedCount;
+
+        AnnotationData(Map<Class<? extends Annotation>, Annotation> annotations,
+                       Map<Class<? extends Annotation>, Annotation> declaredAnnotations,
+                       int redefinedCount) {
+            this.annotations = annotations;
+            this.declaredAnnotations = declaredAnnotations;
+            this.redefinedCount = redefinedCount;
+        }
+    }
+}

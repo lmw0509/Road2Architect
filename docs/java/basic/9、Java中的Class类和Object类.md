@@ -1,205 +1,171 @@
-# Table of Contents
-
-  * [Java中Class类及用法](#java中class类及用法)
-    * [Class类原理](#class类原理)
-    * [如何获得一个Class类对象](#如何获得一个class类对象)
-    * [使用Class类的对象来生成目标类的实例](#使用class类的对象来生成目标类的实例)
-  * [Object类](#object类)
-    * [类构造器public Object();](#类构造器public-object)
-    * [registerNatives()方法;](#registernatives方法)
-    * [Clone()方法实现浅拷贝](#clone方法实现浅拷贝)
-    * [getClass()方法](#getclass方法)
-    * [equals()方法](#equals方法)
-    * [hashCode()方法;](#hashcode方法)
-    * [toString()方法](#tostring方法)
-    * [wait() notify() notifAll()](#wait-notify-notifall)
-    * [finalize()方法](#finalize方法)
-  * [CLass类和Object类的关系](#class类和object类的关系)
-  * [参考文章](#参考文章)
-  * [微信公众号](#微信公众号)
-    * [Java技术江湖](#java技术江湖)
-    * [个人公众号：黄小斜](#个人公众号：黄小斜)
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章首发于我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《夯实Java基础系列博文》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-该系列博文会告诉你如何从入门到进阶，一步步地学习Java基础知识，并上手进行实战，接着了解每个Java知识点背后的实现原理，更完整地了解整个Java技术体系，形成自己的知识框架。为了更好地总结和检验你的学习成果，本系列文章也会提供每个知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-
-<!-- more -->
-
 ## Java中Class类及用法
 Java程序在运行时，Java运行时系统一直对所有的对象进行所谓的运行时类型标识，即所谓的RTTI。
 
-> 这项信息纪录了每个对象所属的类。虚拟机通常使用运行时类型信息选准正确方法去执行，用来保存这些类型信息的类是Class类。Class类封装一个对象和接口运行时的状态，当装载类时，Class类型的对象自动创建。
+> 这项信息纪录了每个对象所属的类。虚拟机通常使用运行时类型信息选择正确方法去执行，用来保存这些类型信息的类是Class类。Class类封装一个对象和接口运行时的状态，当装载类时，Class类型的对象自动创建。
 
 说白了就是：
 
 > Class类也是类的一种，只是名字和class关键字高度相似。Java是大小写敏感的语言。
-
+>
 > Class类的对象内容是你创建的类的类型信息，比如你创建一个shapes类，那么，Java会生成一个内容是shapes的Class类的对象
-
+>
 > Class类的对象不能像普通类一样，以 new shapes() 的方式创建，它的对象只能由JVM创建，因为这个类没有public构造函数
 
-        /*
-         * Private constructor. Only the Java Virtual Machine creates Class objects.
-         * This constructor is not used and prevents the default constructor being
-         * generated.
-         */
-         //私有构造方法，只能由jvm进行实例化
-        private Class(ClassLoader loader) {
-            // Initialize final field for classLoader.  The initialization value of non-null
-            // prevents future JIT optimizations from assuming this final field is null.
-            classLoader = loader;
-        }
+```java
+/**
+ * Private constructor. Only the Java Virtual Machine creates Class objects.
+ * This constructor is not used and prevents the default constructor being
+ * generated.
+ */
+//私有构造方法，只能由jvm进行实例化
+private Class(ClassLoader loader) {
+    // Initialize final field for classLoader.  The initialization value of non-null
+    // prevents future JIT optimizations from assuming this final field is null.
+    classLoader = loader;
+}
+```
 
-> Class类的作用是运行时提供或获得某个对象的类型信息，和C++中的typeid()函数类似。这些信息也可用于反射。
+**Class类的作用是运行时提供或获得某个对象的类型信息，和C++中的typeid()函数类似。这些信息也可用于反射。**
 
 ### Class类原理
 
 看一下Class类的部分源码
 
-    //Class类中封装了类型的各种信息。在jvm中就是通过Class类的实例来获取每个Java类的所有信息的。
-    
-    public class Class类 {
-        Class aClass = null;
-    
-    //    private EnclosingMethodInfo getEnclosingMethodInfo() {
-    //        Object[] enclosingInfo = getEnclosingMethod0();
-    //        if (enclosingInfo == null)
-    //            return null;
-    //        else {
-    //            return new EnclosingMethodInfo(enclosingInfo);
-    //        }
-    //    }
-    
-        /**提供原子类操作
-         * Atomic operations support.
-         */
-    //    private static class Atomic {
-    //        // initialize Unsafe machinery here, since we need to call Class.class instance method
-    //        // and have to avoid calling it in the static initializer of the Class class...
-    //        private static final Unsafe unsafe = Unsafe.getUnsafe();
-    //        // offset of Class.reflectionData instance field
-    //        private static final long reflectionDataOffset;
-    //        // offset of Class.annotationType instance field
-    //        private static final long annotationTypeOffset;
-    //        // offset of Class.annotationData instance field
-    //        private static final long annotationDataOffset;
-    //
-    //        static {
-    //            Field[] fields = Class.class.getDeclaredFields0(false); // bypass caches
-    //            reflectionDataOffset = objectFieldOffset(fields, "reflectionData");
-    //            annotationTypeOffset = objectFieldOffset(fields, "annotationType");
-    //            annotationDataOffset = objectFieldOffset(fields, "annotationData");
-    //        }
-    
-            //提供反射信息
-        // reflection data that might get invalidated when JVM TI RedefineClasses() is called
-    //    private static class ReflectionData<T> {
-    //        volatile Field[] declaredFields;
-    //        volatile Field[] publicFields;
-    //        volatile Method[] declaredMethods;
-    //        volatile Method[] publicMethods;
-    //        volatile Constructor<T>[] declaredConstructors;
-    //        volatile Constructor<T>[] publicConstructors;
-    //        // Intermediate results for getFields and getMethods
-    //        volatile Field[] declaredPublicFields;
-    //        volatile Method[] declaredPublicMethods;
-    //        volatile Class<?>[] interfaces;
-    //
-    //        // Value of classRedefinedCount when we created this ReflectionData instance
-    //        final int redefinedCount;
-    //
-    //        ReflectionData(int redefinedCount) {
-    //            this.redefinedCount = redefinedCount;
-    //        }
-    //    }
-            //方法数组
-    //    static class MethodArray {
-    //        // Don't add or remove methods except by add() or remove() calls.
-    //        private Method[] methods;
-    //        private int length;
-    //        private int defaults;
-    //
-    //        MethodArray() {
-    //            this(20);
-    //        }
-    //
-    //        MethodArray(int initialSize) {
-    //            if (initialSize < 2)
-    //                throw new IllegalArgumentException("Size should be 2 or more");
-    //
-    //            methods = new Method[initialSize];
-    //            length = 0;
-    //            defaults = 0;
-    //        }
-    
-        //注解信息
-        // annotation data that might get invalidated when JVM TI RedefineClasses() is called
-    //    private static class AnnotationData {
-    //        final Map<Class<? extends Annotation>, Annotation> annotations;
-    //        final Map<Class<? extends Annotation>, Annotation> declaredAnnotations;
-    //
-    //        // Value of classRedefinedCount when we created this AnnotationData instance
-    //        final int redefinedCount;
-    //
-    //        AnnotationData(Map<Class<? extends Annotation>, Annotation> annotations,
-    //                       Map<Class<? extends Annotation>, Annotation> declaredAnnotations,
-    //                       int redefinedCount) {
-    //            this.annotations = annotations;
-    //            this.declaredAnnotations = declaredAnnotations;
-    //            this.redefinedCount = redefinedCount;
-    //        }
-    //    }
+```java
+//Class类中封装了类型的各种信息。在jvm中就是通过Class类的实例来获取每个Java类的所有信息的。
+public class Class {
+    Class aClass = null;
+
+    private EnclosingMethodInfo getEnclosingMethodInfo() {
+        Object[] enclosingInfo = getEnclosingMethod0();
+        if (enclosingInfo == null)
+            return null;
+        else {
+            return new EnclosingMethodInfo(enclosingInfo);
+        }
     }
 
-> 我们都知道所有的java类都是继承了object这个类，在object这个类中有一个方法：getclass().这个方法是用来取得该类已经被实例化了的对象的该类的引用，这个引用指向的是Class类的对象。
-> 
-> 我们自己无法生成一个Class对象（构造函数为private)，而 这个Class类的对象是在当各类被调入时，由 Java 虚拟机自动创建 Class 对象，或通过类装载器中的 defineClass 方法生成。
+    /**提供原子类操作
+     * Atomic operations support.
+     */
+    private static class Atomic {
+        // initialize Unsafe machinery here, since we need to call Class.class instance method
+        // and have to avoid calling it in the static initializer of the Class class...
+        private static final Unsafe unsafe = Unsafe.getUnsafe();
+        // offset of Class.reflectionData instance field
+        private static final long reflectionDataOffset;
+        // offset of Class.annotationType instance field
+        private static final long annotationTypeOffset;
+        // offset of Class.annotationData instance field
+        private static final long annotationDataOffset;
 
-    //通过该方法可以动态地将字节码转为一个Class类对象
-    protected final Class<?> defineClass(String name, byte[] b, int off, int len)
-        throws ClassFormatError
-    {
-        return defineClass(name, b, off, len, null);
+        static {
+            Field[] fields = Class.class.getDeclaredFields0(false); // bypass caches
+            reflectionDataOffset = objectFieldOffset(fields, "reflectionData");
+            annotationTypeOffset = objectFieldOffset(fields, "annotationType");
+            annotationDataOffset = objectFieldOffset(fields, "annotationData");
+        }
+
+    //提供反射信息
+    // reflection data that might get invalidated when JVM TI RedefineClasses() is called
+    private static class ReflectionData<T> {
+        volatile Field[] declaredFields;
+        volatile Field[] publicFields;
+        volatile Method[] declaredMethods;
+        volatile Method[] publicMethods;
+        volatile Constructor<T>[] declaredConstructors;
+        volatile Constructor<T>[] publicConstructors;
+        // Intermediate results for getFields and getMethods
+        volatile Field[] declaredPublicFields;
+        volatile Method[] declaredPublicMethods;
+        volatile Class<?>[] interfaces;
+
+        // Value of classRedefinedCount when we created this ReflectionData instance
+        final int redefinedCount;
+
+        ReflectionData(int redefinedCount) {
+            this.redefinedCount = redefinedCount;
+        }
     }
-> 
-> 我们生成的对象都会有个字段记录该对象所属类在CLass类的对象的所在位置。如下图所示：
+    //方法数组
+    static class MethodArray {
+        // Don't add or remove methods except by add() or remove() calls.
+        private Method[] methods;
+        private int length;
+        private int defaults;
 
-[外链图片转存失败(img-ZfMJTzO4-1569074134147)(http://dl.iteye.com/upload/picture/pic/101542/0047a6e9-6608-3c3c-a67c-d8ee95e7fcb8.jpg)]
+        MethodArray() {
+            this(20);
+        }
+
+        MethodArray(int initialSize) {
+            if (initialSize < 2)
+                throw new IllegalArgumentException("Size should be 2 or more");
+
+            methods = new Method[initialSize];
+            length = 0;
+            defaults = 0;
+        }
+
+    //注解信息
+    // annotation data that might get invalidated when JVM TI RedefineClasses() is called
+    private static class AnnotationData {
+        final Map<Class<? extends Annotation>, Annotation> annotations;
+        final Map<Class<? extends Annotation>, Annotation> declaredAnnotations;
+
+        // Value of classRedefinedCount when we created this AnnotationData instance
+        final int redefinedCount;
+
+        AnnotationData(Map<Class<? extends Annotation>, Annotation> annotations,
+                       Map<Class<? extends Annotation>, Annotation> declaredAnnotations,
+                       int redefinedCount) {
+            this.annotations = annotations;
+            this.declaredAnnotations = declaredAnnotations;
+            this.redefinedCount = redefinedCount;
+        }
+    }
+}
+```
+
+我们都知道所有的java类都是继承了object这个类，在object这个类中有一个方法：getclass().这个方法是用来取得该类已经被实例化了的对象的该类的引用，这个引用指向的是Class类的对象。
+
+我们自己无法生成一个Class对象（构造函数为private)，而 这个Class类的对象是在当各类被调入时，由 Java 虚拟机自动创建 Class 对象，或通过类装载器中的 defineClass 方法生成。
+
+```java
+//通过该方法可以动态地将字节码转为一个Class类对象
+protected final Class<?> defineClass(String name, byte[] b, int off, int len)
+    throws ClassFormatError{
+    return defineClass(name, b, off, len, null);
+}
+```
+
+我们生成的对象都会有个字段记录该对象所属类在CLass类的对象的所在位置。如下图所示：
+
+![../../../images/0009.jpg](../../../images/0009.jpg)
 
 
 ### 如何获得一个Class类对象
 
-请注意，以下这些方法都是值、指某个类对应的Class对象已经在堆中生成以后，我们通过不同方式获取对这个Class对象的引用。而上面说的DefineClass才是真正将字节码加载到虚拟机的方法，会在堆中生成新的一个Class对象。
+请注意，以下这些方法都是指某个类对应的Class对象已经在堆中生成以后，我们通过不同方式获取对这个Class对象的引用。而上面说的DefineClass才是真正将字节码加载到虚拟机的方法，会在堆中生成新的一个Class对象。
 
-第一种办法，Class类的forName函数
-> 
-> public class shapes{}  
-> Class obj= Class.forName("shapes");
-> 第二种办法，使用对象的getClass()函数
+```java
+// 第一种办法，Class类的forName函数
+public class shapes{}  
+Class obj= Class.forName("shapes");
+// 第二种办法，使用对象的getClass()函数
+public class shapes{}
+shapes s1=new shapes();
+Class obj=s1.getClass();
+Class obj1=s1.getSuperclass();//这个函数作用是获取shapes类的父类的类型
 
-> public class shapes{}
-> shapes s1=new shapes();
-> Class obj=s1.getClass();
-> Class obj1=s1.getSuperclass();//这个函数作用是获取shapes类的父类的类型
-
-第三种办法，使用类字面常量
-
-> Class obj=String.class;
-> Class obj1=int.class;
-> 注意，使用这种办法生成Class类对象时，不会使JVM自动加载该类（如String类）。==而其他办法会使得JVM初始化该类。==
+// 第三种办法，使用类字面常量
+Class obj=String.class;
+Class obj1=int.class;
+//注意，使用这种办法生成Class类对象时，不会使JVM自动加载该类（如String类）。而其他办法会使得JVM初始化该类。
+```
 
 ### 使用Class类的对象来生成目标类的实例
+
 > 
 > 生成不精确的object实例
 > 
@@ -311,6 +277,7 @@ private static native void registerNatives();
  
 
 
+
 > 看，clode()方法又是一个被声明为native的方法，因此，我们知道了clone()方法并不是Java的原生方法，具体的实现是有C/C++完成的。clone英文翻译为"克隆"，其目的是创建并返回此对象的一个副本。
 
 > 形象点理解，这有一辆科鲁兹，你看着不错，想要个一模一样的。你调用此方法即可像变魔术一样变出一辆一模一样的科鲁兹出来。配置一样，长相一样。但从此刻起，原来的那辆科鲁兹如果进行了新的装饰，与你克隆出来的这辆科鲁兹没有任何关系了。
@@ -340,6 +307,7 @@ private static native void registerNatives();
  
 
 
+
 > 例子很简单，在main()方法中，new一个Oject对象后，想直接调用此对象的clone方法克隆一个对象，但是出现错误提示："The method clone() from the type Object is not visible"
 >  
 > why? 根据提示，第一反应是ObjectTest类中定义的Oject对象无法访问其clone()方法。回到Object类中clone()方法的定义，可以看到其被声明为protected，估计问题就在这上面了，protected修饰的属性或方法表示：在同一个包内或者不同包的子类可以访问。
@@ -367,6 +335,7 @@ private static native void registerNatives();
     }
 
  
+
 
 
 是的，因为此时的主调已经是子类的引用了。
@@ -493,6 +462,7 @@ clone方法实现的是浅拷贝，只拷贝当前对象，并且在堆中分配
  
 
 
+
 > 由此可见，Object原生的equals()方法内部调用的正是==，与==具有相同的含义。既然如此，为什么还要定义此equals()方法？
 >  
 > equals()方法的正确理解应该是：判断两个对象是否相等。那么判断对象相等的标尺又是什么？
@@ -558,6 +528,7 @@ hashCode()具有如下约定：
     }  
 
  
+
 
 
 > toString()方法相信大家都经常用到，即使没有显式调用，但当我们使用System.out.println(obj)时，其内部也是通过toString()来实现的。
@@ -669,6 +640,7 @@ hashCode()具有如下约定：
  
 
 
+
 > 且wait(long timeout, int nanos)方法定义内部实质上也是通过调用wait(long timeout)完成。而wait(long timeout)是一个native方法。因此，wait(...)方法本质上都是native方式实现。
 
 notify()/notifyAll()方法也都是native方法。
@@ -684,6 +656,7 @@ finalize方法主要与Java垃圾回收机制有关。首先我们看一下final
     protected void finalize() throws Throwable { }  
 
  
+
 
 
 > 我们发现Object类中finalize方法被定义成一个空方法，为什么要如此定义呢？finalize方法的调用时机是怎么样的呢？
@@ -727,21 +700,5 @@ https://blog.csdn.net/dufufd/article/details/80537638
 https://blog.csdn.net/farsight1/article/details/80664104
 https://blog.csdn.net/xiaomingdetianxia/article/details/77429180
 
-## 微信公众号
 
-### Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的公众号【Java技术江湖】一位阿里 Java 工程师的技术小站，作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-**Java工程师必备学习资源:** 一些Java工程师常用学习资源，关注公众号后，后台回复关键字 **“Java”** 即可免费无套路获取。
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
-
-### 个人公众号：黄小斜
-
-作者是 985 硕士，蚂蚁金服 JAVA 工程师，专注于 JAVA 后端技术栈：SpringBoot、MySQL、分布式、中间件、微服务，同时也懂点投资理财，偶尔讲点算法和计算机理论基础，坚持学习和写作，相信终身学习的力量！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取。 
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
 
