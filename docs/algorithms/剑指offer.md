@@ -1,93 +1,8 @@
-# Table of Contents
-
-* [数论和数字规律](#数论和数字规律)
-  * [从1到n整数中1出现的次数](#从1到n整数中1出现的次数)
-  * [排数组排成最小的数](#排数组排成最小的数)
-  * [丑数](#丑数)
-* [数组和矩阵](#数组和矩阵)
-  * [二维数组的查找](#二维数组的查找)
-  * [顺时针打印矩阵。](#顺时针打印矩阵。)
-  * [调整数组中数字的顺序，使正数在负数的前面](#调整数组中数字的顺序，使正数在负数的前面)
-  * [数组中出现次数超过一半的数字](#数组中出现次数超过一半的数字)
-  * [找出前k小的数](#找出前k小的数)
-  * [连续子数组的最大和](#连续子数组的最大和)
-  * [逆序对](#逆序对)
-  * [数字在排序数组中出现的次数](#数字在排序数组中出现的次数)
-  * [和为s的两个整数，和为s的连续正数序列](#和为s的两个整数，和为s的连续正数序列)
-  * [n个色子的点数](#n个色子的点数)
-  * [扑克牌的顺子](#扑克牌的顺子)
-  * [数组中重复的数字](#数组中重复的数字)
-  * [数组中重复的数字](#数组中重复的数字-1)
-  * [构建乘积数组](#构建乘积数组)
-  * [数据流的中位数](#数据流的中位数)
-  * [滑动窗口中的最大值](#滑动窗口中的最大值)
-* [字符串](#字符串)
-  * [字符串的排列](#字符串的排列)
-  * [替换空格](#替换空格)
-  * [第一次只出现一次的字符](#第一次只出现一次的字符)
-  * [翻转单词顺序和左旋转字符串](#翻转单词顺序和左旋转字符串)
-  * [把字符串转换为整数](#把字符串转换为整数)
-  * [表示数值的字符串](#表示数值的字符串)
-  * [字符流中第一个不重复的字符](#字符流中第一个不重复的字符)
-* [链表](#链表)
-  * [从尾到头打印链表](#从尾到头打印链表)
-  * [链表倒数第k个节点](#链表倒数第k个节点)
-  * [反转链表](#反转链表)
-  * [合并两个排序链表](#合并两个排序链表)
-  * [复杂链表的复制](#复杂链表的复制)
-  * [两个链表的第一个公共节点](#两个链表的第一个公共节点)
-  * [孩子们的游戏(圆圈中最后剩下的数)](#孩子们的游戏圆圈中最后剩下的数)
-  * [链表的环的入口结点](#链表的环的入口结点)
-  * [删除链表中重复的节点](#删除链表中重复的节点)
-      * [](#)
-  * [二叉搜索树转换为双向链表](#二叉搜索树转换为双向链表)
-  * [重建二叉树](#重建二叉树)
-  * [树的子结构](#树的子结构)
-  * [镜像二叉树](#镜像二叉树)
-  * [树的层次遍历](#树的层次遍历)
-  * [二叉树的深度](#二叉树的深度)
-  * [判断是否平衡二叉树](#判断是否平衡二叉树)
-  * [二叉搜索树的后序遍历](#二叉搜索树的后序遍历)
-  * [二叉树中和为某一值的路径](#二叉树中和为某一值的路径)
-  * [二叉树的下一个节点](#二叉树的下一个节点)
-  * [对称的二叉树](#对称的二叉树)
-  * [把二叉树打印成多行](#把二叉树打印成多行)
-  * [按之字形顺序打印二叉树](#按之字形顺序打印二叉树)
-  * [序列化和反序列化二叉树](#序列化和反序列化二叉树)
-  * [二叉搜索树的第k个结点](#二叉搜索树的第k个结点)
-* [栈和队列](#栈和队列)
-  * [用两个队列实现栈，用两个栈实现队列。](#用两个队列实现栈，用两个栈实现队列。)
-  * [包含min函数的栈](#包含min函数的栈)
-  * [栈的压入和弹出序列](#栈的压入和弹出序列)
-* [排序和查找](#排序和查找)
-  * [旋转数组的最小数字](#旋转数组的最小数字)
-* [递归](#递归)
-  * [斐波那契数列](#斐波那契数列)
-  * [青蛙跳台阶](#青蛙跳台阶)
-  * [变态跳台阶](#变态跳台阶)
-  * [矩形覆盖](#矩形覆盖)
-* [位运算](#位运算)
-  * [二进制中1的个数](#二进制中1的个数)
-  * [数组中只出现一次的数字](#数组中只出现一次的数字)
-  * [不用加减乘除做加法](#不用加减乘除做加法)
-* [回溯和DFS](#回溯和dfs)
-  * [矩阵中的路径](#矩阵中的路径)
-  * [机器人的运动范围](#机器人的运动范围)
-  * [微信公众号](#微信公众号)
-    * [Java技术江湖](#java技术江湖)
-    * [个人公众号：黄小斜](#个人公众号：黄小斜)
-
-
-点击关注[公众号](#公众号)及时获取笔主最新更新文章，并可免费领取Java工程师必备学习资源。
-
 [TOC]
 
-节选剑指offer比较经典和巧妙的一些题目，以便复习使用。一部分题目给出了完整代码，一部分题目比较简单直接给出思路。但是不保证我说的思路都是正确的，个人对算法也不是特别在行，只不过这本书的算法多看了几遍多做了几遍多了点心得体会。于是想总结一下。如果有错误也希望能指出，谢谢。
-
-具体代码可以参考我的GitHub仓库：
+具体代码可以参考GitHub仓库：
 
 https://github.com/h2pl/SwordToOffer
-<!-- more -->
 
 
 # 数论和数字规律
@@ -266,6 +181,7 @@ https://github.com/h2pl/SwordToOffer
 
    
 
+
     该算法的时间复杂度是多少呢？考虑最坏情况下，每次 partition 将数组分为长度为 N-1 和 1 的两部分，然后在长的一边继续寻找第 K 大，此时时间复杂度为 O(N^2 )。不过如果在开始之前将数组进行随机打乱，那么可以尽量避免最坏情况的出现。而在最好情况下，每次将数组均分为长度相同的两半，运行时间 T(N) = N + T(N/2)，时间复杂度是 O(N)。
 
 所以也就是说，本题用这个方法解的话，复杂度只需要O（n),因为第一次交换需要N/2,j接下来的交换的次数越来越少，最后加起来就是O（N）了。
@@ -304,11 +220,11 @@ https://github.com/h2pl/SwordToOffer
 
 
 ​    
-            for(int i=0;i<input.length;i++){
-                if(treeSet.size()<k){
-                    treeSet.add(input[i]);
-                }
-    
+​            for(int i=0;i<input.length;i++){
+​                if(treeSet.size()<k){
+​                    treeSet.add(input[i]);
+​                }
+​    
                 else {
     
                     if(input[i]<treeSet.last()){
@@ -565,7 +481,7 @@ LL今天心情特别好,因为他去买了一副扑克牌,发现里面居然有2
 
 
 ​    
-    }
+​    }
 
 ## 滑动窗口中的最大值
 
@@ -667,30 +583,30 @@ LL今天心情特别好,因为他去买了一副扑克牌,发现里面居然有2
 
 
 ​     
-    public class 替换空格 {
-        public static String replaceSpace(StringBuffer str) {
-            int newlen = 0;
-            for(int i = 0; i < str.length(); i++) {
-                if(str.charAt(i) == ' ') {
-                    newlen = newlen + 3;
-                }
-                else {
-                    newlen ++;
-                }
-            }
-            char []newstr = new char[newlen];
-            int j = 0;
-            for(int i = 0 ; i < str.length(); i++) {
-                if (str.charAt(i) == ' ') {
-                    newstr[j++] = '%';
-                    newstr[j++] = '2';
-                    newstr[j++] = '0';
-                }else {
-                    newstr[j++] = str.charAt(i);
-                }
-            }
-            return String.valueOf(newstr);
-        }
+​    public class 替换空格 {
+​        public static String replaceSpace(StringBuffer str) {
+​            int newlen = 0;
+​            for(int i = 0; i < str.length(); i++) {
+​                if(str.charAt(i) == ' ') {
+​                    newlen = newlen + 3;
+​                }
+​                else {
+​                    newlen ++;
+​                }
+​            }
+​            char []newstr = new char[newlen];
+​            int j = 0;
+​            for(int i = 0 ; i < str.length(); i++) {
+​                if (str.charAt(i) == ' ') {
+​                    newstr[j++] = '%';
+​                    newstr[j++] = '2';
+​                    newstr[j++] = '0';
+​                }else {
+​                    newstr[j++] = str.charAt(i);
+​                }
+​            }
+​            return String.valueOf(newstr);
+​        }
 
 
 ## 第一次只出现一次的字符
@@ -1207,30 +1123,30 @@ public static int LastRemaining_Solution(int n, int m) {
 
 
 ​    
-        void Mirror(TreeNode root) {
-            if(root == null)return;
-            Mirror(root.left);
-            Mirror(root.right);
-            if(root.left!=null || root.right!=null)
-            {
-                TreeNode temp=root.left;
-                root.left=root.right;
-                root.right=temp;
-            }
+​        void Mirror(TreeNode root) {
+​            if(root == null)return;
+​            Mirror(root.left);
+​            Mirror(root.right);
+​            if(root.left!=null || root.right!=null)
+​            {
+​                TreeNode temp=root.left;
+​                root.left=root.right;
+​                root.right=temp;
+​            }
 
 
 ​    
-        }
-        boolean isSameTree(TreeNode t1,TreeNode t2){
-            if(t1==null && t2==null)return true;
-            else if(t1!=null && t2!=null && t1.val==t2.val) {
-                boolean left = isSameTree(t1.left, t2.left);
-                boolean right = isSameTree(t1.right, t2.right);
-                return left && right;
-            }
-            else return false;
-        }
-    
+​        }
+​        boolean isSameTree(TreeNode t1,TreeNode t2){
+​            if(t1==null && t2==null)return true;
+​            else if(t1!=null && t2!=null && t1.val==t2.val) {
+​                boolean left = isSameTree(t1.left, t2.left);
+​                boolean right = isSameTree(t1.right, t2.right);
+​                return left && right;
+​            }
+​            else return false;
+​        }
+​    
         TreeNode copyTree (TreeNode root) {
             if (root == null) return null;
             TreeNode t = new TreeNode(root.val);
@@ -1530,6 +1446,7 @@ public static int LastRemaining_Solution(int n, int m) {
 
  
 
+
         注意：但是当arr[left] = arr[right] = arr[min]时。三个数都相等无法确定最小值，此时只能遍历。
 
 # 递归
@@ -1715,20 +1632,4 @@ public static int LastRemaining_Solution(int n, int m) {
             return sum;
         }
     }
-## 微信公众号
 
-### Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的公众号【Java技术江湖】一位阿里 Java 工程师的技术小站，作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-**Java工程师必备学习资源:** 一些Java工程师常用学习资源，关注公众号后，后台回复关键字 **“Java”** 即可免费无套路获取。
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
-
-### 个人公众号：黄小斜
-
-作者是 985 硕士，蚂蚁金服 JAVA 工程师，专注于 JAVA 后端技术栈：SpringBoot、MySQL、分布式、中间件、微服务，同时也懂点投资理财，偶尔讲点算法和计算机理论基础，坚持学习和写作，相信终身学习的力量！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取。	
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
