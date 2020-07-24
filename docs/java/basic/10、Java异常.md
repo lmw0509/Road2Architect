@@ -1,55 +1,14 @@
-# 目录
-
-  * [为什么要使用异常](#为什么要使用异常)
-  * [异常基本定义](#异常基本定义)
-  * [异常体系](#异常体系)
-  * [初识异常](#初识异常)
-  * [异常和错误](#异常和错误)
-  * [异常的处理方式](#异常的处理方式)
-  * ["不负责任"的throws](#不负责任的throws)
-  * [纠结的finally](#纠结的finally)
-  * [throw : JRE也使用的关键字](#throw--jre也使用的关键字)
-  * [异常调用链](#异常调用链)
-  * [自定义异常](#自定义异常)
-  * [异常的注意事项](#异常的注意事项)
-  * [当finally遇上return](#当finally遇上return)
-  * [JAVA异常常见面试题](#java异常常见面试题)
-  * [参考文章](#参考文章)
-  * [微信公众号](#微信公众号)
-    * [Java技术江湖](#java技术江湖)
-    * [个人公众号：黄小斜](#个人公众号：黄小斜)
-
----
-
-    - Java异常
----
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章首发于我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《夯实Java基础系列博文》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-该系列博文会告诉你如何从入门到进阶，一步步地学习Java基础知识，并上手进行实战，接着了解每个Java知识点背后的实现原理，更完整地了解整个Java技术体系，形成自己的知识框架。为了更好地总结和检验你的学习成果，本系列文章也会提供每个知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-<!-- more -->
 ## 为什么要使用异常
 
 >   首先我们可以明确一点就是异常的处理机制可以确保我们程序的健壮性，提高系统可用率。虽然我们不是特别喜欢看到它，但是我们不能不承认它的地位，作用。
 
 在没有异常机制的时候我们是这样处理的：通过函数的返回值来判断是否发生了异常（这个返回值通常是已经约定好了的），调用该函数的程序负责检查并且分析返回值。虽然可以解决异常问题，但是这样做存在几个缺陷：
-> 
->   1、 容易混淆。如果约定返回值为-11111时表示出现异常，那么当程序最后的计算结果真的为-1111呢？
-> 
->   2、 代码可读性差。将异常处理代码和程序代码混淆在一起将会降低代码的可读性。
-> 
->   3、 由调用函数来分析异常，这要求程序员对库函数有很深的了解。
-> 
+> 1、 容易混淆。如果约定返回值为-11111时表示出现异常，那么当程序最后的计算结果真的为-1111呢？
+>   
+> 2、 代码可读性差。将异常处理代码和程序代码混淆在一起将会降低代码的可读性。
+>   
+> 3、 由调用函数来分析异常，这要求程序员对库函数有很深的了解。
+>   
 
  在OO中提供的异常处理机制是提供代码健壮的强有力的方式。使用异常机制它能够降低错误处理代码的复杂度，如果不使用异常，那么就必须检查特定的错误，并在程序中的许多地方去处理它。
 
@@ -71,7 +30,7 @@
 
 ## 异常体系
 
-[外链图片转存失败(img-KNxcBTK0-1569073569353)(https://images0.cnblogs.com/blog/381060/201311/22185952-834d92bc2bfe498f9a33414cc7a2c8a4.png)]
+![../../../images/0010.png](../../../images/0010.png)
 
 从上面这幅图可以看出，Throwable是java语言中所有错误和异常的超类（万物即可抛）。它有两个子类：Error、Exception。
 
@@ -104,47 +63,44 @@ Throwable又派生出Error类和Exception类。
 
 异常最先发生的地方，叫做异常抛出点。
 
-    public class 异常 {
-        public static void main (String [] args )
-        {
-            System . out. println( "----欢迎使用命令行除法计算器----" ) ;
-            CMDCalculate ();
-        }
-        public static void CMDCalculate ()
-        {
-            Scanner scan = new Scanner ( System. in );
-            int num1 = scan .nextInt () ;
-            int num2 = scan .nextInt () ;
-            int result = devide (num1 , num2 ) ;
-            System . out. println( "result:" + result) ;
-            scan .close () ;
-        }
-        public static int devide (int num1, int num2 ){
-            return num1 / num2 ;
-        }
+```java
+public class 异常 {
+    public static void main (String [] args )
+    {
+        System . out. println( "----欢迎使用命令行除法计算器----" ) ;
+        CMDCalculate ();
+    }
+    public static void CMDCalculate ()
+    {
+        Scanner scan = new Scanner ( System. in );
+        int num1 = scan .nextInt () ;
+        int num2 = scan .nextInt () ;
+        int result = devide (num1 , num2 ) ;
+        System . out. println( "result:" + result) ;
+        scan .close () ;
+    }
+    public static int devide (int num1, int num2 ){
+        return num1 / num2 ;
+    }
+
+//    ----欢迎使用命令行除法计算器----
+//            1
+//            0
+//    Exception in thread "main" java.lang.ArithmeticException: / by zero
+//    at com.javase.异常.异常.devide(异常.java:24)
+//    at com.javase.异常.异常.CMDCalculate(异常.java:19)
+//    at com.javase.异常.异常.main(异常.java:12)
     
-    //    ----欢迎使用命令行除法计算器----
-    //            1
-    //            0
-    //    Exception in thread "main" java.lang.ArithmeticException: / by zero
-    //    at com.javase.异常.异常.devide(异常.java:24)
-    //    at com.javase.异常.异常.CMDCalculate(异常.java:19)
-    //    at com.javase.异常.异常.main(异常.java:12)
-
-
-​    
-    //  ----欢迎使用命令行除法计算器----
-    //    r
-    //    Exception in thread "main" java.util.InputMismatchException
-    //    at java.util.Scanner.throwFor(Scanner.java:864)
-    //    at java.util.Scanner.next(Scanner.java:1485)
-    //    at java.util.Scanner.nextInt(Scanner.java:2117)
-    //    at java.util.Scanner.nextInt(Scanner.java:2076)
-    //    at com.javase.异常.异常.CMDCalculate(异常.java:17)
-    //    at com.javase.异常.异常.main(异常.java:12)
-
-
-[外链图片转存失败(img-9rqUQJQj-1569073569354)(http://incdn1.b0.upaiyun.com/2017/09/0b3e4ca2f4cf8d7116c7ad354940601f.png)]
+//  ----欢迎使用命令行除法计算器----
+//    r
+//    Exception in thread "main" java.util.InputMismatchException
+//    at java.util.Scanner.throwFor(Scanner.java:864)
+//    at java.util.Scanner.next(Scanner.java:1485)
+//    at java.util.Scanner.nextInt(Scanner.java:2117)
+//    at java.util.Scanner.nextInt(Scanner.java:2076)
+//    at com.javase.异常.异常.CMDCalculate(异常.java:17)
+//    at com.javase.异常.异常.main(异常.java:12) 
+```
 
 从上面的例子可以看出，当devide函数发生除0异常时，devide函数将抛出ArithmeticException异常，因此调用他的CMDCalculate函数也无法正常完成，因此也发送异常，而CMDCalculate的caller——main 因为CMDCalculate抛出异常，也发生了异常，这样一直向调用栈的栈底回溯。
 
@@ -157,158 +113,164 @@ Throwable又派生出Error类和Exception类。
 ## 异常和错误
 
 下面看一个例子
-    
-    //错误即error一般指jvm无法处理的错误
-    //异常是Java定义的用于简化错误处理流程和定位错误的一种工具。
-    public class 错误和错误 {
-        Error error = new Error();
-    
-        public static void main(String[] args) {
-            throw new Error();
-        }
-    
-        //下面这四个异常或者错误有着不同的处理方法
-        public void error1 (){
-            //编译期要求必须处理，因为这个异常是最顶层异常，包括了检查异常，必须要处理
-            try {
-                throw new Throwable();
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
-            }
-        }
-        //Exception也必须处理。否则报错，因为检查异常都继承自exception，所以默认需要捕捉。
-        public void error2 (){
-            try {
-                throw new Exception();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    
-        //error可以不处理，编译不报错,原因是虚拟机根本无法处理，所以啥都不用做
-        public void error3 (){
-            throw new Error();
-        }
-    
-        //runtimeexception众所周知编译不会报错
-        public void error4 (){
-            throw new RuntimeException();
-        }
-    //    Exception in thread "main" java.lang.Error
-    //    at com.javase.异常.错误.main(错误.java:11)
-    
+```java
+//错误即error一般指jvm无法处理的错误
+//异常是Java定义的用于简化错误处理流程和定位错误的一种工具。
+public class 错误和错误 {
+    Error error = new Error();
+
+    public static void main(String[] args) {
+        throw new Error();
     }
+
+    //下面这四个异常或者错误有着不同的处理方法
+    //编译期要求必须处理，因为这个异常是最顶层异常，包括了检查异常，必须要处理
+    public void error1 (){
+        try {
+            throw new Throwable();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+    }
+    
+    //Exception也必须处理。否则报错，因为检查异常都继承自exception，所以默认需要捕捉。
+    public void error2 (){
+        try {
+            throw new Exception();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //error可以不处理，编译不报错,原因是虚拟机根本无法处理，所以啥都不用做
+    public void error3 (){
+        throw new Error();
+    }
+
+    //runtimeexception众所周知编译不会报错
+    public void error4 (){
+        throw new RuntimeException();
+    }
+   //Exception in thread "main" java.lang.Error
+   //at com.javase.异常.错误.main(错误.java:11)
+
+}
+```
 
 ## 异常的处理方式
 
 在编写代码处理异常时，对于检查异常，有2种不同的处理方式：
 
-> 使用try…catch…finally语句块处理它。
-> 
+- 使用try…catch…finally语句块处理它。
 
-> 或者，在函数签名中使用throws 声明交给函数调用者caller去解决。
-> 
+- 在函数签名中使用throws 声明交给函数调用者caller去解决。
 
 下面看几个具体的例子，包括error，exception和throwable
 
 上面的例子是运行时异常，不需要显示捕获。
 下面这个例子是可检查异常需，要显示捕获或者抛出。
 
-    @Test
-    public void testException() throws IOException
-    {
-        //FileInputStream的构造函数会抛出FileNotFoundException
-        FileInputStream fileIn = new FileInputStream("E:\\a.txt");
-    
-        int word;
-        //read方法会抛出IOException
-        while((word =  fileIn.read())!=-1)
-        {
-            System.out.print((char)word);
-        }
-        //close方法会抛出IOException
-        fileIn.close();
+```java
+@Test
+public void testException() throws IOException{
+    //FileInputStream的构造函数会抛出FileNotFoundException
+    FileInputStream fileIn = new FileInputStream("E:\\a.txt");
+    int word;
+   
+    //read方法会抛出IOException
+    while((word =  fileIn.read())!=-1){
+        System.out.print((char)word);
     }
+   
+    //close方法会抛出IOException
+    fileIn.close();
+}
+```
 
 一般情况下的处理方式 try catch finally
 
-    public class 异常处理方式 {
-    
-    @Test
-    public void main() {
-        try{
-            //try块中放可能发生异常的代码。
-            InputStream inputStream = new FileInputStream("a.txt");
-    
-            //如果执行完try且不发生异常，则接着去执行finally块和finally后面的代码（如果有的话）。
-            int i = 1/0;
-            //如果发生异常，则尝试去匹配catch块。
-            throw new SQLException();
-            //使用1.8jdk同时捕获多个异常，runtimeexception也可以捕获。只是捕获后虚拟机也无法处理，所以不建议捕获。
-        }catch(SQLException | IOException | ArrayIndexOutOfBoundsException exception){
-            System.out.println(exception.getMessage());
-            //每一个catch块用于捕获并处理一个特定的异常，或者这异常类型的子类。Java7中可以将多个异常声明在一个catch中。
-    
-            //catch后面的括号定义了异常类型和异常参数。如果异常与之匹配且是最先匹配到的，则虚拟机将使用这个catch块来处理异常。
-    
-            //在catch块中可以使用这个块的异常参数来获取异常的相关信息。异常参数是这个catch块中的局部变量，其它块不能访问。
-    
-            //如果当前try块中发生的异常在后续的所有catch中都没捕获到，则先去执行finally，然后到这个函数的外部caller中去匹配异常处理器。
-    
-            //如果try中没有发生异常，则所有的catch块将被忽略。
-    
-        }catch(Exception exception){
-            System.out.println(exception.getMessage());
-            //...
-        }finally{
-            //finally块通常是可选的。
-            //无论异常是否发生，异常是否匹配被处理，finally都会执行。
-    
-            //finally主要做一些清理工作，如流的关闭，数据库连接的关闭等。
-        }
+```java
+public class 异常处理方式 {
+
+@Test
+public void main() {
+    try{
+        //try块中放可能发生异常的代码。
+        InputStream inputStream = new FileInputStream("a.txt");
+
+        //如果执行完try且不发生异常，则接着去执行finally块和finally后面的代码（如果有的话）。
+        int i = 1/0;
+        //如果发生异常，则尝试去匹配catch块。
+        throw new SQLException();
+        //使用1.8jdk同时捕获多个异常，runtimeexception也可以捕获。只是捕获后虚拟机也无法处理，所以不建议捕获。
+    }catch(SQLException | IOException | ArrayIndexOutOfBoundsException exception){
+        System.out.println(exception.getMessage());
+        //每一个catch块用于捕获并处理一个特定的异常，或者这异常类型的子类。Java7中可以将多个异常声明在一个catch中。
+
+        //catch后面的括号定义了异常类型和异常参数。如果异常与之匹配且是最先匹配到的，则虚拟机将使用这个catch块来处理异常。
+
+        //在catch块中可以使用这个块的异常参数来获取异常的相关信息。异常参数是这个catch块中的局部变量，其它块不能访问。
+
+        //如果当前try块中发生的异常在后续的所有catch中都没捕获到，则先去执行finally，然后到这个函数的外部caller中去匹配异常处理器。
+
+        //如果try中没有发生异常，则所有的catch块将被忽略。
+
+    }catch(Exception exception){
+        System.out.println(exception.getMessage());
+        //...
+    }finally{
+        //finally块通常是可选的。
+        //无论异常是否发生，异常是否匹配被处理，finally都会执行。
+        //finally主要做一些清理工作，如流的关闭，数据库连接的关闭等。
+    }
+```
 
 一个try至少要跟一个catch或者finally
 
-        try {
-            int i = 1;
-        }finally {
-            //一个try至少要有一个catch块，否则， 至少要有1个finally块。但是finally不是用来处理异常的，finally不会捕获异常。
-        }
+```java
+    try {
+        int i = 1;
+    }finally {
+        //一个try至少要有一个catch块，否则， 至少要有1个finally块。但是finally不是用来处理异常的，finally不会捕获异常。
     }
+}
+```
 
 
 异常出现时该方法后面的代码不会运行，即使异常已经被捕获。这里举出一个奇特的例子，在catch里再次使用try catch finally
 
-    @Test
-    public void test() {
+```java
+@Test
+public void test() {
+    try {
+        throwE();
+        System.out.println("我前面抛出异常了");
+        System.out.println("我不会执行了");
+    } catch (StringIndexOutOfBoundsException e) {
+        System.out.println(e.getCause());
+    }catch (Exception ex) {
+    //在catch块中仍然可以使用try catch finally
         try {
-            throwE();
-            System.out.println("我前面抛出异常了");
-            System.out.println("我不会执行了");
-        } catch (StringIndexOutOfBoundsException e) {
-            System.out.println(e.getCause());
-        }catch (Exception ex) {
-        //在catch块中仍然可以使用try catch finally
-            try {
-                throw new Exception();
-            }catch (Exception ee) {
-                
-            }finally {
-                System.out.println("我所在的catch块没有执行，我也不会执行的");
-            }
+            throw new Exception();
+        }catch (Exception ee) {
+            
+        }finally {
+            System.out.println("我所在的catch块没有执行，我也不会执行的");
         }
     }
-    //在方法声明中抛出的异常必须由调用方法处理或者继续往上抛，
-    // 当抛到jre时由于无法处理终止程序
-    public void throwE (){
-    //        Socket socket = new Socket("127.0.0.1", 80);
-    
-            //手动抛出异常时，不会报错，但是调用该方法的方法需要处理这个异常，否则会出错。
-    //        java.lang.StringIndexOutOfBoundsException
-    //        at com.javase.异常.异常处理方式.throwE(异常处理方式.java:75)
-    //        at com.javase.异常.异常处理方式.test(异常处理方式.java:62)
-            throw new StringIndexOutOfBoundsException();
-        }
+}
+//在方法声明中抛出的异常必须由调用方法处理或者继续往上抛，
+// 当抛到jre时由于无法处理终止程序
+public void throwE (){
+//        Socket socket = new Socket("127.0.0.1", 80);
+
+//		  手动抛出异常时，不会报错，但是调用该方法的方法需要处理这个异常，否则会出错。
+//        java.lang.StringIndexOutOfBoundsException
+//        at com.javase.异常.异常处理方式.throwE(异常处理方式.java:75)
+//        at com.javase.异常.异常处理方式.test(异常处理方式.java:62)
+        throw new StringIndexOutOfBoundsException();
+    }
+```
 
 其实有的语言在遇到异常后仍然可以继续运行
 
@@ -322,10 +284,12 @@ throws是另一种处理异常的方式，它不同于try…catch…finally，th
 
 采取这种异常处理的原因可能是：方法本身不知道如何处理这样的异常，或者说让调用者处理更好，调用者需要为可能发生的异常负责。
 
-    public void foo() throws ExceptionType1 , ExceptionType2 ,ExceptionTypeN
-    { 
-         //foo内部可以抛出 ExceptionType1 , ExceptionType2 ,ExceptionTypeN 类的异常，或者他们的子类的异常对象。
-    }
+```java
+public void foo() throws ExceptionType1 , ExceptionType2 ,ExceptionTypeN{ 
+     //foo内部可以抛出 ExceptionType1 , ExceptionType2 ,ExceptionTypeN 类的异常，
+     //或者他们的子类的异常对象。
+}
+```
 
 ## 纠结的finally
 
@@ -341,22 +305,23 @@ finally块不管异常是否发生，只要对应的try执行了，则它一定�
 
 3、在同一try…catch…finally块中 ，try发生异常，且匹配的catch块中处理异常时也抛出异常，那么后面的finally也会执行：首先执行finally块，然后去外围调用者中寻找合适的catch块。
 
-    public class finally使用 {
-        public static void main(String[] args) {
-            try {
-                throw new IllegalAccessException();
-            }catch (IllegalAccessException e) {
-                // throw new Throwable();
-                //此时如果再抛异常，finally无法执行，只能报错。
-                //finally无论何时都会执行
-                //除非我显示调用。此时finally才不会执行
-                System.exit(0);
-    
-            }finally {
-                System.out.println("算你狠");
-            }
+```java
+public class finally使用 {
+    public static void main(String[] args) {
+        try {
+            throw new IllegalAccessException();
+        }catch (IllegalAccessException e) {
+            // throw new Throwable();
+            //此时如果再抛异常，finally无法执行，只能报错。
+            //finally无论何时都会执行
+            //除非我显示调用。此时finally才不会执行
+            System.exit(0);
+        }finally {
+            System.out.println("算你狠");
         }
     }
+}
+```
 
 ## throw : JRE也使用的关键字
 
@@ -364,15 +329,16 @@ throw exceptionObject
 
 程序员也可以通过throw语句手动显式的抛出一个异常。throw语句的后面必须是一个异常对象。
 
-throw 语句必须写在函数中，执行throw 语句的地方就是一个异常抛出点，==它和由JRE自动形成的异常抛出点没有任何差别。==
+throw 语句必须写在函数中，执行throw 语句的地方就是一个异常抛出点，它和由JRE自动形成的异常抛出点没有任何差别。
 
-    public void save(User user)
-    {
-          if(user  == null) 
-              throw new IllegalArgumentException("User对象为空");
-          //......
-     
-    }
+```java
+public void save(User user){
+      if(user  == null) 
+          throw new IllegalArgumentException("User对象为空");
+      //......
+ 
+}
+```
 
 后面开始的大部分内容都摘自http://www.cnblogs.com/lulipro/p/7504267.html
 
@@ -384,92 +350,96 @@ throw 语句必须写在函数中，执行throw 语句的地方就是一个异�
 
 在一些大型的，模块化的软件开发中，一旦一个地方发生异常，则如骨牌效应一样，将导致一连串的异常。假设B模块完成自己的逻辑需要调用A模块的方法，如果A模块发生异常，则B也将不能完成而发生异常。
 
-==但是B在抛出异常时，会将A的异常信息掩盖掉，这将使得异常的根源信息丢失。异常的链化可以将多个模块的异常串联起来，使得异常信息不会丢失。==
+但是B在抛出异常时，会将A的异常信息掩盖掉，这将使得异常的根源信息丢失。异常的链化可以将多个模块的异常串联起来，使得异常信息不会丢失。
 
 > 异常链化:以一个异常对象为参数构造新的异常对象。新的异对象将包含先前异常的信息。这项技术主要是异常类的一个带Throwable参数的函数来实现的。这个当做参数的异常，我们叫他根源异常（cause）。
 
 查看Throwable类源码，可以发现里面有一个Throwable字段cause，就是它保存了构造时传递的根源异常参数。这种设计和链表的结点类设计如出一辙，因此形成链也是自然的了。
 
-    public class Throwable implements Serializable {
-        private Throwable cause = this;
-     
-        public Throwable(String message, Throwable cause) {
-            fillInStackTrace();
-            detailMessage = message;
-            this.cause = cause;
-        }
-         public Throwable(Throwable cause) {
-            fillInStackTrace();
-            detailMessage = (cause==null ? null : cause.toString());
-            this.cause = cause;
-        }
-     
-        //........
+```java
+public class Throwable implements Serializable {
+    private Throwable cause = this;
+ 
+    public Throwable(String message, Throwable cause) {
+        fillInStackTrace();
+        detailMessage = message;
+        this.cause = cause;
     }
+     public Throwable(Throwable cause) {
+        fillInStackTrace();
+        detailMessage = (cause==null ? null : cause.toString());
+        this.cause = cause;
+    }
+ 
+    //........
+}
+```
 
 
 下面看一个比较实在的异常链例子哈
 
-    public class 异常链 {
-        @Test
-        public void test() {
-            C();
-        }
-        public void A () throws Exception {
-            try {
-                int i = 1;
-                i = i / 0;
-                //当我注释掉这行代码并使用B方法抛出一个error时，运行结果如下
-    //            四月 27, 2018 10:12:30 下午 org.junit.platform.launcher.core.ServiceLoaderTestEngineRegistry loadTestEngines
-    //            信息: Discovered TestEngines with IDs: [junit-jupiter]
-    //            java.lang.Error: B也犯了个错误
-    //            at com.javase.异常.异常链.B(异常链.java:33)
-    //            at com.javase.异常.异常链.C(异常链.java:38)
-    //            at com.javase.异常.异常链.test(异常链.java:13)
-    //            at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-    //            Caused by: java.lang.Error
-    //            at com.javase.异常.异常链.B(异常链.java:29)
-    
-            }catch (ArithmeticException e) {
-                //这里通过throwable类的构造方法将最底层的异常重新包装并抛出，此时注入了A方法的信息。最后打印栈信息时可以看到caused by
-                A方法的异常。
-                //如果直接抛出，栈信息打印结果只能看到上层方法的错误信息，不能看到其实是A发生了错误。
-                //所以需要包装并抛出
-                throw new Exception("A方法计算错误", e);
-            }
-    
-        }
-        public void B () throws Exception,Error {
-            try {
-                //接收到A的异常，
-                A();
-                throw new Error();
-            }catch (Exception e) {
-                throw e;
-            }catch (Error error) {
-                throw new Error("B也犯了个错误", error);
-            }
-        }
-        public void C () {
-            try {
-                B();
-            }catch (Exception | Error e) {
-                e.printStackTrace();
-            }
-    
-        }
-    
-        //最后结果
-    //    java.lang.Exception: A方法计算错误
-    //    at com.javase.异常.异常链.A(异常链.java:18)
-    //    at com.javase.异常.异常链.B(异常链.java:24)
-    //    at com.javase.异常.异常链.C(异常链.java:31)
-    //    at com.javase.异常.异常链.test(异常链.java:11)
-    //    省略
-    //    Caused by: java.lang.ArithmeticException: / by zero
-    //    at com.javase.异常.异常链.A(异常链.java:16)
-    //            ... 31 more
+```java
+public class 异常链 {
+    @Test
+    public void test() {
+        C();
     }
+    public void A () throws Exception {
+        try {
+            int i = 1;
+            i = i / 0;
+            //当我注释掉这行代码并使用B方法抛出一个error时，运行结果如下
+//            四月 27, 2018 10:12:30 下午 org.junit.platform.launcher.core.ServiceLoaderTestEngineRegistry loadTestEngines
+//            信息: Discovered TestEngines with IDs: [junit-jupiter]
+//            java.lang.Error: B也犯了个错误
+//            at com.javase.异常.异常链.B(异常链.java:33)
+//            at com.javase.异常.异常链.C(异常链.java:38)
+//            at com.javase.异常.异常链.test(异常链.java:13)
+//            at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+//            Caused by: java.lang.Error
+//            at com.javase.异常.异常链.B(异常链.java:29)
+
+        }catch (ArithmeticException e) {
+            //这里通过throwable类的构造方法将最底层的异常重新包装并抛出，此时注入了A方法的信息。最后打印栈信息时可以看到caused by
+            A方法的异常。
+            //如果直接抛出，栈信息打印结果只能看到上层方法的错误信息，不能看到其实是A发生了错误。
+            //所以需要包装并抛出
+            throw new Exception("A方法计算错误", e);
+        }
+
+    }
+    public void B () throws Exception,Error {
+        try {
+            //接收到A的异常，
+            A();
+            throw new Error();
+        }catch (Exception e) {
+            throw e;
+        }catch (Error error) {
+            throw new Error("B也犯了个错误", error);
+        }
+    }
+    public void C () {
+        try {
+            B();
+        }catch (Exception | Error e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    //最后结果
+//    java.lang.Exception: A方法计算错误
+//    at com.javase.异常.异常链.A(异常链.java:18)
+//    at com.javase.异常.异常链.B(异常链.java:24)
+//    at com.javase.异常.异常链.C(异常链.java:31)
+//    at com.javase.异常.异常链.test(异常链.java:11)
+//    省略
+//    Caused by: java.lang.ArithmeticException: / by zero
+//    at com.javase.异常.异常链.A(异常链.java:16)
+//            ... 31 more
+}
+```
 
 ## 自定义异常
 
@@ -483,30 +453,32 @@ throw 语句必须写在函数中，执行throw 语句的地方就是一个异�
 一个带有Throwable 参数的构造函数，并传递给父类的构造函数。
 下面是IOException类的完整源代码，可以借鉴。
 
-    public class IOException extends Exception
+```java
+public class IOException extends Exception
+{
+    static final long serialVersionUID = 7818375828146090155L;
+ 
+    public IOException()
     {
-        static final long serialVersionUID = 7818375828146090155L;
-     
-        public IOException()
-        {
-            super();
-        }
-     
-        public IOException(String message)
-        {
-            super(message);
-        }
-     
-        public IOException(String message, Throwable cause)
-        {
-            super(message, cause);
-        }
-     
-        public IOException(Throwable cause)
-        {
-            super(cause);
-        }
+        super();
     }
+ 
+    public IOException(String message)
+    {
+        super(message);
+    }
+ 
+    public IOException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
+ 
+    public IOException(Throwable cause)
+    {
+        super(cause);
+    }
+}
+```
 
 ## 异常的注意事项
 
@@ -518,47 +490,43 @@ throw 语句必须写在函数中，执行throw 语句的地方就是一个异�
 
 至于为什么？我想，也许下面的例子可以说明。
 
-    class Father
-    {
-        public void start() throws IOException
-        {
-            throw new IOException();
-        }
+```java
+class Father{
+    public void start() throws IOExceptio{
+        throw new IOException();
     }
-     
-    class Son extends Father
-    {
-        public void start() throws Exception
-        {
-            throw new SQLException();
-        }
+}
+ 
+class Son extends Father{
+    public void start() throws Exception{
+        throw new SQLException();
     }
-/**********************假设上面的代码是允许的（实质是错误的）***********************/
+}
+```
+**假设上面的代码是允许的（实质是错误的）**
 
-    class Test
-    {
-        public static void main(String[] args)
-        {
-            Father[] objs = new Father[2];
-            objs[0] = new Father();
-            objs[1] = new Son();
-     
-            for(Father obj:objs)
-            {
-            //因为Son类抛出的实质是SQLException，而IOException无法处理它。
-            //那么这里的try。。catch就不能处理Son中的异常。
-            //多态就不能实现了。
-                try {
-                     obj.start();
-                }catch(IOException)
-                {
-                     //处理IOException
-                }
-             }
-       }
-    }
+```java
+class Test{
+    public static void main(String[] args){
+        Father[] objs = new Father[2];
+        objs[0] = new Father();
+        objs[1] = new Son();
+ 
+        for(Father obj:objs){
+        //因为Son类抛出的实质是SQLException，而IOException无法处理它。
+        //那么这里的try。。catch就不能处理Son中的异常。
+        //多态就不能实现了。
+            try {
+                 obj.start();
+            }catch(IOException){
+                 //处理IOException
+            }
+         }
+   }
+}
+```
 
-==Java的异常执行流程是线程独立的，线程之间没有影响==
+Java的异常执行流程是线程独立的，线程之间没有影响
 
 > Java程序可以是多线程的。每一个线程都是一个独立的执行流，独立的函数调用栈。如果程序只有一个线程，那么没有被任何代码处理的异常 会导致程序终止。如果是多线程的，那么没有被任何代码处理的异常仅仅会导致异常所在的线程结束。
 > 
@@ -566,42 +534,44 @@ throw 语句必须写在函数中，执行throw 语句的地方就是一个异�
 
 下面看一个例子
 
-    public class 多线程的异常 {
-        @Test
-        public void test() {
-            go();
-        }
-        public void go () {
-            ExecutorService executorService = Executors.newFixedThreadPool(3);
-            for (int i = 0;i <= 2;i ++) {
-                int finalI = i;
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                executorService.execute(new Runnable() {
-                    @Override
-                    //每个线程抛出异常时并不会影响其他线程的继续执行
-                    public void run() {
-                        try {
-                            System.out.println("start thread" + finalI);
-                            throw new Exception();
-                        }catch (Exception e) {
-                            System.out.println("thread" + finalI + " go wrong");
-                        }
-                    }
-                });
-            }
-    //        结果：
-    //        start thread0
-    //        thread0 go wrong
-    //        start thread1
-    //        thread1 go wrong
-    //        start thread2
-    //        thread2 go wrong
-        }
+```java
+public class 多线程的异常 {
+    @Test
+    public void test() {
+        go();
     }
+    public void go () {
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        for (int i = 0;i <= 2;i ++) {
+            int finalI = i;
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            executorService.execute(new Runnable() {
+                @Override
+                //每个线程抛出异常时并不会影响其他线程的继续执行
+                public void run() {
+                    try {
+                        System.out.println("start thread" + finalI);
+                        throw new Exception();
+                    }catch (Exception e) {
+                        System.out.println("thread" + finalI + " go wrong");
+                    }
+                }
+            });
+        }
+//        结果：
+//        start thread0
+//        thread0 go wrong
+//        start thread1
+//        thread1 go wrong
+//        start thread2
+//        thread2 go wrong
+    }
+}
+```
 
 
 ## 当finally遇上return
@@ -611,161 +581,158 @@ throw 语句必须写在函数中，执行throw 语句的地方就是一个异�
 
 在 try块中即便有return，break，continue等改变执行流的语句，finally也会执行。
 
-    public static void main(String[] args)
-    {
-        int re = bar();
-        System.out.println(re);
+```java
+public static void main(String[] args){
+    int re = bar();
+    System.out.println(re);
+}
+private static int bar() {
+    try{
+        return 5;
+    } finally{
+        System.out.println("finally");
     }
-    private static int bar() 
-    {
-        try{
-            return 5;
-        } finally{
-            System.out.println("finally");
-        }
-    }
-    /*输出：
-    finally
-    */
+}
+/*输出：
+finally
+*/
+```
 很多人面对这个问题时，总是在归纳执行的顺序和规律，不过我觉得还是很难理解。我自己总结了一个方法。用如下GIF图说明。
-
-
-[外链图片转存失败(img-SceF4t85-1569073569354)(http://incdn1.b0.upaiyun.com/2017/09/0471c2805ebd5a463211ced478eaf7f8.gif)]
 
 也就是说：try…catch…finally中的return 只要能执行，就都执行了，他们共同向同一个内存地址（假设地址是0×80）写入返回值，后执行的将覆盖先执行的数据，而真正被调用者取的返回值就是最后一次写入的。那么，按照这个思想，下面的这个例子也就不难理解了。
 
 
 finally中的return 会覆盖 try 或者catch中的返回值。
 
-    public static void main(String[] args)
-        {
-            int result;
-     
-            result  =  foo();
-            System.out.println(result);     /////////2
-     
-            result = bar();
-            System.out.println(result);    /////////2
-        }
-     
-        @SuppressWarnings("finally")
-        public static int foo()
-        {
-            trz{
-                int a = 5 / 0;
-            } catch (Exception e){
-                return 1;
-            } finally{
-                return 2;
-            }
-     
-        }
-     
-        @SuppressWarnings("finally")
-        public static int bar()
-        {
-            try {
-                return 1;
-            }finally {
-                return 2;
-            }
-        }
+```java
+public static void main(String[] args){
+        int result;
+ 
+        result  =  foo();
+        System.out.println(result);     /////////2
+ 
+        result = bar();
+        System.out.println(result);    /////////2
+}
+ 
+@SuppressWarnings("finally")
+public static int foo(){
+    try{
+        int a = 5 / 0;
+    } catch (Exception e){
+        return 1;
+    } finally{
+        return 2;
+    }
+
+}
+
+@SuppressWarnings("finally")
+public static int bar(){
+    try {
+        return 1;
+    }finally {
+        return 2;
+    }
+}
+```
 
 finally中的return会抑制（消灭）前面try或者catch块中的异常
 
-    class TestException
+```java
+class TestException{
+    public static void main(String[] args)
     {
-        public static void main(String[] args)
-        {
-            int result;
-            try{
-                result = foo();
-                System.out.println(result);           //输出100
-            } catch (Exception e){
-                System.out.println(e.getMessage());    //没有捕获到异常
-            }
-     
-            try{
-                result  = bar();
-                System.out.println(result);           //输出100
-            } catch (Exception e){
-                System.out.println(e.getMessage());    //没有捕获到异常
-            }
+        int result;
+        try{
+            result = foo();
+            System.out.println(result);           //输出100
+        } catch (Exception e){
+            System.out.println(e.getMessage());    //没有捕获到异常
         }
-     
-        //catch中的异常被抑制
-        @SuppressWarnings("finally")
-        public static int foo() throws Exception
-        {
-            try {
-                int a = 5/0;
-                return 1;
-            }catch(ArithmeticException amExp) {
-                throw new Exception("我将被忽略，因为下面的finally中使用了return");
-            }finally {
-                return 100;
-            }
-        }
-     
-        //try中的异常被抑制
-        @SuppressWarnings("finally")
-        public static int bar() throws Exception
-        {
-            try {
-                int a = 5/0;
-                return 1;
-            }finally {
-                return 100;
-            }
+ 
+        try{
+            result  = bar();
+            System.out.println(result);           //输出100
+        } catch (Exception e){
+            System.out.println(e.getMessage());    //没有捕获到异常
         }
     }
+ 
+    //catch中的异常被抑制
+    @SuppressWarnings("finally")
+    public static int foo() throws Exception
+    {
+        try {
+            int a = 5/0;
+            return 1;
+        }catch(ArithmeticException amExp) {
+            throw new Exception("我将被忽略，因为下面的finally中使用了return");
+        }finally {
+            return 100;
+        }
+    }
+ 
+    //try中的异常被抑制
+    @SuppressWarnings("finally")
+    public static int bar() throws Exception
+    {
+        try {
+            int a = 5/0;
+            return 1;
+        }finally {
+            return 100;
+        }
+    }
+}
+```
 finally中的异常会覆盖（消灭）前面try或者catch中的异常
 
-    class TestException
-    {
-        public static void main(String[] args)
-        {
-            int result;
-            try{
-                result = foo();
-            } catch (Exception e){
-                System.out.println(e.getMessage());    //输出：我是finaly中的Exception
-            }
-     
-            try{
-                result  = bar();
-            } catch (Exception e){
-                System.out.println(e.getMessage());    //输出：我是finaly中的Exception
-            }
+```java
+class TestException{
+    public static void main(String[] args){
+        int result;
+        try{
+            result = foo();
+        } catch (Exception e){
+            System.out.println(e.getMessage());    //输出：我是finaly中的Exception
         }
-     
-        //catch中的异常被抑制
-        @SuppressWarnings("finally")
-        public static int foo() throws Exception
-        {
-            try {
-                int a = 5/0;
-                return 1;
-            }catch(ArithmeticException amExp) {
-                throw new Exception("我将被忽略，因为下面的finally中抛出了新的异常");
-            }finally {
-                throw new Exception("我是finaly中的Exception");
-            }
-        }
-     
-        //try中的异常被抑制
-        @SuppressWarnings("finally")
-        public static int bar() throws Exception
-        {
-            try {
-                int a = 5/0;
-                return 1;
-            }finally {
-                throw new Exception("我是finaly中的Exception");
-            }
-     
+ 
+        try{
+            result  = bar();
+        } catch (Exception e){
+            System.out.println(e.getMessage());    //输出：我是finaly中的Exception
         }
     }
+ 
+    //catch中的异常被抑制
+    @SuppressWarnings("finally")
+    public static int foo() throws Exception
+    {
+        try {
+            int a = 5/0;
+            return 1;
+        }catch(ArithmeticException amExp) {
+            throw new Exception("我将被忽略，因为下面的finally中抛出了新的异常");
+        }finally {
+            throw new Exception("我是finaly中的Exception");
+        }
+    }
+ 
+    //try中的异常被抑制
+    @SuppressWarnings("finally")
+    public static int bar() throws Exception
+    {
+        try {
+            int a = 5/0;
+            return 1;
+        }finally {
+            throw new Exception("我是finaly中的Exception");
+        }
+ 
+    }
+}
+```
 
 上面的3个例子都异于常人的编码思维，因此我建议：
 
@@ -779,7 +746,7 @@ finally中的异常会覆盖（消灭）前面try或者catch中的异常
 
 ## JAVA异常常见面试题
 
-　　下面是我个人总结的在Java和J2EE开发者在面试中经常被问到的有关Exception和Error的知识。在分享我的回答的时候，我也给这些问题作了快速修订，并且提供源码以便深入理解。我总结了各种难度的问题，适合新手码农和高级Java码农。如果你遇到了我列表中没有的问题，并且这个问题非常好，请在下面评论中分享出来。你也可以在评论中分享你面试时答错的情况。
+​	   下面是我个人总结的在Java和J2EE开发者在面试中经常被问到的有关Exception和Error的知识。在分享我的回答的时候，我也给这些问题作了快速修订，并且提供源码以便深入理解。我总结了各种难度的问题，适合新手码农和高级Java码农。如果你遇到了我列表中没有的问题，并且这个问题非常好，请在下面评论中分享出来。你也可以在评论中分享你面试时答错的情况。
 
 **1) Java中什么是Exception?**
 　　这个问题经常在第一次问有关异常的时候或者是面试菜鸟的时候问。我从来没见过面高级或者资深工程师的时候有人问这玩意，但是对于菜鸟，是很愿意问这个的。简单来说，异常是Java传达给你的系统和程序错误的方式。在java中，异常功能是通过实现比如Throwable，Exception，RuntimeException之类的类，然后还有一些处理异常时候的关键字，比如throw，throws，try，catch，finally之类的。 所有的异常都是通过Throwable衍生出来的。Throwable把错误进一步划分为 java.lang.Exception
@@ -817,16 +784,11 @@ Bloch编写的 [Effective Java 一书](http://www.amazon.com/dp/0321356683/?tag
 　　一个java初学者应该掌握的面试问题。 throw 和 throws乍看起来是很相似的尤其是在你还是一个java初学者的时候。尽管他们看起来相似，都是在处理异常时候使用到的。但在代码里的使用方法和用到的地方是不同的。throws总是出现在一个函数头中，用来标明该成员函数可能抛出的各种异常, 你也可以申明未检查的异常，但这不是编译器强制的。如果方法抛出了异常那么调用这个方法的时候就需要将这个异常处理。另一个关键字  throw 是用来抛出任意异常的，按照语法你可以抛出任意 Throwable (i.e. Throwable
 或任何Throwable的衍生类) , throw可以中断程序运行，因此可以用来代替return . 最常见的例子是用 throw 在一个空方法中需要return的地方抛出 UnSupportedOperationException 代码如下 :
 
-
-
-
-
-| 123 | `private``static` `void` `show() {``throw``new` `UnsupportedOperationException(``"Notyet implemented"``);``}` |
-| --- | --- |
-
-
-
-
+```java
+private static void show() {
+    throw new UnsupportedOperationException("Notyet implemented");
+}
+```
 
 　　可以看下这篇 [文章](http://javarevisited.blogspot.com/2012/02/difference-between-throw-and-throws-in.html)查看这两个关键字在java中更多的差异 。
 
@@ -861,22 +823,4 @@ https://www.jianshu.com/p/49d2c3975c56
 http://c.biancheng.net/view/1038.html
 https://blog.csdn.net/Lisiluan/article/details/88745820
 https://blog.csdn.net/michaelgo/article/details/82790253
-
-## 微信公众号
-
-### Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的公众号【Java技术江湖】一位阿里 Java 工程师的技术小站，作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-**Java工程师必备学习资源:** 一些Java工程师常用学习资源，关注公众号后，后台回复关键字 **“Java”** 即可免费无套路获取。
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
-
-### 个人公众号：黄小斜
-
-作者是 985 硕士，蚂蚁金服 JAVA 工程师，专注于 JAVA 后端技术栈：SpringBoot、MySQL、分布式、中间件、微服务，同时也懂点投资理财，偶尔讲点算法和计算机理论基础，坚持学习和写作，相信终身学习的力量！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取。 
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
 

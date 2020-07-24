@@ -166,47 +166,49 @@ Class obj1=int.class;
 
 ### 使用Class类的对象来生成目标类的实例
 
-> 
-> 生成不精确的object实例
-> 
 
-==获取一个Class类的对象后，可以用 newInstance() 函数来生成目标类的一个实例。然而，该函数并不能直接生成目标类的实例，只能生成object类的实例==
+生成不精确的object实例
+
+获取一个Class类的对象后，可以用 newInstance() 函数来生成目标类的一个实例。然而，该函数并不能直接生成目标类的实例，只能生成object类的实例
 
 > Class obj=Class.forName("shapes");
 > Object ShapesInstance=obj.newInstance();
 > 使用泛化Class引用生成带类型的目标实例
 
->  
-> Class<shapes> obj=shapes.class;
+>  Class<shapes> obj=shapes.class;
 > shapes newShape=obj.newInstance();
 > 因为有了类型限制，所以使用泛化Class语法的对象引用不能指向别的类。
 
-    Class obj1=int.class;
-    Class<Integer> obj2=int.class;
-    obj1=double.class;
-    //obj2=double.class; 这一行代码是非法的，obj2不能改指向别的类
-    
-    然而，有个灵活的用法，使得你可以用Class的对象指向基类的任何子类。
-    Class<? extends Number> obj=int.class;
-    obj=Number.class;
-    obj=double.class;
-    
-    因此，以下语法生成的Class对象可以指向任何类。
-    Class<?> obj=int.class;
-    obj=double.class;
-    obj=shapes.class;
-    最后一个奇怪的用法是，当你使用这种泛型语法来构建你手头有的一个Class类的对象的基类对象时，必须采用以下的特殊语法
-    
-    public class shapes{}
-    class round extends shapes{}
-    Class<round> rclass=round.class;
-    Class<? super round> sclass= rclass.getSuperClass();
-    //Class<shapes> sclass=rclass.getSuperClass();
-    我们明知道，round的基类就是shapes，但是却不能直接声明 Class < shapes >，必须使用特殊语法
-    
-    Class < ? super round >
+```java
+Class obj1=int.class;
+Class<Integer> obj2=int.class;
+obj1=double.class;
+//obj2=double.class; 这一行代码是非法的，obj2不能改指向别的类
 
-这个记住就可以啦。
+//然而，有个灵活的用法，使得你可以用Class的对象指向基类的任何子类。
+Class<? extends Number> obj=int.class;
+obj=Number.class;
+obj=double.class;
+
+//因此，以下语法生成的Class对象可以指向任何类。
+Class<?> obj=int.class;
+obj=double.class;
+obj=shapes.class;
+
+//最后一个奇怪的用法是，当你使用这种泛型语法来构建你手头有的一个Class类的对象的基类对象时，必须采用以
+//特殊语法
+public class shapes{
+    
+}
+class round extends shapes{
+    
+}
+Class<round> rclass=round.class;
+Class<? super round> sclass= rclass.getSuperClass();
+//Class<shapes> sclass=rclass.getSuperClass();
+//我们明知道，round的基类就是shapes，但是却不能直接声明 Class < shapes >，
+//必须使用特殊语法Class < ? super round >
+```
 
 ## Object类
 
@@ -215,8 +217,6 @@ Class obj1=int.class;
 Object类是Java中其他所有类的祖先，没有Object类Java面向对象无从谈起。作为其他所有类的基类，Object具有哪些属性和行为，是Java语言设计背后的思维体现。
 
 Object类位于java.lang包中，java.lang包包含着Java最基础和核心的类，在编译时会自动导入。Object类没有定义属性，一共有13个方法，13个方法之中并不是所有方法都是子类可访问的，一共有9个方法是所有子类都继承了的。
-
-先大概介绍一下这些方法
 
     1．clone方法
     保护方法，实现对象的浅复制，只有实现了Cloneable接口才可以调用该方法，否则抛出CloneNotSupportedException异常。
@@ -244,68 +244,69 @@ Object类位于java.lang包中，java.lang包包含着Java最基础和核心的�
     9．notifyAll方法
     该方法唤醒在该对象上等待的所有线程。
 
-### 类构造器public Object();
+### 类构造器public Object()
 
-> 大部分情况下，Java中通过形如 new A(args..)形式创建一个属于该类型的对象。其中A即是类名，A(args..)即此类定义中相对应的构造函数。通过此种形式创建的对象都是通过类中的构造函数完成。
+大部分情况下，Java中通过形如 new A(args..)形式创建一个属于该类型的对象。其中A即是类名，A(args..)即此类定义中相对应的构造函数。通过此种形式创建的对象都是通过类中的构造函数完成。
 
-> 为体现此特性，Java中规定：在类定义过程中，对于未定义构造函数的类，默认会有一个无参数的构造函数，作为所有类的基类，Object类自然要反映出此特性，在源码中，未给出Object类构造函数定义，但实际上，此构造函数是存在的。
->  
-> 当然，并不是所有的类都是通过此种方式去构建，也自然的，并不是所有的类构造函数都是public。
+为体现此特性，Java中规定：在类定义过程中，对于未定义构造函数的类，默认会有一个无参数的构造函数，作为所有类的基类，Object类自然要反映出此特性，在源码中，未给出Object类构造函数定义，但实际上，此构造函数是存在的。
+
+当然，并不是所有的类都是通过此种方式去构建，也自然的，并不是所有的类构造函数都是public。
 
 
-### registerNatives()方法;
+### registerNatives()方法
+```java
 private static native void registerNatives();
+```
 
-> registerNatives函数前面有native关键字修饰，Java中，用native关键字修饰的函数表明该方法的实现并不是在Java中去完成，而是由C/C++去完成，并被编译成了.dll，由Java去调用。
-> 
-> 方法的具体实现体在dll文件中，对于不同平台，其具体实现应该有所不同。用native修饰，即表示操作系统，需要提供此方法，Java本身需要使用。
-> 
-> 具体到registerNatives()方法本身，其主要作用是将C/C++中的方法映射到Java中的native方法，实现方法命名的解耦。
->  
-> 既然如此，可能有人会问，registerNatives()修饰符为private，且并没有执行，作用何以达到？其实，在Java源码中，此方法的声明后有紧接着一段静态代码块：
+registerNatives函数前面有native关键字修饰，Java中，用native关键字修饰的函数表明该方法的实现并不是在Java中去完成，而是由C/C++去完成，并被编译成了.dll，由Java去调用。
+
+方法的具体实现体在dll文件中，对于不同平台，其具体实现应该有所不同。用native修饰，即表示操作系统，需要提供此方法，Java本身需要使用。
+
+具体到registerNatives()方法本身，其主要作用是将C/C++中的方法映射到Java中的native方法，实现方法命名的解耦。
+
+既然如此，可能有人会问，registerNatives()修饰符为private，且并没有执行，作用何以达到？其实，在Java源码中，此方法的声明后有紧接着一段静态代码块：
 
 
-    private static native void registerNatives();  
-    static {  
-         registerNatives();  
-    }  
+```java
+private static native void registerNatives();  
+static {  
+     registerNatives();  
+}  
+```
 
 ### Clone()方法实现浅拷贝
 
-    protected native Object clone() throwsCloneNotSupportedException;
+```java
+protected native Object clone() throwsCloneNotSupportedException;
+```
 
- 
+看，clode()方法又是一个被声明为native的方法，因此，我们知道了clone()方法并不是Java的原生方法，具体的实现是有C/C++完成的。clone英文翻译为"克隆"，其目的是创建并返回此对象的一个副本。
 
+形象点理解，这有一辆科鲁兹，你看着不错，想要个一模一样的。你调用此方法即可像变魔术一样变出一辆一模一样的科鲁兹出来。配置一样，长相一样。但从此刻起，原来的那辆科鲁兹如果进行了新的装饰，与你克隆出来的这辆科鲁兹没有任何关系了。
 
-
-> 看，clode()方法又是一个被声明为native的方法，因此，我们知道了clone()方法并不是Java的原生方法，具体的实现是有C/C++完成的。clone英文翻译为"克隆"，其目的是创建并返回此对象的一个副本。
-
-> 形象点理解，这有一辆科鲁兹，你看着不错，想要个一模一样的。你调用此方法即可像变魔术一样变出一辆一模一样的科鲁兹出来。配置一样，长相一样。但从此刻起，原来的那辆科鲁兹如果进行了新的装饰，与你克隆出来的这辆科鲁兹没有任何关系了。
-> 
-> 你克隆出来的对象变不变完全在于你对克隆出来的科鲁兹有没有进行过什么操作了。Java术语表述为：clone函数返回的是一个引用，指向的是新的clone出来的对象，此对象与原对象分别占用不同的堆空间。
+你克隆出来的对象变不变完全在于你对克隆出来的科鲁兹有没有进行过什么操作了。Java术语表述为：clone函数返回的是一个引用，指向的是新的clone出来的对象，此对象与原对象分别占用不同的堆空间。
 
 明白了clone的含义后，接下来看看如果调用clone()函数对象进行此克隆操作。
 
 首先看一下下面的这个例子：
 
 
-    package com.corn.objectsummary;  
-      
-    import com.corn.Person;  
-      
-    public class ObjectTest {  
-      
-        public static void main(String[] args) {  
-      
-            Object o1 = new Object();  
-            // The method clone() from the type Object is not visible  
-            Object clone = o1.clone();  
-        }  
-      
+```java
+package com.corn.objectsummary;  
+  
+import com.corn.Person;  
+  
+public class ObjectTest {    
+    public static void main(String[] args) {  
+        Object o1 = new Object();  
+        // The method clone() from the type Object is not visible  
+        Object clone = o1.clone();  
     }  
+  
+}  
+```
 
  
-
 
 
 > 例子很简单，在main()方法中，new一个Oject对象后，想直接调用此对象的clone方法克隆一个对象，但是出现错误提示："The method clone() from the type Object is not visible"
@@ -319,23 +320,20 @@ private static native void registerNatives();
 于是，上例改成如下形式，我们发现，可以正常编译：
 
 
-        public class clone方法 {
-        public static void main(String[] args) {
-    
-        }
-        public void test1() {
-    
-            User user = new User();
-    //        User copy = user.clone();
-        }
-        public void test2() {
-            User user = new User();
-    //        User copy = (User)user.clone();
-        }
+```java
+public class clone方法 {
+    public static void main(String[] args) {
     }
-
- 
-
+    public void test1() {
+        User user = new User();
+        //User copy = user.clone();
+    }
+    public void test2() {
+        User user = new User();
+        //User copy = (User)user.clone();
+    }
+}
+```
 
 
 是的，因为此时的主调已经是子类的引用了。
@@ -349,38 +347,42 @@ private static native void registerNatives();
 > 于是，上述代码改成如下形式，即可正确指定clone()方法以实现克隆。
 
 
-    public class User implements Cloneable{
-    public int id;
-    public String name;
-    public UserInfo userInfo;
+```java
+public class User implements Cloneable{
+public int id;
+public String name;
+public UserInfo userInfo;
+
+public static void main(String[] args) {
+    User user = new User();
+    UserInfo userInfo = new UserInfo();
+    user.userInfo = userInfo;
+   
+    System.out.println(user);
+    System.out.println(user.userInfo);
     
-    public static void main(String[] args) {
-        User user = new User();
-        UserInfo userInfo = new UserInfo();
-        user.userInfo = userInfo;
-        System.out.println(user);
-        System.out.println(user.userInfo);
-        try {
-            User copy = (User) user.clone();
-            System.out.println(copy);
-            System.out.println(copy.userInfo);
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
+    try {
+        User copy = (User) user.clone();
+        System.out.println(copy);
+        System.out.println(copy.userInfo);
+    } catch (CloneNotSupportedException e) {
+        e.printStackTrace();
     }
-    //拷贝的User实例与原来不一样，是两个对象。
-    //    com.javase.Class和Object.Object方法.用到的类.User@4dc63996
-    //    com.javase.Class和Object.Object方法.用到的类.UserInfo@d716361
-            //而拷贝后对象的userinfo引用对象是同一个。
-        //所以这是浅拷贝
-    //    com.javase.Class和Object.Object方法.用到的类.User@6ff3c5b5
-    //    com.javase.Class和Object.Object方法.用到的类.UserInfo@d716361
-    }
+}
+//拷贝的User实例与原来不一样，是两个对象。
+//com.javase.Class和Object.Object方法.用到的类.User@4dc63996
+//com.javase.Class和Object.Object方法.用到的类.UserInfo@d716361
+
+//而拷贝后对象的userinfo引用对象是同一个。所以这是浅拷贝
+//com.javase.Class和Object.Object方法.用到的类.User@6ff3c5b5
+//com.javase.Class和Object.Object方法.用到的类.UserInfo@d716361
+}
+```
 
 总结：
-clone方法实现的是浅拷贝，只拷贝当前对象，并且在堆中分配新的空间，放这个复制的对象。但是对象如果里面有其他类的子对象，那么就不会拷贝到新的对象中。
+**clone方法实现的是浅拷贝，只拷贝当前对象，并且在堆中分配新的空间，放这个复制的对象。但是对象如果里面有其他类的子对象，那么就不会拷贝到新的对象中。**
 
-==深拷贝和浅拷贝的区别==
+**深拷贝和浅拷贝的区别**
 
 > 浅拷贝
 > 浅拷贝是按位拷贝对象，它会创建一个新对象，这个对象有着原始对象属性值的一份精确拷贝。如果属性是基本类型，拷贝的就是基本类型的值；如果属性是内存地址（引用类型），拷贝的就是内存地址 ，因此如果其中一个对象改变了这个地址，就会影响到另一个对象。
@@ -399,12 +401,14 @@ clone方法实现的是浅拷贝，只拷贝当前对象，并且在堆中分配
 > 
 > 填充完成之后，clone方法返回，一个新的相同的对象被创建，同样可以把这个新对象的引用发布到外部。
 
-==也就是说，一个对象在浅拷贝以后，只是把对象复制了一份放在堆空间的另一个地方，但是成员变量如果有引用指向其他对象，这个引用指向的对象和被拷贝的对象中引用指向的对象是一样的。当然，基本数据类型还是会重新拷贝一份的。==
+也就是说，一个对象在浅拷贝以后，只是把对象复制了一份放在堆空间的另一个地方，但是成员变量如果有引用指向其他对象，这个引用指向的对象和被拷贝的对象中引用指向的对象是一样的。当然，基本数据类型还是会重新拷贝一份的。
 
 
 ### getClass()方法
 
-4.public final native Class<?> getClass();
+```java
+public final native Class<?> getClass();
+```
 
 > getClass()也是一个native方法，返回的是此Object对象的类对象/运行时类对象Class<?>。效果与Object.class相同。
 >  
@@ -414,37 +418,42 @@ clone方法实现的是浅拷贝，只拷贝当前对象，并且在堆中分配
 > 
 > 于是，Java中有专门定义了一个类，Class，去描述其他类所具有的这些特性，因此，从此角度去看，类本身也都是属于Class类的对象。为与经常意义上的对象相区分，在此称之为"类对象"。
 
-    public class getClass方法 {
-        public static void main(String[] args) {
-            User user = new User();
-            //getclass方法是native方法，可以取到堆区唯一的Class<User>对象
-            Class<?> aClass = user.getClass();
-            Class bClass = User.class;
-            try {
-                Class cClass = Class.forName("com.javase.Class和Object.Object方法.用到的类.User");
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            System.out.println(aClass);
-            System.out.println(bClass);
-    //        class com.javase.Class和Object.Object方法.用到的类.User
-    //        class com.javase.Class和Object.Object方法.用到的类.User
-            try {
-                User a = (User) aClass.newInstance();
-    
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
+```java
+public class getClass方法 {
+    public static void main(String[] args) {
+        User user = new User();
+        //getclass方法是native方法，可以取到堆区唯一的Class<User>对象
+        Class<?> aClass = user.getClass();
+        Class bClass = User.class;
+        try {
+            Class cClass = Class.forName("com.javase.Class和Object.Object方法.用到的类.User");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
-    } 
+        System.out.println(aClass);
+        System.out.println(bClass);
+        //class com.javase.Class和Object.Object方法.用到的类.User
+		//class com.javase.Class和Object.Object方法.用到的类.User
+        try {
+            User a = (User) aClass.newInstance();
+
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+} 
+```
 
 此处主要大量涉及到Java中的反射知识
 
 ### equals()方法
 
-5.public boolean equals(Object obj);
+```java
+public boolean equals(Object obj);
+```
+
 >  
 > 与equals在Java中经常被使用，大家也都知道与equals的区别：
 >  
@@ -455,12 +464,11 @@ clone方法实现的是浅拷贝，只拷贝当前对象，并且在堆中分配
 实际上，上面说法是不严谨的，更多的只是常见于String类中。首先看一下Object类中关于equals()方法的定义：
 
 
-    public boolean equals(Object obj) {  
-         return (this == obj);  
-    }  
-
- 
-
+```java
+public boolean equals(Object obj) {  
+     return (this == obj);  
+}  
+```
 
 
 > 由此可见，Object原生的equals()方法内部调用的正是==，与==具有相同的含义。既然如此，为什么还要定义此equals()方法？
@@ -476,10 +484,11 @@ ObjectTest中打印出true，因为User类定义中重写了equals()方法，这
 
 > 如上重写equals方法表面上看上去是可以了，实则不然。因为它破坏了Java中的约定：重写equals()方法必须重写hasCode()方法。
 
-
 ### hashCode()方法;
 
-6. public native int hashCode()
+```java
+public native int hashCode()
+```
 
 hashCode()方法返回一个整形数值，表示该对象的哈希码值。
 
@@ -496,39 +505,38 @@ hashCode()具有如下约定：
     可能有人在此产生疑问：既然比较两个对象是否相等的唯一条件（也是冲要条件）是equals，那么为什么还要弄出一个hashCode()，并且进行如此约定，弄得这么麻烦？
      
     其实，这主要体现在hashCode()方法的作用上，其主要用于增强哈希表的性能。
-     
+    
     以集合类中，以Set为例，当新加一个对象时，需要判断现有集合中是否已经存在与此对象相等的对象，如果没有hashCode()方法，需要将Set进行一次遍历，并逐一用equals()方法判断两个对象是否相等，此种算法时间复杂度为o(n)。通过借助于hasCode方法，先计算出即将新加入对象的哈希码，然后根据哈希算法计算出此对象的位置，直接判断此位置上是否已有对象即可。（注：Set的底层用的是Map的原理实现）
 
 > 在此需要纠正一个理解上的误区：对象的hashCode()返回的不是对象所在的物理内存地址。甚至也不一定是对象的逻辑地址，hashCode()相同的两个对象，不一定相等，换言之，不相等的两个对象，hashCode()返回的哈希码可能相同。
 >  
 > 因此，在上述代码中，重写了equals()方法后，需要重写hashCode()方法。
 
-    public class equals和hashcode方法 {
-        @Override
-        //修改equals时必须同时修改hashcode方法，否则在作为key时会出问题
-        public boolean equals(Object obj) {
-            return (this == obj);
-        }
-        
-        @Override
-        //相同的对象必须有相同hashcode，不同对象可能有相同hashcode
-        public int hashCode() {
-            return hashCode() >> 2;
-        }
+```java
+public class equals和hashcode方法 {
+    @Override
+    //修改equals时必须同时修改hashcode方法，否则在作为key时会出问题
+    public boolean equals(Object obj) {
+        return (this == obj);
     }
+    
+    @Override
+    //相同的对象必须有相同hashcode，不同对象可能有相同hashcode
+    public int hashCode() {
+        return hashCode() >> 2;
+    }
+}
+```
 
 
 ### toString()方法
-7.public String toString();
-
-    toString()方法返回该对象的字符串表示。先看一下Object中的具体方法体：
-    
-     public String toString() {  
-        return getClass().getName() + "@" + Integer.toHexString(hashCode());  
-    }  
-
- 
-
+```java
+public String toString();
+//toString()方法返回该对象的字符串表示。先看一下Object中的具体方法体：
+public String toString() {  
+    return getClass().getName() + "@" + Integer.toHexString(hashCode());  
+}  
+```
 
 
 > toString()方法相信大家都经常用到，即使没有显式调用，但当我们使用System.out.println(obj)时，其内部也是通过toString()来实现的。
@@ -541,7 +549,12 @@ hashCode()具有如下约定：
 
 
 ### wait() notify() notifAll()
-8/9/10/11/12. wait(...) / notify() / notifyAll()
+```java
+wait(...) 
+notify(...) 
+notifyAll(...) 
+```
+
 >  
 > 一说到wait(...) / notify() | notifyAll()几个方法，首先想到的是线程。确实，这几个方法主要用于java多线程之间的协作。先具体看下这几个方法的主要含义：
 >  
@@ -556,73 +569,75 @@ hashCode()具有如下约定：
 这是一个生产者消费者的模型，只不过这里只用flag来标识哪个线程需要工作
 
 
-    public class wait和notify {
-        //volatile保证线程可见性
-        volatile static int flag = 1;
-        //object作为锁对象，用于线程使用wait和notify方法
-        volatile static Object o = new Object();
-        public static void main(String[] args) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    //wait和notify只能在同步代码块内使用
-                    synchronized (o) {
-                        while (true) {
-                            if (flag == 0) {
-                                try {
-                                    Thread.sleep(2000);
-                                    System.out.println("thread1 wait");
-                                    //释放锁，线程挂起进入object的等待队列，后续代码运行
-                                    o.wait();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            System.out.println("thread1 run");
-                            System.out.println("notify t2");
-                            flag = 0;
-                            //通知等待队列的一个线程获取锁
-                            o.notify();
-                        }
-                    }
-                }
-            }).start();
-            //解释同上
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
+```java
+public class wait和notify {
+    //volatile保证线程可见性
+    volatile static int flag = 1;
+    //object作为锁对象，用于线程使用wait和notify方法
+    volatile static Object o = new Object();
+    public static void main(String[] args) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //wait和notify只能在同步代码块内使用
+                synchronized (o) {
                     while (true) {
-                        synchronized (o) {
-                            if (flag == 1) {
-                                try {
-                                    Thread.sleep(2000);
-                                    System.out.println("thread2 wait");
-                                    o.wait();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
+                        if (flag == 0) {
+                            try {
+                                Thread.sleep(2000);
+                                System.out.println("thread1 wait");
+                                //释放锁，线程挂起进入object的等待队列，后续代码运行
+                                o.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
-                            System.out.println("thread2 run");
-                            System.out.println("notify t1");
-                            flag = 1;
-                            o.notify();
                         }
+                        System.out.println("thread1 run");
+                        System.out.println("notify t2");
+                        flag = 0;
+                        //通知等待队列的一个线程获取锁
+                        o.notify();
                     }
                 }
-            }).start();
-        }
-    
-        //输出结果是
-    //    thread1 run
-    //    notify t2
-    //    thread1 wait
-    //    thread2 run
-    //    notify t1
-    //    thread2 wait
-    //    thread1 run
-    //    notify t2
-    //不断循环
+            }
+        }).start();
+        //解释同上
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    synchronized (o) {
+                        if (flag == 1) {
+                            try {
+                                Thread.sleep(2000);
+                                System.out.println("thread2 wait");
+                                o.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        System.out.println("thread2 run");
+                        System.out.println("notify t1");
+                        flag = 1;
+                        o.notify();
+                    }
+                }
+            }
+        }).start();
     }
+
+//输出结果是
+//    thread1 run
+//    notify t2
+//    thread1 wait
+//    thread2 run
+//    notify t1
+//    thread2 wait
+//    thread1 run
+//    notify t2
+//不断循环
+}
+```
 
 >  从上述例子的输出结果中可以得出如下结论：
 >  
@@ -633,12 +648,11 @@ hashCode()具有如下约定：
 在Java源码中，可以看到wait()具体定义如下：
 
 
-    public final void wait() throws InterruptedException {  
-         wait(0);  
-    }  
-
- 
-
+```java
+public final void wait() throws InterruptedException {  
+     wait(0);  
+}  
+```
 
 
 > 且wait(long timeout, int nanos)方法定义内部实质上也是通过调用wait(long timeout)完成。而wait(long timeout)是一个native方法。因此，wait(...)方法本质上都是native方式实现。
@@ -648,15 +662,17 @@ notify()/notifyAll()方法也都是native方法。
 Java中线程具有较多的知识点，是一块比较大且重要的知识点。后期会有博文专门针对Java多线程作出详细总结。此处不再细述。
 
 ### finalize()方法
-13. protected void finalize();
+
+```java
+protected void finalize();
+```
 
 finalize方法主要与Java垃圾回收机制有关。首先我们看一下finalized方法在Object中的具体定义：
 
 
-    protected void finalize() throws Throwable { }  
-
- 
-
+```java
+protected void finalize() throws Throwable { }  
+```
 
 
 > 我们发现Object类中finalize方法被定义成一个空方法，为什么要如此定义呢？finalize方法的调用时机是怎么样的呢？
