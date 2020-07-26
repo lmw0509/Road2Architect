@@ -1,5 +1,7 @@
 [TOC]
 
+[TOC]
+
 具体代码可以参考GitHub仓库：
 
 https://github.com/h2pl/SwordToOffer
@@ -182,6 +184,7 @@ https://github.com/h2pl/SwordToOffer
    
 
 
+
     该算法的时间复杂度是多少呢？考虑最坏情况下，每次 partition 将数组分为长度为 N-1 和 1 的两部分，然后在长的一边继续寻找第 K 大，此时时间复杂度为 O(N^2 )。不过如果在开始之前将数组进行随机打乱，那么可以尽量避免最坏情况的出现。而在最好情况下，每次将数组均分为长度相同的两半，运行时间 T(N) = N + T(N/2)，时间复杂度是 O(N)。
 
 所以也就是说，本题用这个方法解的话，复杂度只需要O（n),因为第一次交换需要N/2,j接下来的交换的次数越来越少，最后加起来就是O（N）了。
@@ -225,8 +228,8 @@ https://github.com/h2pl/SwordToOffer
 ​                    treeSet.add(input[i]);
 ​                }
 ​    
-                else {
-    
+​                else {
+​    
                     if(input[i]<treeSet.last()){
                         treeSet.pollLast();
                         treeSet.add(input[i]);
@@ -1147,13 +1150,13 @@ public static int LastRemaining_Solution(int n, int m) {
 ​            else return false;
 ​        }
 ​    
-        TreeNode copyTree (TreeNode root) {
-            if (root == null) return null;
-            TreeNode t = new TreeNode(root.val);
-            t.left = copyTree(root.left);
-            t.right = copyTree(root.right);
-            return t;
-        }
+​        TreeNode copyTree (TreeNode root) {
+​            if (root == null) return null;
+​            TreeNode t = new TreeNode(root.val);
+​            t.left = copyTree(root.left);
+​            t.right = copyTree(root.right);
+​            return t;
+​        }
 ## 把二叉树打印成多行
 
 题目描述
@@ -1445,6 +1448,7 @@ public static int LastRemaining_Solution(int n, int m) {
         }
 
  
+
 
 
         注意：但是当arr[left] = arr[right] = arr[min]时。三个数都相等无法确定最小值，此时只能遍历。
