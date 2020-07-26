@@ -1,34 +1,12 @@
-本文转载自：[https://github.com/jasonGeng88/blog](https://github.com/jasonGeng88/blog)
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章将同步到我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《不可轻视的Java网络编程》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何从计算机网络的基础知识入手，一步步地学习Java网络基础，从socket到nio、bio、aio和netty等网络编程知识，并且进行实战，网络编程是每一个Java后端工程师必须要学习和理解的知识点，进一步来说，你还需要掌握Linux中的网络编程原理，包括IO模型、网络编程框架netty的进阶原理，才能更完整地了解整个Java网络编程的知识体系，形成自己的知识框架。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供部分知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-<!-- more -->
-
-*   文章一：[JAVA 中原生的 socket 通信机制](https://github.com/jasonGeng88/blog/blob/master/201708/java-socket.md)
-
-## [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E5%BD%93%E5%89%8D%E7%8E%AF%E5%A2%83)当前环境
+## 当前环境
 
 1.  jdk == 1.8
 
-## [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E4%BB%A3%E7%A0%81%E5%9C%B0%E5%9D%80)代码地址
+## 代码地址
 
 git 地址：[https://github.com/jasonGeng88/java-network-programming](https://github.com/jasonGeng88/java-network-programming)
 
-## [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E7%9F%A5%E8%AF%86%E7%82%B9)知识点
+## 知识点
 
 *   nio 下 I/O 阻塞与非阻塞实现
 *   SocketChannel 介绍
@@ -37,7 +15,7 @@ git 地址：[https://github.com/jasonGeng88/java-network-programming](https://g
 *   事件监听类型
 *   字节缓冲 ByteBuffer 数据结构
 
-## [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E5%9C%BA%E6%99%AF)场景
+## 场景
 
 接着上一篇中的站点访问问题，如果我们需要并发访问10个不同的网站，我们该如何处理？
 
@@ -45,13 +23,13 @@ git 地址：[https://github.com/jasonGeng88/java-network-programming](https://g
 
 为解决这问题，我们发现元凶处在“一线程一请求”上，如果一个线程能同时处理多个请求，那么在高并发下性能上会大大改善。这里就借住 JAVA 中的 nio 技术来实现这一模型。
 
-## [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#nio-%E7%9A%84%E9%98%BB%E5%A1%9E%E5%AE%9E%E7%8E%B0)nio 的阻塞实现
+## nio 的阻塞实现
 
 关于什么是 nio，从字面上理解为 New IO，就是为了弥补原本 I/O 上的不足，而在 JDK 1.4 中引入的一种新的 I/O 实现方式。简单理解，就是它提供了 I/O 的阻塞与非阻塞的两种实现方式（_当然，默认实现方式是阻塞的。_）。
 
 下面，我们先来看下 nio 以阻塞方式是如何处理的。
 
-### [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5)建立连接
+### 建立连接
 
 有了上一篇 socket 的经验，我们的第一步一定也是建立 socket 连接。只不过，这里不是采用 `new socket()` 的方式，而是引入了一个新的概念 `SocketChannel`。它可以看作是 socket 的一个完善类，除了提供 Socket 的相关功能外，还提供了许多其他特性，如后面要讲到的向选择器注册的功能。
 
@@ -72,7 +50,7 @@ socketChannel.connect(remote);</pre>
 
 
 
-### [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E8%8E%B7%E5%8F%96-socket-%E8%BF%9E%E6%8E%A5)获取 socket 连接
+### 获取 socket 连接
 
 因为是同样是 I/O 阻塞的实现，所以后面的关于 socket 输入输出流的处理，和上一篇的基本相同。唯一差别是，这里需要通过 channel 来获取 socket 连接。
 
@@ -93,7 +71,7 @@ BufferedReader br = getReader(socketChannel.socket());</pre>
 
 
 
-### [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E5%AE%8C%E6%95%B4%E7%A4%BA%E4%BE%8B)完整示例
+### 完整示例
 
 
 
@@ -112,18 +90,18 @@ public class NioBlockingHttpClient {
 
     private SocketChannel socketChannel;
     private String host;
-
+    
     public static void main(String[] args) throws IOException {
-
+    
         for (String host: HttpConstant.HOSTS) {
-
+    
             NioBlockingHttpClient client = new NioBlockingHttpClient(host, HttpConstant.PORT);
             client.request();
-
+    
         }
-
+    
     }
-
+    
     public NioBlockingHttpClient(String host, int port) throws IOException {
         this.host = host;
         socketChannel = SocketChannel.open();
@@ -131,11 +109,11 @@ public class NioBlockingHttpClient {
         SocketAddress remote = new InetSocketAddress(this.host, port);
         this.socketChannel.connect(remote);
     }
-
+    
     public void request() throws IOException {
         PrintWriter pw = getWriter(socketChannel.socket());
         BufferedReader br = getReader(socketChannel.socket());
-
+    
         pw.write(HttpUtil.compositeRequest(host));
         pw.flush();
         String msg;
@@ -143,12 +121,12 @@ public class NioBlockingHttpClient {
             System.out.println(msg);
         }
     }
-
+    
     private PrintWriter getWriter(Socket socket) throws IOException {
         OutputStream out = socket.getOutputStream();
         return new PrintWriter(out);
     }
-
+    
     private BufferedReader getReader(Socket socket) throws IOException {
         InputStream in = socket.getInputStream();
         return new BufferedReader(new InputStreamReader(in));
@@ -157,9 +135,9 @@ public class NioBlockingHttpClient {
 
 
 
-## [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#nio-%E7%9A%84%E9%9D%9E%E9%98%BB%E5%A1%9E%E5%AE%9E%E7%8E%B0)nio 的非阻塞实现
+## nio 的非阻塞实现
 
-### [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90)原理分析
+### 原理分析
 
 nio 的阻塞实现，基本与使用原生的 socket 类似，没有什么特别大的差别。
 
@@ -182,7 +160,7 @@ _我们主要观察图中的前三种 I/O 模型，关于异步 I/O，一般需�
 
 废话讲了一大堆，下面就来实际操刀一下。
 
-### [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E5%88%9B%E5%BB%BA%E9%80%89%E6%8B%A9%E5%99%A8)创建选择器
+### 创建选择器
 
 由上面分析可以，我们得有一个选择器，它能监听所有的 I/O 操作，并且以事件的方式通知我们哪些 I/O 已经就绪了。
 
@@ -206,7 +184,7 @@ static {
 
 
 
-### [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E5%88%9B%E5%BB%BA%E9%9D%9E%E9%98%BB%E5%A1%9E-io)创建非阻塞 I/O
+### 创建非阻塞 I/O
 
 下面，我们来创建一个非阻塞的 `SocketChannel`，代码与阻塞实现类型，唯一不同是`socketChannel.configureBlocking(false)`。
 
@@ -222,7 +200,7 @@ socketChannel.connect(remote);</pre>
 
 
 
-### [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E5%BB%BA%E7%AB%8B%E9%80%89%E6%8B%A9%E5%99%A8%E4%B8%8E-socket-%E7%9A%84%E5%85%B3%E8%81%94)建立选择器与 socket 的关联
+### 建立选择器与 socket 的关联
 
 选择器与 socket 都创建好了，下一步就是将两者进行关联，好让选择器和监听到 Socket 的变化。这里采用了以 `SocketChannel` 主动注册到选择器的方式进行关联绑定，这也就解释了，为什么不直接`new Socket()`，而是以`SocketChannel`的方式来创建 socket。
 
@@ -248,7 +226,7 @@ socketChannel.connect(remote);</pre>
 | OP_CONNECT | 1 << 3 | 连接socket操作 | SocketChannel |
 | OP_ACCEPT | 1 << 4 | 接受socket操作 | ServerSocketChannel |
 
-### [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E9%80%89%E6%8B%A9%E5%99%A8%E7%9B%91%E5%90%AC-socket-%E5%8F%98%E5%8C%96)选择器监听 socket 变化
+### 选择器监听 socket 变化
 
 现在，选择器已经与我们关心的 socket 进行了关联。下面就是感知事件的变化，然后调用相应的处理机制。
 
@@ -290,7 +268,7 @@ public void select() throws IOException {
 
 _**注意：这里的`selector.select()`是同步阻塞的，等待有事件发生后，才会被唤醒。这就防止了 CPU 空转的产生。当然，我们也可以给它设置超时时间，`selector.select(long timeout)`来结束阻塞过程。**_
 
-### [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E5%A4%84%E7%90%86%E8%BF%9E%E6%8E%A5%E5%B0%B1%E7%BB%AA%E4%BA%8B%E4%BB%B6)处理连接就绪事件
+### 处理连接就绪事件
 
 下面，我们分别来看下，一个 socket 是如何来处理连接、写入数据和读取数据的（_这些操作都是阻塞的过程，只是我们将等待就绪的过程变成了非阻塞的了_）。
 
@@ -315,7 +293,7 @@ private void connect(SelectionKey key) throws IOException {
 
 
 
-### [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E5%A4%84%E7%90%86%E5%86%99%E5%85%A5%E5%B0%B1%E7%BB%AA%E4%BA%8B%E4%BB%B6)处理写入就绪事件
+### 处理写入就绪事件
 
 
 
@@ -328,13 +306,13 @@ private void write(SelectionKey key) throws IOException {
     String host = remote.getHostName();
 
 	// 获取 HTTP 请求，同上一篇
-    String request = HttpUtil.compositeRequest(host);
-
+	String request = HttpUtil.compositeRequest(host);
+	
 	// 向 SocketChannel 写入事件 
-    channel.write(charset.encode(request));
-
-    // 修改 SocketChannel 所关心的事件
-    key.interestOps(SelectionKey.OP_READ);
+	channel.write(charset.encode(request));
+	
+	// 修改 SocketChannel 所关心的事件
+	key.interestOps(SelectionKey.OP_READ);
 }</pre>
 
 
@@ -351,7 +329,7 @@ private void write(SelectionKey key) throws IOException {
 
     *   readyOps：表示 `SocketChannel` 当前就绪的事件类型。以`key.isReadable()`为例，判断依据就是：`return (readyOps() & OP_READ) != 0;`
 
-### [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E5%A4%84%E7%90%86%E8%AF%BB%E5%8F%96%E5%B0%B1%E7%BB%AA%E4%BA%8B%E4%BB%B6)处理读取就绪事件
+### 处理读取就绪事件
 
 
 
@@ -363,13 +341,13 @@ private void write(SelectionKey key) throws IOException {
     String receiveData = charset.decode(buffer).toString();
 
 	// 当再没有数据可读时，取消在选择器中的关联，并关闭 socket 连接
-    if ("".equals(receiveData)) {
-        key.cancel();
-        channel.close();
-        return;
-    }
-
-    System.out.println(receiveData);
+	if ("".equals(receiveData)) {
+	    key.cancel();
+	    channel.close();
+	    return;
+	}
+	
+	System.out.println(receiveData);
 }</pre>
 
 
@@ -389,7 +367,7 @@ private void write(SelectionKey key) throws IOException {
 *   极限（limit）：表示缓冲区的当前终点，即写入、读取都不可超过该重点；
 *   位置（position）：表示缓冲区下一个读写单元的位置；
 
-### [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81)完整代码
+### 完整代码
 
 
 
@@ -413,7 +391,7 @@ public class NioNonBlockingHttpClient {
 
     private static Selector selector;
     private Charset charset = Charset.forName("utf8");
-
+    
     static {
         try {
             selector = Selector.open();
@@ -421,21 +399,21 @@ public class NioNonBlockingHttpClient {
             e.printStackTrace();
         }
     }
-
+    
     public static void main(String[] args) throws IOException {
-
+    
         NioNonBlockingHttpClient client = new NioNonBlockingHttpClient();
-
+    
         for (String host: HttpConstant.HOSTS) {
-
+    
             client.request(host, HttpConstant.PORT);
-
+    
         }
-
+    
         client.select();
-
+    
     }
-
+    
     public void request(String host, int port) throws IOException {
         SocketChannel socketChannel = SocketChannel.open();
         socketChannel.socket().setSoTimeout(5000);
@@ -447,18 +425,18 @@ public class NioNonBlockingHttpClient {
                         | SelectionKey.OP_READ
                         | SelectionKey.OP_WRITE);
     }
-
+    
     public void select() throws IOException {
         while (selector.select(500) > 0){
             Set keys = selector.selectedKeys();
-
+    
             Iterator it = keys.iterator();
-
+    
             while (it.hasNext()){
-
+    
                 SelectionKey key = (SelectionKey)it.next();
                 it.remove();
-
+    
                 if (key.isConnectable()){
                     connect(key);
                 }
@@ -471,7 +449,7 @@ public class NioNonBlockingHttpClient {
             }
         }
     }
-
+    
     private void connect(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         channel.finishConnect();
@@ -480,32 +458,32 @@ public class NioNonBlockingHttpClient {
         int port = remote.getPort();
         System.out.println(String.format("访问地址: %s:%s 连接成功!", host, port));
     }
-
+    
     private void write(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         InetSocketAddress remote = (InetSocketAddress) channel.socket().getRemoteSocketAddress();
         String host = remote.getHostName();
-
+    
         String request = HttpUtil.compositeRequest(host);
         System.out.println(request);
-
+    
         channel.write(charset.encode(request));
         key.interestOps(SelectionKey.OP_READ);
     }
-
+    
     private void receive(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         ByteBuffer buffer = ByteBuffer.allocate(1024);
         channel.read(buffer);
         buffer.flip();
         String receiveData = charset.decode(buffer).toString();
-
+    
         if ("".equals(receiveData)) {
             key.cancel();
             channel.close();
             return;
         }
-
+    
         System.out.println(receiveData);
     }
 }
@@ -513,14 +491,14 @@ public class NioNonBlockingHttpClient {
 
 
 
-### [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E7%A4%BA%E4%BE%8B%E6%95%88%E6%9E%9C)示例效果
+### 示例效果
 
 [![](https://github.com/jasonGeng88/blog/raw/master/201708/assets/java-nio-04.png)](https://github.com/jasonGeng88/blog/blob/master/201708/assets/java-nio-04.png)
 
-## [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E6%80%BB%E7%BB%93)总结
+## 总结
 
 本文从 nio 的阻塞方式讲起，介绍了阻塞 I/O 与非阻塞 I/O 的区别，以及在 nio 下是如何一步步构建一个 IO 多路复用的模型的客户端。文中需要理解的内容比较多，如果有理解错误的地方，欢迎指正~
 
-## [](https://github.com/jasonGeng88/blog/blob/master/201708/java-nio.md#%E5%90%8E%E7%BB%AD)后续
+## 后续
 
 *   Netty 下的异步请求实现
