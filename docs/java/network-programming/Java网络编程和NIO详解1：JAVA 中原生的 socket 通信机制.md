@@ -1,10 +1,6 @@
 本文转自：https://github.com/jasonGeng88/blog
 
-本文会告诉你如何从计算机网络的基础知识入手，一步步地学习Java网络基础，从socket到nio、bio、aio和netty等网络编程知识，并且进行实战，网络编程是每一个Java后端工程师必须要学习和理解的知识点，进一步来说，你还需要掌握Linux中的网络编程原理，包括IO模型、网络编程框架netty的进阶原理，才能更完整地了解整个Java网络编程的知识体系，形成自己的知识框架。
-
-## 当前环境
-
-1.  jdk1.8
+本文会告诉你如何从计算机网络的基础知识入手，一步步地学习Java网络基础，从socket到bio、nio、aio和netty等网络编程知识，并且进行实战，网络编程是每一个Java后端工程师必须要学习和理解的知识点，进一步来说，你还需要掌握Linux中的网络编程原理，包括IO模型、网络编程框架netty的进阶原理，才能更完整地了解整个Java网络编程的知识体系，形成自己的知识框架。
 
 ## 知识点
 
@@ -179,7 +175,7 @@ public class Application {
 ```
 结果输出：
 
-[![](https://github.com/jasonGeng88/blog/raw/master/201708/assets/java-socket-01.png)](https://github.com/jasonGeng88/blog/blob/master/201708/assets/java-socket-01.png)
+![../../../images/0011.png](../../../images/0011.png)
 
 ## 请求模型优化
 
@@ -227,7 +223,7 @@ public class MultiThreadApplication {
 }
 ```
 
-这种方式起初看起来挺有用的，但并发量一大，应用会起很多的线程。都知道，在服务器上，每一个线程实际都会占据一个文件句柄。而服务器上的句柄数是有限的，而且大量的线程，造成的线程间切换的消耗也会相当的大。所以这种方式在并发量大的场景下，一定是承载不住的。
+这种方式起初看起来挺有用的，但并发量一大，应用会起很多的线程。都知道，在服务器上，**每一个线程实际都会占据一个文件句柄。而服务器上的句柄数是有限的，而且大量的线程，造成的线程间切换的消耗也会相当的大。**所以这种方式在并发量大的场景下，一定是承载不住的。
 
 *   多线程 + 线程池 处理
 
@@ -246,15 +242,13 @@ public class ThreadPoolApplication {
             });
             executorService.submit(t);
             new SocketHttpClient().start(host, HttpConstant.PORT);
-
         }
-
     }
 }
 ```
 关于启动的线程数，一般 CPU 密集型会设置在 N+1（N为CPU核数），IO 密集型设置在 2N + 1。
 
-这种方式，看起来是最优的了。那有没有更好的呢，如果一个线程能同时处理多个 socket 连接，并且在每个 socket 输入输出数据没有准备好的情况下，不进行阻塞，那是不是更优呢。这种技术叫做“IO多路复用”。在 JAVA 的 nio 包中，提供了相应的实现。
+这种方式，看起来是最优的了。那有没有更好的呢，**如果一个线程能同时处理多个 socket 连接，并且在每个 socket 输入输出数据没有准备好的情况下，不进行阻塞，那是不是更优呢。这种技术叫做“IO多路复用”。在 JAVA 的 nio 包中，提供了相应的实现。**
 
 ## 补充1：TCP客户端与服务端
 
@@ -276,7 +270,7 @@ public class TCP客户端 {
                     //读取服务器返回的消息
                     BufferedReader br = new BufferedReader(new InputStreamReader(is));
                     String mess = br.readLine();
-                    System._out_.println("服务器："+mess);
+                    System.out.println("服务器："+mess);
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -299,13 +293,13 @@ public class TCP服务端 {
                 try {
                     ServerSocket ss = new ServerSocket(1234);
                     while (true) {
-                        System._out_.println("启动服务器....");
+                        System.out.println("启动服务器....");
                         Socket s = ss.accept();
-                        System._out_.println("客户端:" + s.getInetAddress().getLocalHost() + "已连接到服务器");
+                        System.out.println("客户端:" + s.getInetAddress().getLocalHost() + "已连接到服务器");
                         BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
                         //读取客户端发送来的消息
                         String mess = br.readLine();
-                        System._out_.println("客户端：" + mess);
+                        System.out.println("客户端：" + mess);
                         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
                         bw.write(mess + "\n");
                         bw.flush();
@@ -336,7 +330,7 @@ public class UDP客户端 {
                     DatagramSocket datagramSocket = new DatagramSocket();
                     DatagramPacket datagramPacket = new DatagramPacket(arr, arr.length, inetAddress, 1234);
                     datagramSocket.send(datagramPacket);
-                    System._out_.println("send end");
+                    System.out.println("send end");
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 } catch (SocketException e) {
@@ -363,9 +357,9 @@ public class UDP服务端 {
                     byte[] buffer = new byte[1024];
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                     datagramSocket.receive(packet);
-                    System._out_.println("server recv");
+                    System.out.println("server recv");
                     String msg = new String(packet.getData(), "utf-8");
-                    System._out_.println(msg);
+                    System.out.println(msg);
                 } catch (SocketException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -381,4 +375,4 @@ public class UDP服务端 {
 ## 后续
 
 *   JAVA 中是如何实现 IO多路复用
-*   Netty 下的实现异步请求的
+*   Netty 如何实现异步请求的
