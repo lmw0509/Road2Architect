@@ -1,61 +1,3 @@
-# 目录
-  * [聊聊IDE的实现原理](#聊聊ide的实现原理)
-    * [源代码保存](#源代码保存)
-    * [编译为class文件](#编译为class文件)
-    * [查找class](#查找class)
-    * [生成对象，并调用对象方法](#生成对象，并调用对象方法)
-  * [javac命令初窥](#javac命令初窥)
-    * [classpath是什么](#classpath是什么)
-      * [IDE中的classpath](#ide中的classpath)
-      * [Java项目和Java web项目的本质区别](#java项目和java-web项目的本质区别)
-    * [javac命令后缀](#javac命令后缀)
-      * [-g、-g:none、-g:{lines,vars,source}](#-g、-gnone、-g{linesvarssource})
-      * [-bootclasspath、-extdirs](#-bootclasspath、-extdirs)
-      * [-sourcepath和-classpath（-cp）](#-sourcepath和-classpath（-cp）)
-      * [-d](#-d)
-      * [-implicit:{none,class}](#-implicit{noneclass})
-      * [-source和-target](#-source和-target)
-      * [-encoding](#-encoding)
-      * [-verbose](#-verbose)
-      * [其他命令](#其他命令)
-  * [使用javac构建项目](#使用javac构建项目)
-                    * [](#)
-* [java文件列表目录](#java文件列表目录)
-                        * [放入列表文件中](#放入列表文件中)
-                * [生成bin目录](#生成bin目录)
-                * [列表](#列表)
-    * [通过-cp指定所有的引用jar包，将src下的所有java文件进行编译](#通过-cp指定所有的引用jar包，将src下的所有java文件进行编译)
-    * [通过-cp指定所有的引用jar包，指定入口函数运行](#通过-cp指定所有的引用jar包，指定入口函数运行)
-  * [javap 的使用](#javap-的使用)
-  * [参考文章](#参考文章)
-  * [微信公众号](#微信公众号)
-    * [Java技术江湖](#java技术江湖)
-    * [个人公众号：黄小斜](#个人公众号：黄小斜)
----
-title: 夯实Java基础系列20：从IDE的实现原理聊起，谈谈那些年我们用过的Java命令
-date: 2019-9-20 15:56:26 # 文章生成时间，一般不改
-categories:
-    - Java技术江湖
-    - Java基础
-tags:
-    - Java命令行
----
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章首发于我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《夯实Java基础系列博文》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-该系列博文会告诉你如何从入门到进阶，一步步地学习Java基础知识，并上手进行实战，接着了解每个Java知识点背后的实现原理，更完整地了解整个Java技术体系，形成自己的知识框架。为了更好地总结和检验你的学习成果，本系列文章也会提供每个知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-<!-- more -->
-
 ## 聊聊IDE的实现原理
 
 > IDE是把双刃剑，它可以什么都帮你做了，你只要敲几行代码，点几下鼠标，程序就跑起来了，用起来相当方便。
@@ -167,20 +109,20 @@ java提供了JavaCompiler，我们可以通过它来编译java源文件为class�
 ​                        byteArrayOutputStream.write(data,0,len);
 ​                    }
 ​    
-                    return defineClass(name,byteArrayOutputStream.toByteArray(),0,byteArrayOutputStream.size());
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    if (null != fileInputStream) {
-                        try {
-                            fileInputStream.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-    
+​                    return defineClass(name,byteArrayOutputStream.toByteArray(),0,byteArrayOutputStream.size());
+​                } catch (FileNotFoundException e) {
+​                    e.printStackTrace();
+​                } catch (IOException e) {
+​                    e.printStackTrace();
+​                } finally {
+​                    if (null != fileInputStream) {
+​                        try {
+​                            fileInputStream.close();
+​                        } catch (IOException e) {
+​                            e.printStackTrace();
+​                        }
+​                    }
+​    
                     if (null != byteArrayOutputStream) {
                         try {
                             byteArrayOutputStream.close();
@@ -902,21 +844,3 @@ https://www.jianshu.com/p/f7330dbdc051
 https://www.jianshu.com/p/6a8997560b05
 https://blog.csdn.net/w372426096/article/details/81664431
 https://blog.csdn.net/qincidong/article/details/82492140
-
-## 微信公众号
-
-### Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的公众号【Java技术江湖】一位阿里 Java 工程师的技术小站，作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-**Java工程师必备学习资源:** 一些Java工程师常用学习资源，关注公众号后，后台回复关键字 **“Java”** 即可免费无套路获取。
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
-
-### 个人公众号：黄小斜
-
-作者是 985 硕士，蚂蚁金服 JAVA 工程师，专注于 JAVA 后端技术栈：SpringBoot、MySQL、分布式、中间件、微服务，同时也懂点投资理财，偶尔讲点算法和计算机理论基础，坚持学习和写作，相信终身学习的力量！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取。 
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
