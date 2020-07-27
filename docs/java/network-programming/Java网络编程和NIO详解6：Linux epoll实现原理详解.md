@@ -1,28 +1,12 @@
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章将同步到我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《不可轻视的Java网络编程》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何从计算机网络的基础知识入手，一步步地学习Java网络基础，从socket到nio、bio、aio和netty等网络编程知识，并且进行实战，网络编程是每一个Java后端工程师必须要学习和理解的知识点，进一步来说，你还需要掌握Linux中的网络编程原理，包括IO模型、网络编程框架netty的进阶原理，才能更完整地了解整个Java网络编程的知识体系，形成自己的知识框架。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供部分知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-<!-- more -->
-
 ## 为什么要 I/O 多路复用
 
 当需要从一个叫 `r_fd` 的描述符不停地读取数据，并把读到的数据写入一个叫 `w_fd` 的描述符时，我们可以用循环使用阻塞 I/O ：
 
-    while((n = read(r_fd, buf, BUF_SIZE)) > 0)
-        if(write(w_fd, buf, n) != n)
-            err_sys("write error");
+```c
+while((n = read(r_fd, buf, BUF_SIZE)) > 0)
+    if(write(w_fd, buf, n) != n)
+        err_sys("write error");
+```
 
 但是，如果要从两个地方读取数据呢？这时，不能再使用会把程序阻塞住的 `read` 函数。因为可能在阻塞地等待 `r_fd1` 的数据时，来不及处理 `r_fd2`，已经到达的 `r_fd2` 的数据可能会丢失掉。
 
@@ -40,25 +24,29 @@
 
 select, poll, epoll 就是这样的系统函数。
 
-### [](https://jeff.wtf/2017/02/IO-multiplexing/#select "select")select
+### select
 
 我们可以在所有 POSIX 兼容的系统里使用 select 函数来进行 I/O 多路复用。我们需要通过 select 函数的参数传递给内核的信息有：
 
-    *   我们关心哪些描述符
-    *   我们关心它们的什么事件
-    *   我们希望等待多长时间
+```c
+*   我们关心哪些描述符
+*   我们关心它们的什么事件
+*   我们希望等待多长时间
+```
 
 select 的返回时，内核会告诉我们：
     
-    *   可读的描述符的个数
-    *   哪些描述符发生了哪些事件
+```c
+*   可读的描述符的个数
+*   哪些描述符发生了哪些事件
 
-    #include <sys/select.h>
-    int select(int maxfdp1, fd_set* readfds,
-               fd_set* writefds, fd_set* exceptfds,
-               struct timeval* timeout);
-    
-    // 返回值: 已就绪的描述符的个数。超时时为 0 ，错误时为 -1
+#include <sys/select.h>
+int select(int maxfdp1, fd_set* readfds,
+           fd_set* writefds, fd_set* exceptfds,
+           struct timeval* timeout);
+
+// 返回值: 已就绪的描述符的个数。超时时为 0 ，错误时为 -1
+```
 
 `maxfdp1` 意思是 “max file descriptor plus 1” ，就是把你要监视的所有文件描述符里最大的那个加上 1 。（它实际上决定了内核要遍历文件描述符的次数，比如你监视了文件描述符 5 和 20 并把 `maxfdp1` 设置为 21 ，内核每次都会从描述符 0 依次检查到 20。）
 
@@ -68,61 +56,62 @@ select 的返回时，内核会告诉我们：
 
 用一个代码片段来展示 select 的用法：
 
-        // 这个例子要监控文件描述符 3, 4 的可读状态，以及 4, 5 的可写状态
-        
-        // 初始化两个 fd_set 以及 timeval
-        fd_set read_set, write_set;
-        FD_ZERO(read_set);
-        FD_ZERO(write_set);
-        timeval t;
-        t.tv_sec = 5;   // 超时为 5 秒
-        t.tv_usec = 0;  // 加 0 微秒
-        
-        // 设置好两个 fd_set
-        int fd1 = 3;
-        int fd2 = 4;
-        int fd3 = 5;
-        int maxfdp1 = 5 + 1;
-        FD_SET(fd1, &read_set);
-        FD_SET(fd2, &read_set);
-        FD_SET(fd2, &write_set);
-        FD_SET(fd3, &write_set);
-        
-        // 准备备用的 fd_set
-        fd_set r_temp = read_set;
-        fd_set w_temp = write_set;
-        
-        while(true){
-            // 每次都要重新设置放入 select 的 fd_set
-            read_set = r_temp;
-            write_set = w_temp;
-        
-            // 使用 select
-            int n = select(maxfdp1, &read_set, &write_set, NULL, &t);
-        
-            // 上面的 select 函数会一直阻塞，直到
-            // 3, 4 可读以及 4, 5 可写这四件事中至少一项发生
-            // 或者等待时间到达 5 秒，返回 0
-        
-            for(int i=0; i<maxfdp1 && n>0; i++){
-                if(FD_ISSET(i, &read_set)){
-                    n--;
-                    if(i==fd1)
-                        prinf("描述符 3 可读");
-                    if(i==fd2)
-                        prinf("描述符 4 可读");
-                }
-                if(FD_ISSET(i, &write_set)){
-                    n--;
-                    if(i==fd2)
-                        prinf("描述符 3 可写");
-                    if(i==fd3)
-                        prinf("描述符 4 可写");
-                }
-            }
-            // 上面的 printf 语句换成对应的 read 或者 write 函数就
-            // 可以立即读取或者写入相应的描述符而不用等待
+```c
+// 这个例子要监控文件描述符 3, 4 的可读状态，以及 4, 5 的可写状态
+// 初始化两个 fd_set 以及 timeval
+fd_set read_set, write_set;
+FD_ZERO(read_set);
+FD_ZERO(write_set);
+timeval t;
+t.tv_sec = 5;   // 超时为 5 秒
+t.tv_usec = 0;  // 加 0 微秒
+
+// 设置好两个 fd_set
+int fd1 = 3;
+int fd2 = 4;
+int fd3 = 5;
+int maxfdp1 = 5 + 1;
+FD_SET(fd1, &read_set);
+FD_SET(fd2, &read_set);
+FD_SET(fd2, &write_set);
+FD_SET(fd3, &write_set);
+
+// 准备备用的 fd_set
+fd_set r_temp = read_set;
+fd_set w_temp = write_set;
+
+while(true){
+    // 每次都要重新设置放入 select 的 fd_set
+    read_set = r_temp;
+    write_set = w_temp;
+
+    // 使用 select
+    int n = select(maxfdp1, &read_set, &write_set, NULL, &t);
+
+    // 上面的 select 函数会一直阻塞，直到
+    // 3, 4 可读以及 4, 5 可写这四件事中至少一项发生
+    // 或者等待时间到达 5 秒，返回 0
+
+    for(int i=0; i<maxfdp1 && n>0; i++){
+        if(FD_ISSET(i, &read_set)){
+            n--;
+            if(i==fd1)
+                prinf("描述符 3 可读");
+            if(i==fd2)
+                prinf("描述符 4 可读");
         }
+        if(FD_ISSET(i, &write_set)){
+            n--;
+            if(i==fd2)
+                prinf("描述符 3 可写");
+            if(i==fd3)
+                prinf("描述符 4 可写");
+        }
+    }
+    // 上面的 printf 语句换成对应的 read 或者 write 函数就
+    // 可以立即读取或者写入相应的描述符而不用等待
+}
+```
 
 可以看到，select 的缺点有：
 
@@ -144,21 +133,25 @@ select 的返回时，内核会告诉我们：
 
 select 在监视大量描述符尤其是更多的描述符未准备好的情况时性能很差。《Unix 高级编程》里写，用 select 的程序通常只使用 3 到 10 个描述符。
 
-### [](https://jeff.wtf/2017/02/IO-multiplexing/#poll "poll")poll
+### poll
 
 poll 和 select 是相似的，只是给的接口不同。
 
-    #include <poll.h>
-    int poll(struct pollfd fdarray[], nfds_t nfds, int timeout);
-    
-    // 返回值: 已就绪的描述符的个数。超时时为 0 ，错误时为 -1
+```c
+#include <poll.h>
+int poll(struct pollfd fdarray[], nfds_t nfds, int timeout);
+
+// 返回值: 已就绪的描述符的个数。超时时为 0 ，错误时为 -1
+```
 `fdarray` 是 `pollfd` 的数组。`pollfd` 结构体是这样的：
 
-    struct pollfd {
-        int fd;         // 文件描述符
-        short events;   // 我期待的事件
-        short revents;  // 实际发生的事件：我期待的事件中发生的；或者异常情况
-    };
+```c
+struct pollfd {
+    int fd;         // 文件描述符
+    short events;   // 我期待的事件
+    short revents;  // 实际发生的事件：我期待的事件中发生的；或者异常情况
+};
+```
 
 `nfds` 是 `fdarray` 的长度，也就是 pollfd 的个数。
 
@@ -168,23 +161,27 @@ poll 和 select 是相似的，只是给的接口不同。
 
 除此之外，poll 和 select 几乎相同。在 poll 返回后，需要遍历 `fdarray` 来检查各个 `pollfd` 里的 `revents` 是否发生了期待的事件；每次调用 poll 时，把 `fdarray` 复制到内核空间。在描述符太多而每次准备好的较少时，poll 有同样的性能问题。
 
-### [](https://jeff.wtf/2017/02/IO-multiplexing/#epoll "epoll")epoll
+### epoll
 
 epoll 是在 Linux 2.5.44 中首度登场的。不像 select 和 poll ，它提供了三个系统函数而不是一个。
 
-#### [](https://jeff.wtf/2017/02/IO-multiplexing/#epoll-create-%E7%94%A8%E6%9D%A5%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA-epoll-%E6%8F%8F%E8%BF%B0%E7%AC%A6%EF%BC%9A "epoll_create 用来创建一个 epoll 描述符：")epoll_create 用来创建一个 epoll 描述符：
+#### epoll_create 用来创建一个 epoll 描述符：
 
-    #include <sys/epoll.h>
-    int epoll_create(int size);
-    
-    // 返回值：epoll 描述符
+```c
+#include <sys/epoll.h>
+int epoll_create(int size);
+
+// 返回值：epoll 描述符
+```
 `size` 用来告诉内核你想监视的文件描述符的数目，但是它**并不是限制了能监视的描述符的最大个数**，而是给内核最初分配的空间一个建议。然后系统会在内核中分配一个空间来存放事件表，并返回一个 **epoll 描述符**，用来操作这个事件表。
 
-#### [](https://jeff.wtf/2017/02/IO-multiplexing/#epoll-ctl-%E7%94%A8%E6%9D%A5%E5%A2%9E-%E5%88%A0-%E6%94%B9%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E4%BA%8B%E4%BB%B6%E8%A1%A8%EF%BC%9A "epoll_ctl 用来增/删/改内核中的事件表：")epoll_ctl 用来增/删/改内核中的事件表：
+#### epoll_ctl 用来增/删/改内核中的事件表：
 
-    int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
-    
-    // 返回值：成功时返回 0 ，失败时返回 -1
+```c
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+
+// 返回值：成功时返回 0 ，失败时返回 -1
+```
 
 `epfd` 是 epoll 描述符。
 
@@ -194,26 +191,30 @@ epoll 是在 Linux 2.5.44 中首度登场的。不像 select 和 poll ，它提�
 
 `event` 是一个 epoll_event 结构体的指针。epoll_event 的定义是这样的：
 
-    typedef union epoll_data {
-       void        *ptr;
-       int          fd;
-       uint32_t     u32;
-       uint64_t     u64;
-    } epoll_data_t;
-    
-    struct epoll_event {
-       uint32_t     events;      // 我期待的事件
-       epoll_data_t data;        // 用户数据变量
-    };
+```c
+typedef union epoll_data {
+   void        *ptr;
+   int          fd;
+   uint32_t     u32;
+   uint64_t     u64;
+} epoll_data_t;
+
+struct epoll_event {
+   uint32_t     events;      // 我期待的事件
+   epoll_data_t data;        // 用户数据变量
+};
+```
 
 这个结构体里，除了期待的事件外，还有一个 `data` ，是一个 union，它是用来让我们在得到下面第三个函数的返回值以后方便的定位文件描述符的。
 
-#### [](https://jeff.wtf/2017/02/IO-multiplexing/#epoll-wait-%E7%94%A8%E6%9D%A5%E7%AD%89%E5%BE%85%E4%BA%8B%E4%BB%B6 "epoll_wait 用来等待事件")epoll_wait 用来等待事件
+#### epoll_wait 用来等待事件")epoll_wait 用来等待事件
 
-    int epoll_wait(int epfd, struct epoll_event *result_events,
-                  int maxevents, int timeout);
-    
-    // 返回值：已就绪的描述符个数。超时时为 0 ，错误时为 -1
+```c
+int epoll_wait(int epfd, struct epoll_event *result_events,
+              int maxevents, int timeout);
+
+// 返回值：已就绪的描述符个数。超时时为 0 ，错误时为 -1
+```
 `epfd` 是 epoll 描述符。
 
 `result_events` 是 epoll_event 结构体的指针，它将指向的是所有已经准备好的事件描述符相关联的 epoll_event（在上个步骤里调用 epoll_ctl 时关联起来的）。下面的例子可以让你知道这个参数的意义。
@@ -225,49 +226,51 @@ epoll 是在 Linux 2.5.44 中首度登场的。不像 select 和 poll ，它提�
 用一个代码片段来展示 epoll 的用法：
     // 这个例子要监控文件描述符 3, 4 的可读状态，以及 4, 5 的可写状态
     
-    /* 通过 epoll_create 创建 epoll 描述符 */
-    int epfd = epoll_create(4);
-    
-    int fd1 = 3;
-    int fd2 = 4;
-    int fd3 = 5;
-    
-    /* 通过 epoll_ctl 注册好四个事件 */
-    struct epoll_event ev1;
-    ev1.events = EPOLLIN;      // 期待它的可读事件发生
-    ev1.data   = fd1;          // 我们通常就把 data 设置为 fd ，方便以后查看
-    epoll_ctl(epfd, EPOLL_CTL_ADD, fd1, &ev1);  // 添加到事件表
-    
-    struct epoll_event ev2;
-    ev2.events = EPOLLIN;
-    ev2.data   = fd2;
-    epoll_ctl(epfd, EPOLL_CTL_ADD, fd2, &ev2);
-    
-    struct epoll_event ev3;
-    ev3.events = EPOLLOUT;     // 期待它的可写事件发生
-    ev3.data   = fd2;
-    epoll_ctl(epfd, EPOLL_CTL_ADD, fd2, &ev3);
-    
-    struct epoll_event ev4;
-    ev4.events = EPOLLOUT;
-    ev4.data   = fd3;
-    epoll_ctl(epfd, EPOLL_CTL_ADD, fd3, &ev4);
-    
-    /* 通过 epoll_wait 等待事件 */
-    # DEFINE MAXEVENTS 4
-    struct epoll_event result_events[MAXEVENTS];
-    
-    while(true){
-        int n = epoll_wait(epfd, &result_events, MAXEVENTS, 5000);
-    
-        for(int i=0; i<n; n--){
-            // result_events[i] 一定是 ev1 到 ev4 中的一个
-            if(result_events[i].events&EPOLLIN)
-                printf("描述符 %d 可读", result_events[i].fd);
-            else if(result_events[i].events&EPOLLOUT)
-                printf("描述符 %d 可写", result_events[i].fd)
-        }
+```c
+/* 通过 epoll_create 创建 epoll 描述符 */
+int epfd = epoll_create(4);
+
+int fd1 = 3;
+int fd2 = 4;
+int fd3 = 5;
+
+/* 通过 epoll_ctl 注册好四个事件 */
+struct epoll_event ev1;
+ev1.events = EPOLLIN;      // 期待它的可读事件发生
+ev1.data   = fd1;          // 我们通常就把 data 设置为 fd ，方便以后查看
+epoll_ctl(epfd, EPOLL_CTL_ADD, fd1, &ev1);  // 添加到事件表
+
+struct epoll_event ev2;
+ev2.events = EPOLLIN;
+ev2.data   = fd2;
+epoll_ctl(epfd, EPOLL_CTL_ADD, fd2, &ev2);
+
+struct epoll_event ev3;
+ev3.events = EPOLLOUT;     // 期待它的可写事件发生
+ev3.data   = fd2;
+epoll_ctl(epfd, EPOLL_CTL_ADD, fd2, &ev3);
+
+struct epoll_event ev4;
+ev4.events = EPOLLOUT;
+ev4.data   = fd3;
+epoll_ctl(epfd, EPOLL_CTL_ADD, fd3, &ev4);
+
+/* 通过 epoll_wait 等待事件 */
+# DEFINE MAXEVENTS 4
+struct epoll_event result_events[MAXEVENTS];
+
+while(true){
+    int n = epoll_wait(epfd, &result_events, MAXEVENTS, 5000);
+
+    for(int i=0; i<n; n--){
+        // result_events[i] 一定是 ev1 到 ev4 中的一个
+        if(result_events[i].events&EPOLLIN)
+            printf("描述符 %d 可读", result_events[i].fd);
+        else if(result_events[i].events&EPOLLOUT)
+            printf("描述符 %d 可写", result_events[i].fd)
     }
+}
+```
 
 所以 epoll 解决了 poll 和 select 的问题：
 

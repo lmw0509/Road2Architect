@@ -1,35 +1,3 @@
-# Table of Contents
-
-  * [阻塞模式 IO](#阻塞模式-io)
-  * [非阻塞 IO](#非阻塞-io)
-  * [NIO.2 异步 IO](#nio2-异步-io)
-    * [1、返回 Future 实例](#1、返回-future-实例)
-    * [2、提供 CompletionHandler 回调函数](#2、提供-completionhandler-回调函数)
-    * [AsynchronousFileChannel](#asynchronousfilechannel)
-    * [AsynchronousServerSocketChannel](#asynchronousserversocketchannel)
-    * [AsynchronousSocketChannel](#asynchronoussocketchannel)
-    * [Asynchronous Channel Groups](#asynchronous-channel-groups)
-  * [小结](#小结)
-
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章将同步到我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《不可轻视的Java网络编程》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何从计算机网络的基础知识入手，一步步地学习Java网络基础，从socket到nio、bio、aio和netty等网络编程知识，并且进行实战，网络编程是每一个Java后端工程师必须要学习和理解的知识点，进一步来说，你还需要掌握Linux中的网络编程原理，包括IO模型、网络编程框架netty的进阶原理，才能更完整地了解整个Java网络编程的知识体系，形成自己的知识框架。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供部分知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-<!-- more -->
-
 
 上一篇文章介绍了 Java NIO 中 Buffer、Channel 和 Selector 的基本操作，主要是一些接口操作，比较简单。
 
@@ -43,7 +11,7 @@
 
 我们已经介绍过使用 Java NIO 包组成一个简单的**客户端-服务端**网络通讯所需要的 ServerSocketChannel、SocketChannel 和 Buffer，我们这里整合一下它们，给出一个完整的可运行的例子：
 
-```
+```java
 public class Server {
 
     public static void main(String[] args) throws IOException {
@@ -68,7 +36,7 @@ public class Server {
 
 这里看一下新的线程需要做什么，SocketHandler：
 
-```
+```java
 public class SocketHandler implements Runnable {
 
     private SocketChannel socketChannel;
@@ -110,7 +78,7 @@ public class SocketHandler implements Runnable {
 
 最后，贴一下客户端 SocketChannel 的使用，客户端比较简单：
 
-```
+```java
 public class SocketChannelTest {
     public static void main(String[] args) throws IOException {
         SocketChannel socketChannel = SocketChannel.open();
@@ -169,7 +137,7 @@ select 和 poll 都有一个共同的问题，那就是**它们都只会告诉�
 
 之前在介绍 Selector 的时候已经了解过了它的基本用法，这边来一个可运行的实例代码，大家不妨看看：
 
-```
+```java
 public class SelectorServer {
 
     public static void main(String[] args) throws IOException {
@@ -278,7 +246,7 @@ Java 异步 IO 提供了两种使用方式，分别是返回 Future 实例和使
 
 java.nio.channels.CompletionHandler 接口定义：
 
-```
+```java
 public interface CompletionHandler<V,A> {
 
     void completed(V result, A attachment);
@@ -289,7 +257,7 @@ public interface CompletionHandler<V,A> {
 
 > 注意，参数上有个 attachment，虽然不常用，我们可以在各个支持的方法中传递这个参数值
 
-```
+```java
 AsynchronousServerSocketChannel listener = AsynchronousServerSocketChannel.open().bind(null);
 
 // accept 方法的第一个参数可以传递 attachment
@@ -314,13 +282,13 @@ listener.accept(attachment, new CompletionHandler<AsynchronousSocketChannel, Obj
 
 实例化：
 
-```
+```java
 AsynchronousFileChannel channel = AsynchronousFileChannel.open(Paths.get("/Users/hongjie/test.txt"));
 ```
 
 一旦实例化完成，我们就可以着手准备将数据读入到 Buffer 中：
 
-```
+```java
 ByteBuffer buffer = ByteBuffer.allocate(1024);
 Future<Integer> result = channel.read(buffer, 0);
 ```
@@ -329,7 +297,7 @@ Future<Integer> result = channel.read(buffer, 0);
 
 除了使用返回 Future 实例的方式，也可以采用回调函数进行操作，接口如下：
 
-```
+```java
 public abstract <A> void read(ByteBuffer dst,
                               long position,
                               A attachment,
@@ -338,7 +306,7 @@ public abstract <A> void read(ByteBuffer dst,
 
 顺便也贴一下写操作的两个版本的接口：
 
-```
+```java
 public abstract Future<Integer> write(ByteBuffer src, long position);
 
 public abstract <A> void write(ByteBuffer src,
@@ -351,7 +319,7 @@ public abstract <A> void write(ByteBuffer src,
 
 另外，还提供了用于将内存中的数据刷入到磁盘的方法：
 
-```
+```java
 public abstract void force(boolean metaData) throws IOException;
 ```
 
@@ -359,7 +327,7 @@ public abstract void force(boolean metaData) throws IOException;
 
 还有，还提供了对文件的锁定功能，我们可以锁定文件的部分数据，这样可以进行排他性的操作。
 
-```
+```java
 public abstract Future<FileLock> lock(long position, long size, boolean shared);
 ```
 
@@ -367,7 +335,7 @@ public abstract Future<FileLock> lock(long position, long size, boolean shared);
 
 当然，也可以使用回调函数的版本：
 
-```
+```java
 public abstract <A> void lock(long position,
                               long size,
                               boolean shared,
@@ -377,7 +345,7 @@ public abstract <A> void lock(long position,
 
 文件锁定功能上还提供了 tryLock 方法，此方法会快速返回结果：
 
-```
+```java
 public abstract FileLock tryLock(long position, long size, boolean shared)
     throws IOException;
 ```
@@ -392,7 +360,7 @@ AsynchronousFileChannel 操作大体上也就以上介绍的这些接口，还�
 
 我们就废话少说，用代码说事吧：
 
-```
+```java
 package com.javadoop.aio;
 
 import java.io.IOException;
@@ -454,7 +422,7 @@ public class Server {
 
 看一下 ChannelHandler 类：
 
-```
+```java
 package com.javadoop.aio;
 
 import java.io.IOException;
@@ -505,7 +473,7 @@ public class ChannelHandler implements CompletionHandler<Integer, Attachment> {
 
 顺便再贴一下自定义的 Attachment 类：
 
-```
+```java
 public class Attachment {
     private AsynchronousServerSocketChannel server;
     private AsynchronousSocketChannel client;
@@ -523,7 +491,7 @@ public class Attachment {
 
 这边做个简单演示，这样读者就可以配合之前介绍的 Server 进行测试使用了。
 
-```
+```java
 package com.javadoop.aio;
 
 import java.io.IOException;
@@ -562,7 +530,7 @@ public class Client {
 
 往里面看下 ClientChannelHandler 类：
 
-```
+```java
 package com.javadoop.aio;
 
 import java.io.IOException;
@@ -649,7 +617,7 @@ AsynchronousSocketChannel client = AsynchronousSocketChannel.open(group);
 
 **AsynchronousFileChannels 不属于 group**。但是它们也是关联到一个线程池的，如果不指定，会使用系统默认的线程池，如果想要使用指定的线程池，可以在实例化的时候使用以下方法：
 
-```
+```java
 public static AsynchronousFileChannel open(Path file,
                                            Set<? extends OpenOption> options,
                                            ExecutorService executor,
@@ -667,5 +635,3 @@ public static AsynchronousFileChannel open(Path file,
 我们也要知道，看懂了这些，确实可以学到一些东西，多了解一些知识，但是我们还是很少在工作中将这些知识变成工程代码。一般而言，我们需要在网络应用中使用 NIO 或 AIO 来提升性能，但是，在工程上，绝不是了解了一些概念，知道了一些接口就可以的，需要处理的细节还非常多。
 
 这也是为什么 Netty/Mina 如此盛行的原因，因为它们帮助封装好了很多细节，提供给我们用户友好的接口，后面有时间我也会对 Netty 进行介绍。
-
-（全文完）
