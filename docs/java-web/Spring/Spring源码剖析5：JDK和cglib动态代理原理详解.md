@@ -16,25 +16,6 @@
 
 转自 https://www.jianshu.com/u/668d0795a95b
 
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章将同步到我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《Spring和SpringMVC源码分析》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何从spring基础入手，一步步地学习spring基础和springmvc的框架知识，并上手进行项目实战，spring框架是每一个Java工程师必须要学习和理解的知识点，进一步来说，你还需要掌握spring甚至是springmvc的源码以及实现原理，才能更完整地了解整个spring技术体系，形成自己的知识框架。
-
-后续还会有springboot和springcloud的技术专题，陆续为大家带来，敬请期待。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供部分知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-<!-- more -->
 ## 前言
 AOP的基础是Java动态代理，了解和使用两种动态代理能让我们更好地理解 AOP，在讲解AOP之前，让我们先来看看Java动态代理的使用方式以及底层实现原理。
 
@@ -42,47 +23,47 @@ AOP的基础是Java动态代理，了解和使用两种动态代理能让我们�
 
 ## Java代理介绍
 
-Java中代理的实现一般分为三种：JDK静态代理、JDK动态代理以及CGLIB动态代理。在Spring的AOP实现中，主要应用了JDK动态代理以及CGLIB动态代理。但是本文着重介绍JDK动态代理机制，CGLIB动态代理后面会接着探究。
+Java中代理的实现一般分为三种：**JDK静态代理、JDK动态代理以及CGLIB动态代理**。在Spring的AOP实现中，主要应用了JDK动态代理以及CGLIB动态代理。但是本文着重介绍JDK动态代理机制，CGLIB动态代理后面会接着探究。
 
 代理一般实现的模式为JDK静态代理：创建一个接口，然后创建被代理的类实现该接口并且实现该接口中的抽象方法。之后再创建一个代理类，同时使其也实现这个接口。在代理类中持有一个被代理对象的引用，而后在代理类方法中调用该对象的方法。
 
 其实就是代理类为被代理类预处理消息、过滤消息并在此之后将消息转发给被代理类，之后还能进行消息的后置处理。代理类和被代理类通常会存在关联关系(即上面提到的持有的被带离对象的引用)，代理类本身不实现服务，而是通过调用被代理类中的方法来提供服务。
 
-## 静态代理
+### 静态代理
 
 ![](https://img2018.cnblogs.com/blog/1092007/201908/1092007-20190825140729721-1002455386.png)
 
-接口
+**接口**
 
 ![](https://img2018.cnblogs.com/blog/1092007/201908/1092007-20190825140729978-492174823.png)
 
-被代理类
+**被代理类**
 
 ![](https://img2018.cnblogs.com/blog/1092007/201908/1092007-20190825140730312-501564524.png)
 
-代理类
+**代理类**
 
 ![](https://img2018.cnblogs.com/blog/1092007/201908/1092007-20190825140730518-1275832673.png)
 
-测试类以及输出结果
+**测试类以及输出结果**
 
 我们可以看出，使用JDK静态代理很容易就完成了对一个类的代理操作。但是JDK静态代理的缺点也暴露了出来：由于代理只能为一个类服务，如果需要代理的类很多，那么就需要编写大量的代理类，比较繁琐。
 
 下面我们使用JDK动态代理来做同样的事情
 
-## JDK动态代理
+### JDK动态代理
 
 ![](https://img2018.cnblogs.com/blog/1092007/201908/1092007-20190825140729721-1002455386.png)
 
-接口
+**接口**
 
 ![](https://img2018.cnblogs.com/blog/1092007/201908/1092007-20190825140729978-492174823.png)
 
-被代理类
+**被代理类**
 
 ![](https://img2018.cnblogs.com/blog/1092007/201908/1092007-20190825140731035-1119549632.png)
 
-代理类
+**代理类**
 
 ![](https://img2018.cnblogs.com/blog/1092007/201908/1092007-20190825140731317-1929161422.png)
 
@@ -92,7 +73,8 @@ Java中代理的实现一般分为三种：JDK静态代理、JDK动态代理以�
 
 JDK动态代理其实也是基本接口实现的。因为通过接口指向实现类实例的多态方式，可以有效地将具体实现与调用解耦，便于后期的修改和维护。
 
-通过上面的介绍，我们可以发现JDK静态代理与JDK动态代理之间有些许相似，比如说都要创建代理类，以及代理类都要实现接口等。但是不同之处也非常明显----在静态代理中我们需要对哪个接口和哪个被代理类创建代理类，所以我们在编译前就需要代理类实现与被代理类相同的接口，并且直接在实现的方法中调用被代理类相应的方法；但是动态代理则不同，我们不知道要针对哪个接口、哪个被代理类创建代理类，因为它是在运行时被创建的。
+通过上面的介绍，我们可以发现JDK静态代理与JDK动态代理之间有些许相似，比如说都要创建代理类，以及代理类都要实现接口等。
+但是不同之处也非常明显，在静态代理中我们需要对哪个接口和哪个被代理类创建代理类，所以我们在编译前就需要代理类实现与被代理类相同的接口，并且直接在实现的方法中调用被代理类相应的方法；但是动态代理则不同，我们不知道要针对哪个接口、哪个被代理类创建代理类，因为它是在运行时被创建的。
 
 让我们用一句话来总结一下JDK静态代理和JDK动态代理的区别，然后开始探究JDK动态代理的底层实现机制：
 JDK静态代理是通过直接编码创建的，而JDK动态代理是利用反射机制在运行时创建代理类的。
@@ -102,188 +84,183 @@ JDK静态代理是通过直接编码创建的，而JDK动态代理是利用反�
 
 ### Proxy类中的newProxyInstance
 
-```
- public static Object newProxyInstance(ClassLoader loader,
-                                          Class<?>[] interfaces,
-                                          InvocationHandler h)
-        throws IllegalArgumentException
-    {
-        //如果h为空将抛出异常
-        Objects.requireNonNull(h);
+```java
+public static Object newProxyInstance(ClassLoader loader, Class<?>[] interfaces, InvocationHandler h)
+ throws IllegalArgumentException {
+ // 如果h为空将抛出异常
+ Objects.requireNonNull(h);
+ 
+ final Class<?>[] intfs = interfaces.clone();// 拷贝被代理类实现的一些接口，用于后面权限方面的一些检查
+ final SecurityManager sm = System.getSecurityManager();
+ if (sm != null) {
+     // 在这里对某些安全权限进行检查，确保我们有权限对预期的被代理类进行代理
+     checkProxyAccess(Reflection.getCallerClass(), loader, intfs);
+ }
 
-        final Class<?>[] intfs = interfaces.clone();//拷贝被代理类实现的一些接口，用于后面权限方面的一些检查
-        final SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            //在这里对某些安全权限进行检查，确保我们有权限对预期的被代理类进行代理
-            checkProxyAccess(Reflection.getCallerClass(), loader, intfs);
-        }
+ /*
+  * 下面这个方法将产生代理类
+  */
+ Class<?> cl = getProxyClass0(loader, intfs);
 
-        /*
-         * 下面这个方法将产生代理类
-         */
-        Class<?> cl = getProxyClass0(loader, intfs);
+ /*
+  * 使用指定的调用处理程序获取代理类的构造函数对象
+  */
+ try {
+     if (sm != null) {
+         checkNewProxyPermission(Reflection.getCallerClass(), cl);
+     }
 
-        /*
-         * 使用指定的调用处理程序获取代理类的构造函数对象
-         */
-        try {
-            if (sm != null) {
-                checkNewProxyPermission(Reflection.getCallerClass(), cl);
-            }
-
-            final Constructor<?> cons = cl.getConstructor(constructorParams);
-            final InvocationHandler ih = h;
-            //假如代理类的构造函数是private的，就使用反射来set accessible
-            if (!Modifier.isPublic(cl.getModifiers())) {
-                AccessController.doPrivileged(new PrivilegedAction<Void>() {
-                    public Void run() {
-                        cons.setAccessible(true);
-                        return null;
-                    }
-                });
-            }
-            //根据代理类的构造函数来生成代理类的对象并返回
-            return cons.newInstance(new Object[]{h});
-        } catch (IllegalAccessException|InstantiationException e) {
-            throw new InternalError(e.toString(), e);
-        } catch (InvocationTargetException e) {
-            Throwable t = e.getCause();
-            if (t instanceof RuntimeException) {
-                throw (RuntimeException) t;
-            } else {
-                throw new InternalError(t.toString(), t);
-            }
-        } catch (NoSuchMethodException e) {
-            throw new InternalError(e.toString(), e);
-        }
-    }
+     final Constructor<?> cons = cl.getConstructor(constructorParams);
+     final InvocationHandler ih = h;
+     // 假如代理类的构造函数是private的，就使用反射来set accessible
+     if (!Modifier.isPublic(cl.getModifiers())) {
+         AccessController.doPrivileged(new PrivilegedAction<Void>() {
+             public Void run() {
+                 cons.setAccessible(true);
+                 return null;
+             }
+         });
+     }
+     // 根据代理类的构造函数来生成代理类的对象并返回
+     return cons.newInstance(new Object[] {h});
+ } catch (IllegalAccessException | InstantiationException e) {
+     throw new InternalError(e.toString(), e);
+ } catch (InvocationTargetException e) {
+     Throwable t = e.getCause();
+     if (t instanceof RuntimeException) {
+         throw (RuntimeException) t;
+     } else {
+         throw new InternalError(t.toString(), t);
+     }
+ } catch (NoSuchMethodException e) {
+     throw new InternalError(e.toString(), e);
+ }
+}
 
 ```
 
 所以代理类其实是通过getProxyClass方法来生成的：
 
-```
- /**
-     * 生成一个代理类，但是在调用本方法之前必须进行权限检查
-     */
-    private static Class<?> getProxyClass0(ClassLoader loader,
-                                           Class<?>... interfaces) {
-        //如果接口数量大于65535，抛出非法参数错误
-        if (interfaces.length > 65535) {
-            throw new IllegalArgumentException("interface limit exceeded");
-        }
-
-        // 如果在缓存中有对应的代理类，那么直接返回
-        // 否则代理类将有 ProxyClassFactory 来创建
-        return proxyClassCache.get(loader, interfaces);
+```java
+/**
+ * 生成一个代理类，但是在调用本方法之前必须进行权限检查
+ */
+private static Class<?> getProxyClass0(ClassLoader loader, Class<?>... interfaces) {
+    //如果接口数量大于65535，抛出非法参数错误
+    if (interfaces.length > 65535) {
+        throw new IllegalArgumentException("interface limit exceeded");
     }
+
+    // 如果在缓存中有对应的代理类，那么直接返回
+    // 否则代理类将有 ProxyClassFactory 来创建
+    return proxyClassCache.get(loader, interfaces);
+}
 
 ```
 
 那么ProxyClassFactory是什么呢？
 
-```
-   /**
-     *  里面有一个根据给定ClassLoader和Interface来创建代理类的工厂函数  
-     *
-     */
-    private static final class ProxyClassFactory
-        implements BiFunction<ClassLoader, Class<?>[], Class<?>>
-    {
-        // 代理类的名字的前缀统一为“$Proxy”
-        private static final String proxyClassNamePrefix = "$Proxy";
+```java
+/**
+ *  里面有一个根据给定ClassLoader和Interface来创建代理类的工厂函数  
+ *
+ */
+private static final class ProxyClassFactory
+    implements BiFunction<ClassLoader, Class<?>[], Class<?>>{
+    // 代理类的名字的前缀统一为“$Proxy”
+    private static final String proxyClassNamePrefix = "$Proxy";
 
-        // 每个代理类前缀后面都会跟着一个唯一的编号，如$Proxy0、$Proxy1、$Proxy2
-        private static final AtomicLong nextUniqueNumber = new AtomicLong();
+    // 每个代理类前缀后面都会跟着一个唯一的编号，如$Proxy0、$Proxy1、$Proxy2
+    private static final AtomicLong nextUniqueNumber = new AtomicLong();
 
-        @Override
-        public Class<?> apply(ClassLoader loader, Class<?>[] interfaces) {
+    @Override
+    public Class<?> apply(ClassLoader loader, Class<?>[] interfaces) {
 
-            Map<Class<?>, Boolean> interfaceSet = new IdentityHashMap<>(interfaces.length);
-            for (Class<?> intf : interfaces) {
-                /*
-                 * 验证类加载器加载接口得到对象是否与由apply函数参数传入的对象相同
-                 */
-                Class<?> interfaceClass = null;
-                try {
-                    interfaceClass = Class.forName(intf.getName(), false, loader);
-                } catch (ClassNotFoundException e) {
-                }
-                if (interfaceClass != intf) {
-                    throw new IllegalArgumentException(
-                        intf + " is not visible from class loader");
-                }
-                /*
-                 * 验证这个Class对象是不是接口
-                 */
-                if (!interfaceClass.isInterface()) {
-                    throw new IllegalArgumentException(
-                        interfaceClass.getName() + " is not an interface");
-                }
-                /*
-                 * 验证这个接口是否重复
-                 */
-                if (interfaceSet.put(interfaceClass, Boolean.TRUE) != null) {
-                    throw new IllegalArgumentException(
-                        "repeated interface: " + interfaceClass.getName());
-                }
-            }
-
-            String proxyPkg = null;     // 声明代理类所在的package
-            int accessFlags = Modifier.PUBLIC | Modifier.FINAL;
-
+        Map<Class<?>, Boolean> interfaceSet = new IdentityHashMap<>(interfaces.length);
+        for (Class<?> intf : interfaces) {
             /*
-             * 记录一个非公共代理接口的包，以便在同一个包中定义代理类。同时验证所有非公共
-             * 代理接口都在同一个包中
+             * 验证类加载器加载接口得到对象是否与由apply函数参数传入的对象相同
              */
-            for (Class<?> intf : interfaces) {
-                int flags = intf.getModifiers();
-                if (!Modifier.isPublic(flags)) {
-                    accessFlags = Modifier.FINAL;
-                    String name = intf.getName();
-                    int n = name.lastIndexOf('.');
-                    String pkg = ((n == -1) ? "" : name.substring(0, n + 1));
-                    if (proxyPkg == null) {
-                        proxyPkg = pkg;
-                    } else if (!pkg.equals(proxyPkg)) {
-                        throw new IllegalArgumentException(
-                            "non-public interfaces from different packages");
-                    }
-                }
-            }
-
-            if (proxyPkg == null) {
-                // 如果全是公共代理接口，那么生成的代理类就在com.sun.proxy package下
-                proxyPkg = ReflectUtil.PROXY_PACKAGE + ".";
-            }
-
-            /*
-             * 为代理类生成一个name  package name + 前缀+唯一编号
-             * 如 com.sun.proxy.$Proxy0.class
-             */
-            long num = nextUniqueNumber.getAndIncrement();
-            String proxyName = proxyPkg + proxyClassNamePrefix + num;
-
-            /*
-             * 生成指定代理类的字节码文件
-             */
-            byte[] proxyClassFile = ProxyGenerator.generateProxyClass(
-                proxyName, interfaces, accessFlags);
+            Class<?> interfaceClass = null;
             try {
-                return defineClass0(loader, proxyName,
-                                    proxyClassFile, 0, proxyClassFile.length);
-            } catch (ClassFormatError e) {
-                /*
-                 * A ClassFormatError here means that (barring bugs in the
-                 * proxy class generation code) there was some other
-                 * invalid aspect of the arguments supplied to the proxy
-                 * class creation (such as virtual machine limitations
-                 * exceeded).
-                 */
-                throw new IllegalArgumentException(e.toString());
+                interfaceClass = Class.forName(intf.getName(), false, loader);
+            } catch (ClassNotFoundException e) {
+            }
+            if (interfaceClass != intf) {
+                throw new IllegalArgumentException(
+                    intf + " is not visible from class loader");
+            }
+            /*
+             * 验证这个Class对象是不是接口
+             */
+            if (!interfaceClass.isInterface()) {
+                throw new IllegalArgumentException(
+                    interfaceClass.getName() + " is not an interface");
+            }
+            /*
+             * 验证这个接口是否重复
+             */
+            if (interfaceSet.put(interfaceClass, Boolean.TRUE) != null) {
+                throw new IllegalArgumentException(
+                    "repeated interface: " + interfaceClass.getName());
             }
         }
+
+        String proxyPkg = null;     // 声明代理类所在的package
+        int accessFlags = Modifier.PUBLIC | Modifier.FINAL;
+
+        /*
+         * 记录一个非公共代理接口的包，以便在同一个包中定义代理类。同时验证所有非公共
+         * 代理接口都在同一个包中
+         */
+        for (Class<?> intf : interfaces) {
+            int flags = intf.getModifiers();
+            if (!Modifier.isPublic(flags)) {
+                accessFlags = Modifier.FINAL;
+                String name = intf.getName();
+                int n = name.lastIndexOf('.');
+                String pkg = ((n == -1) ? "" : name.substring(0, n + 1));
+                if (proxyPkg == null) {
+                    proxyPkg = pkg;
+                } else if (!pkg.equals(proxyPkg)) {
+                    throw new IllegalArgumentException(
+                        "non-public interfaces from different packages");
+                }
+            }
+        }
+
+        if (proxyPkg == null) {
+            // 如果全是公共代理接口，那么生成的代理类就在com.sun.proxy package下
+            proxyPkg = ReflectUtil.PROXY_PACKAGE + ".";
+        }
+
+        /*
+         * 为代理类生成一个name  package name + 前缀+唯一编号
+         * 如 com.sun.proxy.$Proxy0.class
+         */
+        long num = nextUniqueNumber.getAndIncrement();
+        String proxyName = proxyPkg + proxyClassNamePrefix + num;
+
+        /*
+         * 生成指定代理类的字节码文件
+         */
+        byte[] proxyClassFile = ProxyGenerator.generateProxyClass(
+            proxyName, interfaces, accessFlags);
+        try {
+            return defineClass0(loader, proxyName,
+                                proxyClassFile, 0, proxyClassFile.length);
+        } catch (ClassFormatError e) {
+            /*
+             * A ClassFormatError here means that (barring bugs in the
+             * proxy class generation code) there was some other
+             * invalid aspect of the arguments supplied to the proxy
+             * class creation (such as virtual machine limitations
+             * exceeded).
+             */
+            throw new IllegalArgumentException(e.toString());
+        }
     }
+}
 
 ```
 
@@ -291,44 +268,44 @@ JDK静态代理是通过直接编码创建的，而JDK动态代理是利用反�
 
 由上方代码byte[] proxyClassFile = ProxyGenerator.generateProxyClass(proxyName, interfaces, accessFlags);可以看到，其实生成代理类字节码文件的工作是通过 ProxyGenerate类中的generateProxyClass方法来完成的。
 
-```
- public static byte[] generateProxyClass(final String var0, Class<?>[] var1, int var2) {
-        ProxyGenerator var3 = new ProxyGenerator(var0, var1, var2);
-       // 真正用来生成代理类字节码文件的方法在这里
-        final byte[] var4 = var3.generateClassFile();
-       // 保存代理类的字节码文件
-        if(saveGeneratedFiles) {
-            AccessController.doPrivileged(new PrivilegedAction() {
-                public Void run() {
-                    try {
-                        int var1 = var0.lastIndexOf(46);
-                        Path var2;
-                        if(var1 > 0) {
-                            Path var3 = Paths.get(var0.substring(0, var1).replace('.', File.separatorChar), 
-                                                                                   new String[0]);
-                            Files.createDirectories(var3, new FileAttribute[0]);
-                            var2 = var3.resolve(var0.substring(var1 + 1, var0.length()) + ".class");
-                        } else {
-                            var2 = Paths.get(var0 + ".class", new String[0]);
-                        }
-
-                        Files.write(var2, var4, new OpenOption[0]);
-                        return null;
-                    } catch (IOException var4x) {
-                        throw new InternalError("I/O exception saving generated file: " + var4x);
+```java
+public static byte[] generateProxyClass(final String var0, Class<?>[] var1, int var2) {
+    ProxyGenerator var3 = new ProxyGenerator(var0, var1, var2);
+   // 真正用来生成代理类字节码文件的方法在这里
+    final byte[] var4 = var3.generateClassFile();
+   // 保存代理类的字节码文件
+    if(saveGeneratedFiles) {
+        AccessController.doPrivileged(new PrivilegedAction() {
+            public Void run() {
+                try {
+                    int var1 = var0.lastIndexOf(46);
+                    Path var2;
+                    if(var1 > 0) {
+                        Path var3 = Paths.get(var0.substring(0, var1).replace('.', File.separatorChar), 
+                                                                               new String[0]);
+                        Files.createDirectories(var3, new FileAttribute[0]);
+                        var2 = var3.resolve(var0.substring(var1 + 1, var0.length()) + ".class");
+                    } else {
+                        var2 = Paths.get(var0 + ".class", new String[0]);
                     }
-                }
-            });
-        }
 
-        return var4;
+                    Files.write(var2, var4, new OpenOption[0]);
+                    return null;
+                } catch (IOException var4x) {
+                    throw new InternalError("I/O exception saving generated file: " + var4x);
+                }
+            }
+        });
     }
+
+    return var4;
+}
 
 ```
 
 下面来看看真正用于生成代理类字节码文件的generateClassFile方法：
 
-```
+```java
 private byte[] generateClassFile() {
         //下面一系列的addProxyMethod方法是将接口中的方法和Object中的方法添加到代理方法中(proxyMethod)
         this.addProxyMethod(hashCodeMethod, Object.class);
@@ -453,7 +430,7 @@ private byte[] generateClassFile() {
 
 下面是将接口与Object中一些方法添加到代理类中的addProxyMethod方法：
 
-```
+```java
 private void addProxyMethod(Method var1, Class<?> var2) {
         String var3 = var1.getName();//获得方法名称
         Class[] var4 = var1.getParameterTypes();//获得方法参数类型
@@ -486,23 +463,19 @@ private void addProxyMethod(Method var1, Class<?> var2) {
 
 这就是最终真正的代理类，它继承自Proxy并实现了我们定义的Subject接口。我们通过
 
-```
+```java
 HelloInterface helloInterface = (HelloInterface ) Proxy.newProxyInstance(loader, interfaces, handler);
 ```
 
-*   1
-
 得到的最终代理类对象就是上面这个类的实例。那么我们执行如下语句：
 
-```
+```java
 helloInterface.hello("Tom");
 ```
 
-*   1
-
 实际上就是执行上面类的相应方法，也就是：
 
-```
+```java
  public final void hello(String paramString)
   {
     try
@@ -524,17 +497,15 @@ helloInterface.hello("Tom");
 
 注意这里的`this.h.invoke`中的h，它是类Proxy中的一个属性
 
-```
- protected InvocationHandler h;
+```java
+protected InvocationHandler h;
 ```
 
 因为这个代理类继承了Proxy，所以也就继承了这个属性，而这个属性值就是我们定义的
 
-```
+```java
 InvocationHandler handler = new InvocationHandlerImpl(hello);
 ```
-
-*   1
 
 同时我们还发现，invoke方法的第一参数在底层调用的时候传入的是`this`，也就是最终生成的代理对象ProxySubject，这是JVM自己动态生成的，而不是我们自己定义的代理对象。
 
@@ -597,7 +568,7 @@ JDK代理要求被代理的类必须实现接口，有很强的局限性。而CG
 
 我们来看看将代理类Class文件反编译之后的Java代码
 
-```
+```java
 package proxy;
 
 import java.lang.reflect.Method;
@@ -608,226 +579,211 @@ import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
-public class HelloServiceImpl$EnhancerByCGLIB$82ef2d06
-  extends HelloServiceImpl
-  implements Factory
-{
-  private boolean CGLIB$BOUND;
-  private static final ThreadLocal CGLIB$THREAD_CALLBACKS;
-  private static final Callback[] CGLIB$STATIC_CALLBACKS;
-  private MethodInterceptor CGLIB$CALLBACK_0;
-  private static final Method CGLIB$sayHello$0$Method;
-  private static final MethodProxy CGLIB$sayHello$0$Proxy;
-  private static final Object[] CGLIB$emptyArgs;
-  private static final Method CGLIB$finalize$1$Method;
-  private static final MethodProxy CGLIB$finalize$1$Proxy;
-  private static final Method CGLIB$equals$2$Method;
-  private static final MethodProxy CGLIB$equals$2$Proxy;
-  private static final Method CGLIB$toString$3$Method;
-  private static final MethodProxy CGLIB$toString$3$Proxy;
-  private static final Method CGLIB$hashCode$4$Method;
-  private static final MethodProxy CGLIB$hashCode$4$Proxy;
-  private static final Method CGLIB$clone$5$Method;
-  private static final MethodProxy CGLIB$clone$5$Proxy;
+public class HelloServiceImpl$EnhancerByCGLIB$82ef2d06 extends HelloServiceImpl implements Factory {
+    private boolean CGLIB$BOUND;
+    private static final ThreadLocal CGLIB$THREAD_CALLBACKS;
+    private static final Callback[] CGLIB$STATIC_CALLBACKS;
+    private MethodInterceptor CGLIB$CALLBACK_0;
+    private static final Method CGLIB$sayHello$0$Method;
+    private static final MethodProxy CGLIB$sayHello$0$Proxy;
+    private static final Object[] CGLIB$emptyArgs;
+    private static final Method CGLIB$finalize$1$Method;
+    private static final MethodProxy CGLIB$finalize$1$Proxy;
+    private static final Method CGLIB$equals$2$Method;
+    private static final MethodProxy CGLIB$equals$2$Proxy;
+    private static final Method CGLIB$toString$3$Method;
+    private static final MethodProxy CGLIB$toString$3$Proxy;
+    private static final Method CGLIB$hashCode$4$Method;
+    private static final MethodProxy CGLIB$hashCode$4$Proxy;
+    private static final Method CGLIB$clone$5$Method;
+    private static final MethodProxy CGLIB$clone$5$Proxy;
 
-  static void CGLIB$STATICHOOK1()
-  {
-    CGLIB$THREAD_CALLBACKS = new ThreadLocal();
-    CGLIB$emptyArgs = new Object[0];
-    Class localClass1 = Class.forName("proxy.HelloServiceImpl$EnhancerByCGLIB$82ef2d06");
-    Class localClass2;
-    Method[] tmp95_92 = ReflectUtils.findMethods(new String[] { "finalize", "()V", "equals", "(Ljava/lang/Object;)Z", "toString", "()Ljava/lang/String;", "hashCode", "()I", "clone", "()Ljava/lang/Object;" }, (localClass2 = Class.forName("java.lang.Object")).getDeclaredMethods());
-    CGLIB$finalize$1$Method = tmp95_92[0];
-    CGLIB$finalize$1$Proxy = MethodProxy.create(localClass2, localClass1, "()V", "finalize", "CGLIB$finalize$1");
-    Method[] tmp115_95 = tmp95_92;
-    CGLIB$equals$2$Method = tmp115_95[1];
-    CGLIB$equals$2$Proxy = MethodProxy.create(localClass2, localClass1, "(Ljava/lang/Object;)Z", "equals", "CGLIB$equals$2");
-    Method[] tmp135_115 = tmp115_95;
-    CGLIB$toString$3$Method = tmp135_115[2];
-    CGLIB$toString$3$Proxy = MethodProxy.create(localClass2, localClass1, "()Ljava/lang/String;", "toString", "CGLIB$toString$3");
-    Method[] tmp155_135 = tmp135_115;
-    CGLIB$hashCode$4$Method = tmp155_135[3];
-    CGLIB$hashCode$4$Proxy = MethodProxy.create(localClass2, localClass1, "()I", "hashCode", "CGLIB$hashCode$4");
-    Method[] tmp175_155 = tmp155_135;
-    CGLIB$clone$5$Method = tmp175_155[4];
-    CGLIB$clone$5$Proxy = MethodProxy.create(localClass2, localClass1, "()Ljava/lang/Object;", "clone", "CGLIB$clone$5");
-    tmp175_155;
-    Method[] tmp223_220 = ReflectUtils.findMethods(new String[] { "sayHello", "()V" }, (localClass2 = Class.forName("proxy.HelloServiceImpl")).getDeclaredMethods());
-    CGLIB$sayHello$0$Method = tmp223_220[0];
-    CGLIB$sayHello$0$Proxy = MethodProxy.create(localClass2, localClass1, "()V", "sayHello", "CGLIB$sayHello$0");
-    tmp223_220;
-    return;
-  }
-
-  final void CGLIB$sayHello$0()
-  {
-    super.sayHello();
-  }
-
-  public final void sayHello()
-  {
-    MethodInterceptor tmp4_1 = this.CGLIB$CALLBACK_0;
-    if (tmp4_1 == null)
+    static void CGLIB$STATICHOOK1()
     {
-      tmp4_1;
-      CGLIB$BIND_CALLBACKS(this);
+        CGLIB$THREAD_CALLBACKS = new ThreadLocal();
+        CGLIB$emptyArgs = new Object[0];
+        Class localClass1 = Class.forName("proxy.HelloServiceImpl$EnhancerByCGLIB$82ef2d06");
+        Class localClass2;
+        Method[] tmp95_92 = ReflectUtils.findMethods(new String[] { "finalize", "()V", "equals", "(Ljava/lang/Object;)Z", "toString", "()Ljava/lang/String;", "hashCode", "()I", "clone", "()Ljava/lang/Object;" }, (localClass2 = Class.forName("java.lang.Object")).getDeclaredMethods());
+        CGLIB$finalize$1$Method = tmp95_92[0];
+        CGLIB$finalize$1$Proxy = MethodProxy.create(localClass2, localClass1, "()V", "finalize", "CGLIB$finalize$1");
+        Method[] tmp115_95 = tmp95_92;
+        CGLIB$equals$2$Method = tmp115_95[1];
+        CGLIB$equals$2$Proxy = MethodProxy.create(localClass2, localClass1, "(Ljava/lang/Object;)Z", "equals", "CGLIB$equals$2");
+        Method[] tmp135_115 = tmp115_95;
+        CGLIB$toString$3$Method = tmp135_115[2];
+        CGLIB$toString$3$Proxy = MethodProxy.create(localClass2, localClass1, "()Ljava/lang/String;", "toString", "CGLIB$toString$3");
+        Method[] tmp155_135 = tmp135_115;
+        CGLIB$hashCode$4$Method = tmp155_135[3];
+        CGLIB$hashCode$4$Proxy = MethodProxy.create(localClass2, localClass1, "()I", "hashCode", "CGLIB$hashCode$4");
+        Method[] tmp175_155 = tmp155_135;
+        CGLIB$clone$5$Method = tmp175_155[4];
+        CGLIB$clone$5$Proxy = MethodProxy.create(localClass2, localClass1, "()Ljava/lang/Object;", "clone", "CGLIB$clone$5");
+        tmp175_155;
+        Method[] tmp223_220 = ReflectUtils.findMethods(new String[] { "sayHello", "()V" }, (localClass2 = Class.forName("proxy.HelloServiceImpl")).getDeclaredMethods());
+        CGLIB$sayHello$0$Method = tmp223_220[0];
+        CGLIB$sayHello$0$Proxy = MethodProxy.create(localClass2, localClass1, "()V", "sayHello", "CGLIB$sayHello$0");
+        tmp223_220;
+        return;
     }
-    if (this.CGLIB$CALLBACK_0 != null) {
-      return;
+
+    final void CGLIB$sayHello$0() {
+        super.sayHello();
     }
-    super.sayHello();
-  }
 
-  final void CGLIB$finalize$1()
-    throws Throwable
-  {
-    super.finalize();
-  }
-
-  protected final void finalize()
-    throws Throwable
-  {
-    MethodInterceptor tmp4_1 = this.CGLIB$CALLBACK_0;
-    if (tmp4_1 == null)
+    public final void sayHello()
     {
-      tmp4_1;
-      CGLIB$BIND_CALLBACKS(this);
+        MethodInterceptor tmp4_1 = this.CGLIB$CALLBACK_0;
+        if (tmp4_1 == null)
+        {
+            tmp4_1;
+            CGLIB$BIND_CALLBACKS(this);
+        }
+        if (this.CGLIB$CALLBACK_0 != null) {
+            return;
+        }
+        super.sayHello();
     }
-    if (this.CGLIB$CALLBACK_0 != null) {
-      return;
+
+    final void CGLIB$finalize$1() throws Throwable {
+        super.finalize();
     }
-    super.finalize();
-  }
 
-  final boolean CGLIB$equals$2(Object paramObject)
-  {
-    return super.equals(paramObject);
-  }
-
-  public final boolean equals(Object paramObject)
-  {
-    MethodInterceptor tmp4_1 = this.CGLIB$CALLBACK_0;
-    if (tmp4_1 == null)
+    protected final void finalize()
+            throws Throwable
     {
-      tmp4_1;
-      CGLIB$BIND_CALLBACKS(this);
+        MethodInterceptor tmp4_1 = this.CGLIB$CALLBACK_0;
+        if (tmp4_1 == null)
+        {
+            tmp4_1;
+            CGLIB$BIND_CALLBACKS(this);
+        }
+        if (this.CGLIB$CALLBACK_0 != null) {
+            return;
+        }
+        super.finalize();
     }
-    MethodInterceptor tmp17_14 = this.CGLIB$CALLBACK_0;
-    if (tmp17_14 != null)
+
+    final boolean CGLIB$equals$2(Object paramObject) {
+        return super.equals(paramObject);
+    }
+
+    public final boolean equals(Object paramObject)
     {
-      Object tmp41_36 = tmp17_14.intercept(this, CGLIB$equals$2$Method, new Object[] { paramObject }, CGLIB$equals$2$Proxy);
-      tmp41_36;
-      return tmp41_36 == null ? false : ((Boolean)tmp41_36).booleanValue();
+        MethodInterceptor tmp4_1 = this.CGLIB$CALLBACK_0;
+        if (tmp4_1 == null)
+        {
+            tmp4_1;
+            CGLIB$BIND_CALLBACKS(this);
+        }
+        MethodInterceptor tmp17_14 = this.CGLIB$CALLBACK_0;
+        if (tmp17_14 != null)
+        {
+            Object tmp41_36 = tmp17_14.intercept(this, CGLIB$equals$2$Method, new Object[] { paramObject }, CGLIB$equals$2$Proxy);
+            tmp41_36;
+            return tmp41_36 == null ? false : ((Boolean)tmp41_36).booleanValue();
+        }
+        return super.equals(paramObject);
     }
-    return super.equals(paramObject);
-  }
 
-  final String CGLIB$toString$3()
-  {
-    return super.toString();
-  }
+    final String CGLIB$toString$3() {
+        return super.toString();
+    }
 
-  public final String toString()
-  {
-    MethodInterceptor tmp4_1 = this.CGLIB$CALLBACK_0;
-    if (tmp4_1 == null)
+    public final String toString()
     {
-      tmp4_1;
-      CGLIB$BIND_CALLBACKS(this);
+        MethodInterceptor tmp4_1 = this.CGLIB$CALLBACK_0;
+        if (tmp4_1 == null)
+        {
+            tmp4_1;
+            CGLIB$BIND_CALLBACKS(this);
+        }
+        MethodInterceptor tmp17_14 = this.CGLIB$CALLBACK_0;
+        if (tmp17_14 != null) {
+            return (String)tmp17_14.intercept(this, CGLIB$toString$3$Method, CGLIB$emptyArgs, CGLIB$toString$3$Proxy);
+        }
+        return super.toString();
     }
-    MethodInterceptor tmp17_14 = this.CGLIB$CALLBACK_0;
-    if (tmp17_14 != null) {
-      return (String)tmp17_14.intercept(this, CGLIB$toString$3$Method, CGLIB$emptyArgs, CGLIB$toString$3$Proxy);
+
+    final int CGLIB$hashCode$4() {
+        return super.hashCode();
     }
-    return super.toString();
-  }
 
-  final int CGLIB$hashCode$4()
-  {
-    return super.hashCode();
-  }
-
-  public final int hashCode()
-  {
-    MethodInterceptor tmp4_1 = this.CGLIB$CALLBACK_0;
-    if (tmp4_1 == null)
+    public final int hashCode()
     {
-      tmp4_1;
-      CGLIB$BIND_CALLBACKS(this);
+        MethodInterceptor tmp4_1 = this.CGLIB$CALLBACK_0;
+        if (tmp4_1 == null)
+        {
+            tmp4_1;
+            CGLIB$BIND_CALLBACKS(this);
+        }
+        MethodInterceptor tmp17_14 = this.CGLIB$CALLBACK_0;
+        if (tmp17_14 != null)
+        {
+            Object tmp36_31 = tmp17_14.intercept(this, CGLIB$hashCode$4$Method, CGLIB$emptyArgs, CGLIB$hashCode$4$Proxy);
+            tmp36_31;
+            return tmp36_31 == null ? 0 : ((Number)tmp36_31).intValue();
+        }
+        return super.hashCode();
     }
-    MethodInterceptor tmp17_14 = this.CGLIB$CALLBACK_0;
-    if (tmp17_14 != null)
+
+    final Object CGLIB$clone$5() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    protected final Object clone()
+            throws CloneNotSupportedException
     {
-      Object tmp36_31 = tmp17_14.intercept(this, CGLIB$hashCode$4$Method, CGLIB$emptyArgs, CGLIB$hashCode$4$Proxy);
-      tmp36_31;
-      return tmp36_31 == null ? 0 : ((Number)tmp36_31).intValue();
+        MethodInterceptor tmp4_1 = this.CGLIB$CALLBACK_0;
+        if (tmp4_1 == null)
+        {
+            tmp4_1;
+            CGLIB$BIND_CALLBACKS(this);
+        }
+        MethodInterceptor tmp17_14 = this.CGLIB$CALLBACK_0;
+        if (tmp17_14 != null) {
+            return tmp17_14.intercept(this, CGLIB$clone$5$Method, CGLIB$emptyArgs, CGLIB$clone$5$Proxy);
+        }
+        return super.clone();
     }
-    return super.hashCode();
-  }
 
-  final Object CGLIB$clone$5()
-    throws CloneNotSupportedException
-  {
-    return super.clone();
-  }
-
-  protected final Object clone()
-    throws CloneNotSupportedException
-  {
-    MethodInterceptor tmp4_1 = this.CGLIB$CALLBACK_0;
-    if (tmp4_1 == null)
-    {
-      tmp4_1;
-      CGLIB$BIND_CALLBACKS(this);
+    public static MethodProxy CGLIB$findMethodProxy(Signature paramSignature) {
+        String tmp4_1 = paramSignature.toString();
+        switch (tmp4_1.hashCode()) {
+            case -1574182249:
+                if (tmp4_1.equals("finalize()V")) {
+                    return CGLIB$finalize$1$Proxy;
+                }
+                break;
+        }
     }
-    MethodInterceptor tmp17_14 = this.CGLIB$CALLBACK_0;
-    if (tmp17_14 != null) {
-      return tmp17_14.intercept(this, CGLIB$clone$5$Method, CGLIB$emptyArgs, CGLIB$clone$5$Proxy);
+
+    public HelloServiceImpl$EnhancerByCGLIB$82ef2d06() {
+        CGLIB$BIND_CALLBACKS(this);
     }
-    return super.clone();
-  }
 
-  public static MethodProxy CGLIB$findMethodProxy(Signature paramSignature)
-  {
-    String tmp4_1 = paramSignature.toString();
-    switch (tmp4_1.hashCode())
-    {
-    case -1574182249: 
-      if (tmp4_1.equals("finalize()V")) {
-        return CGLIB$finalize$1$Proxy;
-      }
-      break;
+    public static void CGLIB$SET_THREAD_CALLBACKS(Callback[] paramArrayOfCallback) {
+        CGLIB$THREAD_CALLBACKS.set(paramArrayOfCallback);
     }
-  }
 
-  public HelloServiceImpl$EnhancerByCGLIB$82ef2d06()
-  {
-    CGLIB$BIND_CALLBACKS(this);
-  }
+    public static void CGLIB$SET_STATIC_CALLBACKS(Callback[] paramArrayOfCallback) {
+        CGLIB$STATIC_CALLBACKS = paramArrayOfCallback;
+    }
 
-  public static void CGLIB$SET_THREAD_CALLBACKS(Callback[] paramArrayOfCallback)
-  {
-    CGLIB$THREAD_CALLBACKS.set(paramArrayOfCallback);
-  }
-
-  public static void CGLIB$SET_STATIC_CALLBACKS(Callback[] paramArrayOfCallback)
-  {
-    CGLIB$STATIC_CALLBACKS = paramArrayOfCallback;
-  }
-
-  private static final void CGLIB$BIND_CALLBACKS(Object paramObject)
-  {
-    82ef2d06 local82ef2d06 = (82ef2d06)paramObject;
-    if (!local82ef2d06.CGLIB$BOUND)
-    {
-      local82ef2d06.CGLIB$BOUND = true;
-      Object tmp23_20 = CGLIB$THREAD_CALLBACKS.get();
-      if (tmp23_20 == null)
-      {
-        tmp23_20;
-        CGLIB$STATIC_CALLBACKS;
-      }
-      local82ef2d06.CGLIB$CALLBACK_0 = (// INTERNAL ERROR //
+    private static final void CGLIB$BIND_CALLBACKS(Object paramObject) {
+        82ef2d06 local82ef2d06 = (82ef2d06)paramObject;
+        if (!local82ef2d06.CGLIB$BOUND) {
+            local82ef2d06.CGLIB$BOUND = true;
+            Object tmp23_20 = CGLIB$THREAD_CALLBACKS.get();
+            if (tmp23_20 == null)
+            {
+                tmp23_20;
+                CGLIB$STATIC_CALLBACKS;
+            }
+            local82ef2d06.CGLIB$CALLBACK_0 = (// INTERNAL ERROR //)
+        }
+    }
+}
 
 ```
 
