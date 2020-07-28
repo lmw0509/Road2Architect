@@ -1,15 +1,6 @@
 本仓库为【Java工程师技术指南】力求打造最完整最实用的Java工程师学习指南！
 
-这些文章和总结都是我近几年学习Java总结和整理出来的，非常实用，对于学习Java后端的朋友来说应该是最全面最完整的技术仓库。
-
-点击关注[微信公众号](#微信公众号)及时获取笔主最新更新文章，并可免费领取Java工程师必备学习资源
-
-<p align="center">
-<a href="https://github.com/h2pl/Java-Tutorial" target="_blank">
-    <img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9ub3RlLnlvdWRhby5jb20veXdzL3B1YmxpYy9yZXNvdXJjZS8wNjk1ODIwMzc5MjhhMGU0OWViY2UyYjVhODVmM2UwZi94bWxub3RlLzRCNjhFODVCMzA4MzQwMjJCNzBGMTBBMTRDOEVENDVDLzg4MDQ3?x-oss-process=image/format,png" width="200" height="160"/>
-</a>
-</p>
-
+这些文章和总结都是我近几年学习Java总结和整理出来的，非常实用，应该是最全面最完整的技术仓库。
 
 ## 目录
 
