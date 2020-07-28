@@ -60,32 +60,10 @@
   * [ifconfig](#ifconfig)
   * [uname](#uname)
   * [实际场景问题](#实际场景问题)
-  * [微信公众号](#微信公众号)
-    * [Java技术江湖](#java技术江湖)
-    * [个人公众号：黄小斜](#个人公众号：黄小斜)
-
 
 ---
-title: Linux内核与基础命令学习总结
-date: 2018-07-09 22:33:14
-tags:
-	- Linux
-categories:
-	- 后端
-	- 技术总结
----
-这部分内容主要是基于一些关于Linux系统的内核基础和基本命令的学习总结，内容不全面，只讲述了其中的一小部分，后续会再补充，如有错误，还请见谅。
-
-
-Linux操作系统
-
-
-
 Linux操作系统博大精深，其中对线程，IO，文件系统等概念的实现都很有借鉴意义。
-<!-- more -->
 
-
-​        
 ## 文件系统和VFS
 
 文件系统的inode上面讲过了。VFS主要用于屏蔽底层的不同文件系统，比如接入网络中的nfs文件系统，亦或是windows文件系统，正常情况下难以办到，而vfs通过使用IO操作的posix规范来规定所有文件读写操作，每个文件系统只需要实现这些操作就可以接入VFS，不需要重新安装文件系统。
@@ -237,22 +215,22 @@ booty|sort上面就是在某次会话中的一个shell命令，它会产生一�
 
 2.终止线程
     
-      void pthread_exit(void *value_ptr);
+    void pthread_exit(void *value_ptr);
       
-         线程调用pthread_exit()结束自己，参数value_ptr作为线程的返回值被调用pthread_join的线程使用。由于一个进程中的多个线程是共享数据段的，因此通常在线程退出之后，退出线程所占用的资源并不会随着线程的终止而得到释放，但是可以用pthread_join()函数来同步并释放资源
+    线程调用pthread_exit()结束自己，参数value_ptr作为线程的返回值被调用pthread_join的线程使用。由于一个进程中的多个线程是共享数据段的，因此通常在线程退出之后，退出线程所占用的资源并不会随着线程的终止而得到释放，但是可以用pthread_join()函数来同步并释放资源
 
 
 3.取消线程
 
-      int pthread_cancel(pthread_t thread);
+    int pthread_cancel(pthread_t thread);
       
-    　　注意：若是在整个程序退出时，要终止各个线程，应该在成功发送 CANCEL指令后，使用 pthread_join函数，等待指定的线程已经完全退出以后，再继续执行；否则，很容易产生 “段错误”。
+    注意：若是在整个程序退出时，要终止各个线程，应该在成功发送 CANCEL指令后，使用 pthread_join函数，等待指定的线程已经完全退出以后，再继续执行；否则，很容易产生 “段错误”。
 
 4.连接线程（阻塞）
 
-      int pthread_join(pthread_t thread, void **value_ptr);
+    int pthread_join(pthread_t thread, void **value_ptr);
       
-    　　等待线程thread结束，并设置*value_ptr为thread的返回值。pthread_join阻塞调用者，一直到线程thread结束为止。当函数返回时，被等待线程的资源被收回。如果进程已经结束，那么该函数会立即返回。并且thread指定的线程必须是joinable的。
+    等待线程thread结束，并设置*value_ptr为thread的返回值。pthread_join阻塞调用者，一直到线程thread结束为止。当函数返回时，被等待线程的资源被收回。如果进程已经结束，那么该函数会立即返回。并且thread指定的线程必须是joinable的。
     
     需要留意的一点是linux机制下，线程存在一个被称为joinable的状态。下面简要了解一下：
 
@@ -513,9 +491,9 @@ ps:拥有目录权限才能修改文件名，拥有文件权限是没用的
 
 
 ​    
-    # ln /etc/crontab .
-    # ll -i /etc/crontab crontab
-    
+​    # ln /etc/crontab .
+​    # ll -i /etc/crontab crontab
+​    
     34474855 -rw-r--r--. 2 root root 451 Jun 10 2014 crontab
     34474855 -rw-r--r--. 2 root root 451 Jun 10 2014 /etc/crontab
 
@@ -916,20 +894,3 @@ uname可以显示一些重要的系统信息，例如内核名称、主机名、
     
     5内存
     free
-## 微信公众号
-
-### Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的公众号【Java技术江湖】一位阿里 Java 工程师的技术小站，作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-**Java工程师必备学习资源:** 一些Java工程师常用学习资源，关注公众号后，后台回复关键字 **“Java”** 即可免费无套路获取。
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
-
-### 个人公众号：黄小斜
-
-作者是 985 硕士，蚂蚁金服 JAVA 工程师，专注于 JAVA 后端技术栈：SpringBoot、MySQL、分布式、中间件、微服务，同时也懂点投资理财，偶尔讲点算法和计算机理论基础，坚持学习和写作，相信终身学习的力量！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取。	
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
