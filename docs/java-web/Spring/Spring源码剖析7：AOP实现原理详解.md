@@ -12,39 +12,24 @@
 
 本文转自五月的仓颉 https://www.cnblogs.com/xrq730
 
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章将同步到我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《Spring和SpringMVC源码分析》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何从spring基础入手，一步步地学习spring基础和springmvc的框架知识，并上手进行项目实战，spring框架是每一个Java工程师必须要学习和理解的知识点，进一步来说，你还需要掌握spring甚至是springmvc的源码以及实现原理，才能更完整地了解整个spring技术体系，形成自己的知识框架。
-
-后续还会有springboot和springcloud的技术专题，陆续为大家带来，敬请期待。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供部分知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-<!-- more -->
-
 前言
 
-前面写了六篇文章详细地分析了Spring Bean加载流程，这部分完了之后就要进入一个比较困难的部分了，就是AOP的实现原理分析。为了探究AOP实现原理，首先定义几个类，一个Dao接口：
+前面写了六篇文章详细地分析了Spring Bean加载流程，这部分完了之后就要进入一个比较困难的部分了，就是AOP的实现原理分析。
 
+为了探究AOP实现原理，首先定义几个类，一个Dao接口：
+
+```java
 public interface Dao {
-public void select();
-public void insert();
+    public void select();
+    public void insert();
 }
-Dao接口的实现类DaoImpl：
 
 ```
-public class DaoImpl implements Dao {
 
+Dao接口的实现类DaoImpl：
+
+```java
+public class DaoImpl implements Dao {
     @Override
     public void select() {
         System.out.println("Enter DaoImpl.select()");
@@ -61,7 +46,7 @@ public class DaoImpl implements Dao {
 
 定义一个TimeHandler，用于方法调用前后打印时间，在AOP中，这扮演的是横切关注点的角色：
 
-```
+```java
 public class TimeHandler {
 
     public void printTime() {
@@ -74,7 +59,7 @@ public class TimeHandler {
 
 定义一个XML文件aop.xml：
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -91,14 +76,13 @@ http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
     <bean id="daoImpl" class="org.xrq.action.aop.DaoImpl" />
     <bean id="timeHandler" class="org.xrq.action.aop.TimeHandler" />
 
- 
 </beans>
 
 ```
 
 写一段测试代码TestAop.java：
 
-```
+```java
 public class TestAop {
 
     @Test
@@ -125,7 +109,7 @@ public class TestAop {
 getBean的时候应该有过特殊的处理
 因此，本文围绕【1.加载Bean定义的时候应该有过特殊的处理】展开，先找一下到底是哪里Spring对AOP做了特殊的处理。代码直接定位到DefaultBeanDefinitionDocumentReader的parseBeanDefinitions方法：
 
-```
+```java
 protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
     if (delegate.isDefaultNamespace(root)) {
         NodeList nl = root.getChildNodes();
@@ -149,9 +133,10 @@ protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate d
 
 ```
 
-正常来说，遇到<bean id=”daoImpl”…>、<bean id=”timeHandler”…>这两个标签的时候，都会执行第9行的代码，因为<bean>标签是默认的Namespace。但是在遇到后面的标签的时候就不一样了，并不是默认的Namespace，因此会执行第12行的代码，看一下：
+正常来说，遇到<bean id="daoImpl"…>、<bean id="timeHandler"…>这两个标签的时候，都会执行第9行的代码，因为<bean>标签是默认的Namespace。
+但是在遇到后面的标签的时候就不一样了，并不是默认的Namespace，因此会执行第12行的代码，看一下：
 
-```
+```java
 public BeanDefinition parseCustomElement(Element ele, BeanDefinition containingBd) {
     String namespaceUri = getNamespaceURI(ele);
     NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
@@ -166,7 +151,7 @@ public BeanDefinition parseCustomElement(Element ele, BeanDefinition containingB
 
 因为之前把整个XML解析为了org.w3c.dom.Document，org.w3c.dom.Document以树的形式表示整个XML，具体到每一个节点就是一个Node。
 
-首先第2行从这个Node（参数Element是Node接口的子接口）中拿到Namespace=”[http://www.springframework.org/schema/aop](https://links.jianshu.com/go?to=http%3A%2F%2Fwww.springframework.org%2Fschema%2Faop)“，第3行的代码根据这个Namespace获取对应的NamespaceHandler即Namespace处理器，具体到aop这个Namespace的NamespaceHandler是org.springframework.aop.config.AopNamespaceHandler类，也就是第3行代码获取到的结果。具体到AopNamespaceHandler里面，有几个Parser，是用于具体标签转换的，分别为：
+首先第2行从这个Node（参数Element是Node接口的子接口）中拿到Namespace="[http://www.springframework.org/schema/aop](https://links.jianshu.com/go?to=http%3A%2F%2Fwww.springframework.org%2Fschema%2Faop)"，第3行的代码根据这个Namespace获取对应的NamespaceHandler即Namespace处理器，具体到aop这个Namespace的NamespaceHandler是org.springframework.aop.config.AopNamespaceHandler类，也就是第3行代码获取到的结果。具体到AopNamespaceHandler里面，有几个Parser，是用于具体标签转换的，分别为：
 
 config–>ConfigBeanDefinitionParser
 aspectj-autoproxy–>AspectJAutoProxyBeanDefinitionParser
@@ -176,10 +161,10 @@ spring-configured–>SpringConfiguredBeanDefinitionParser
 
 ## 解析增强器advisor
 
-AOP Bean定义加载——根据织入方式将、转换成名为adviceDef的RootBeanDefinition
+AOP Bean定义加载一根据织入方式将、转换成名为adviceDef的RootBeanDefinition
 上面经过分析，已经找到了Spring是通过AopNamespaceHandler处理的AOP，那么接着进入AopNamespaceHandler的parse方法源代码：
 
-```
+```java
 public BeanDefinition parse(Element element, ParserContext parserContext) {
     return findParserForElement(element, parserContext).parse(element, parserContext);
 }   
@@ -188,7 +173,7 @@ public BeanDefinition parse(Element element, ParserContext parserContext) {
 
 首先获取具体的Parser，因为当前节点是，上一部分最后有列，config是通过ConfigBeanDefinitionParser来处理的，因此findParserForElement(element, parserContext)这一部分代码获取到的是ConfigBeanDefinitionParser，接着看ConfigBeanDefinitionParser的parse方法：
 
-```
+```java
 public BeanDefinition parse(Element element, ParserContext parserContext) {
     CompositeComponentDefinition compositeDef =
             new CompositeComponentDefinition(element.getTagName(), parserContext.extractSource(element));
@@ -223,7 +208,7 @@ Spring默认提供的是org.springframework.aop.aspectj.autoproxy.AspectJAwareAd
 在这个方法里面也会根据配置proxy-target-class和expose-proxy，设置是否使用CGLIB进行代理以及是否暴露最终的代理。
 下的节点为，想见必然是执行第18行的代码parseAspect，跟进去：
 
-```
+```java
 private void parseAspect(Element aspectElement, ParserContext parserContext) {
     String aspectId = aspectElement.getAttribute(ID);
     String aspectName = aspectElement.getAttribute(REF);
@@ -282,7 +267,7 @@ private void parseAspect(Element aspectElement, ParserContext parserContext) {
 
 从第20行~第37行的循环开始关注这个方法。这个for循环有一个关键的判断就是第22行的ifAdviceNode判断，看下ifAdviceNode方法做了什么：
 
-```
+```java
 private boolean isAdviceNode(Node aNode, ParserContext parserContext) {
     if (!(aNode instanceof Element)) {
         return false;
@@ -300,7 +285,7 @@ private boolean isAdviceNode(Node aNode, ParserContext parserContext) {
 
 接着，如果是上述五种标签之一，那么进入第33行~第34行的parseAdvice方法：
 
-```
+```java
 private AbstractBeanDefinition parseAdvice(
     String aspectName, int order, Element aspectElement, Element adviceElement, ParserContext parserContext,
     List<BeanDefinition> beanDefinitions, List<BeanReference> beanReferences) {
@@ -351,7 +336,7 @@ private AbstractBeanDefinition parseAdvice(
 将advisorDefinition注册到DefaultListableBeanFactory中
 下面来看做的第一件事createAdviceDefinition方法定义：
 
-```
+```java
 private AbstractBeanDefinition createAdviceDefinition(
         Element adviceElement, ParserContext parserContext, String aspectName, int order,
         RootBeanDefinition methodDef, RootBeanDefinition aspectFactoryDef,
@@ -398,7 +383,7 @@ private AbstractBeanDefinition createAdviceDefinition(
 
 首先可以看到，创建的AbstractBeanDefinition实例是RootBeanDefinition，这和普通Bean创建的实例为GenericBeanDefinition不同。然后进入第6行的getAdviceClass方法看一下：
 
-```
+```java
 private Class getAdviceClass(Element adviceElement, ParserContext parserContext) {
     String elementName = parserContext.getDelegate().getLocalName(adviceElement);
     if (BEFORE.equals(elementName)) {
@@ -437,7 +422,7 @@ createAdviceDefinition方法剩余逻辑没什么，就是判断一下标签里�
 AOP Bean定义加载——将名为adviceDef的RootBeanDefinition转换成名为advisorDefinition的RootBeanDefinition
 下面我们看一下第二步的操作，将名为adviceDef的RootBeanD转换成名为advisorDefinition的RootBeanDefinition，跟一下上面一部分ConfigBeanDefinitionParser类parseAdvice方法的第26行~32行的代码：
 
-```
+```java
 RootBeanDefinition advisorDefinition = new RootBeanDefinition(AspectJPointcutAdvisor.class);
 advisorDefinition.setSource(parserContext.extractSource(adviceElement));
 advisorDefinition.getConstructorArgumentValues().addGenericArgumentValue(adviceDef);
@@ -456,13 +441,14 @@ AOP Bean定义加载——将BeanDefinition注册到DefaultListableBeanFactory�
 
 最后一步就是将BeanDefinition注册到DefaultListableBeanFactory中了，代码就是前面ConfigBeanDefinitionParser的parseAdvice方法的最后一部分了：
 
-```
+```java
 // register the final advisor
 parserContext.getReaderContext().registerWithGeneratedName(advisorDefinition);
-...
+```
+
 跟一下registerWithGeneratedName方法的实现：
 
-```
+```java
 public String registerWithGeneratedName(BeanDefinition beanDefinition) {
     String generatedName = generateBeanName(beanDefinition);
     getRegistry().registerBeanDefinition(generatedName, beanDefinition);
@@ -474,33 +460,34 @@ public String registerWithGeneratedName(BeanDefinition beanDefinition) {
 第2行获取注册的名字BeanName，和<bean>的注册差不多，使用的是Class全路径+”#”+全局计数器的方式，其中的Class全路径为org.springframework.aop.aspectj.AspectJPointcutAdvisor，依次类推，每一个BeanName应当为org.springframework.aop.aspectj.AspectJPointcutAdvisor#0、org.springframework.aop.aspectj.AspectJPointcutAdvisor#1、org.springframework.aop.aspectj.AspectJPointcutAdvisor#2这样下去。
 
 第3行向DefaultListableBeanFactory中注册，BeanName已经有了，剩下的就是Bean定义，Bean定义的解析流程之前已经看过了，就不说了。
-```
+
 
 ## 解析切面的过程
 
 AOP Bean定义加载——AopNamespaceHandler处理流程
 回到ConfigBeanDefinitionParser的parseAspect方法：
 
-    private void parseAspect(Element aspectElement, ParserContext parserContext) {
-    
-            ...  
-    
-            AspectComponentDefinition aspectComponentDefinition = createAspectComponentDefinition(
-                    aspectElement, aspectId, beanDefinitions, beanReferences, parserContext);
-            parserContext.pushContainingComponent(aspectComponentDefinition);
-    
-            List<Element> pointcuts = DomUtils.getChildElementsByTagName(aspectElement, POINTCUT);
-            for (Element pointcutElement : pointcuts) {
-                parsePointcut(pointcutElement, parserContext);
-            }
-    
-            parserContext.popAndRegisterContainingComponent();
-        }
-        finally {
-            this.parseState.pop();
-        }
-    }
+```java
+private void parseAspect(Element aspectElement, ParserContext parserContext) {
 
+        ...  
+
+        AspectComponentDefinition aspectComponentDefinition = createAspectComponentDefinition(
+                aspectElement, aspectId, beanDefinitions, beanReferences, parserContext);
+        parserContext.pushContainingComponent(aspectComponentDefinition);
+
+        List<Element> pointcuts = DomUtils.getChildElementsByTagName(aspectElement, POINTCUT);
+        for (Element pointcutElement : pointcuts) {
+            parsePointcut(pointcutElement, parserContext);
+        }
+
+        parserContext.popAndRegisterContainingComponent();
+    }
+    finally {
+        this.parseState.pop();
+    }
+}
+```
 
 省略号部分表示是解析的是、这种标签，上部分已经说过了，就不说了，下面看一下解析部分的源码。
 
@@ -508,7 +495,7 @@ AOP Bean定义加载——AopNamespaceHandler处理流程
 
 第9行的代码拿到所有下的pointcut标签，进行遍历，由parsePointcut方法进行处理：
 
-```
+```java
 private AbstractBeanDefinition parsePointcut(Element pointcutElement, ParserContext parserContext) {
     String id = pointcutElement.getAttribute(ID);
     String expression = pointcutElement.getAttribute(EXPRESSION);
@@ -558,7 +545,7 @@ private AbstractBeanDefinition parsePointcut(Element pointcutElement, ParserCont
 
 最后回头来一下第9行代码createPointcutDefinition的实现，比较简单：
 
-```
+```java
 protected AbstractBeanDefinition createPointcutDefinition(String expression) {
     RootBeanDefinition beanDefinition = new RootBeanDefinition(AspectJExpressionPointcut.class);
     beanDefinition.setScope(BeanDefinition.SCOPE_PROTOTYPE);
@@ -590,7 +577,7 @@ postProcessBeforeInitialization方法是一个空实现
 代理对象实例化—-判断是否为<bean>生成代理
 上文分析了Bean生成代理的时机是在每个Bean初始化之后，下面把代码定位到Bean初始化之后，先是AbstractAutowireCapableBeanFactory的initializeBean方法进行初始化：
 
-```
+```java
 protected Object initializeBean(final String beanName, final Object bean, RootBeanDefinition mbd) {
     if (System.getSecurityManager() != null) {
         AccessController.doPrivileged(new PrivilegedAction<Object>() {
@@ -628,7 +615,7 @@ protected Object initializeBean(final String beanName, final Object bean, RootBe
 
 初始化之前是第16行的applyBeanPostProcessorsBeforeInitialization方法，初始化之后即29行的applyBeanPostProcessorsAfterInitialization方法：
 
-```
+```java
 public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)
         throws BeansException {
 
@@ -646,7 +633,7 @@ public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, St
 
 这里调用每个BeanPostProcessor的postProcessBeforeInitialization方法。按照之前的分析，看一下AbstractAutoProxyCreator的postProcessAfterInitialization方法实现：
 
-```
+```java
 public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
     if (bean != null) {
         Object cacheKey = getCacheKey(bean.getClass(), beanName);
@@ -661,7 +648,7 @@ public Object postProcessAfterInitialization(Object bean, String beanName) throw
 
 跟一下第5行的方法wrapIfNecessary：
 
-```
+```java
 protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
     if (this.targetSourcedBeans.contains(beanName)) {
         return bean;
@@ -691,7 +678,7 @@ protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) 
 
 第2行~第11行是一些不需要生成代理的场景判断，这里略过。首先我们要思考的第一个问题是：哪些目标对象需要生成代理？因为配置文件里面有很多Bean，肯定不能对每个Bean都生成代理，因此需要一套规则判断Bean是不是需要生成代理，这套规则就是第14行的代码getAdvicesAndAdvisorsForBean：
 
-```
+```java
     protected List<Advisor> findEligibleAdvisors(Class beanClass, String beanName) {
         List<Advisor> candidateAdvisors = findCandidateAdvisors();
         List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
@@ -712,7 +699,7 @@ protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) 
 
 第3行代码，根据候选Advisors，寻找可以使用的Advisor，跟一下方法实现：
 
-```
+```java
 public static List<Advisor> findAdvisorsThatCanApply(List<Advisor> candidateAdvisors, Class<?> clazz) {
     if (candidateAdvisors.isEmpty()) {
         return candidateAdvisors;
@@ -740,7 +727,7 @@ public static List<Advisor> findAdvisorsThatCanApply(List<Advisor> candidateAdvi
 
 整个方法的主要判断都围绕canApply展开方法：
 
-```
+```java
 public static boolean canApply(Advisor advisor, Class<?> targetClass, boolean hasIntroductions) {
     if (advisor instanceof IntroductionAdvisor) {
         return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
@@ -759,7 +746,7 @@ public static boolean canApply(Advisor advisor, Class<?> targetClass, boolean ha
 
 第一个参数advisor的实际类型是AspectJPointcutAdvisor，它是PointcutAdvisor的子类，因此执行第7行的方法：
 
-```
+```java
 public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
     if (!pc.getClassFilter().matches(targetClass)) {
         return false;
@@ -799,7 +786,7 @@ public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasInt
 代理对象实例化—-为<bean>生成代理代码上下文梳理
 上文分析了为<bean>生成代理的条件，现在就正式看一下Spring上下文是如何为<bean>生成代理的。回到AbstractAutoProxyCreator的wrapIfNecessary方法：
 
-```
+```java
 protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
     if (this.targetSourcedBeans.contains(beanName)) {
         return bean;
@@ -829,7 +816,7 @@ protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) 
 
 第14行拿到<bean>对应的Advisor数组，第15行判断只要Advisor数组不为空，那么就会通过第17行的代码为<bean>创建代理：
 
-```
+```java
 protected Object createProxy(
         Class<?> beanClass, String beanName, Object[] specificInterceptors, TargetSource targetSource) {
 
@@ -870,7 +857,7 @@ protected Object createProxy(
 
 第17行~第28行的代码没什么看的必要，向ProxyFactory中添加一些参数而已。重点看第30行proxyFactory.getProxy(this.proxyClassLoader)这句：
 
-```
+```java
 public Object getProxy(ClassLoader classLoader) {
 return createAopProxy().getProxy(classLoader);
 }
@@ -886,7 +873,7 @@ return createAopProxy().getProxy(classLoader);
 代理对象实例化—-创建AopProxy接口实现类
 看一下createAopProxy()方法的实现，它位于DefaultAopProxyFactory类中：
 
-```
+```java
 protected final synchronized AopProxy createAopProxy() {
 if (!this.active) {
 activate();
@@ -898,7 +885,7 @@ return getAopProxyFactory().createAopProxy(this);
 
 前面的部分没什么必要看，直接进入重点即createAopProxy方法：
 
-```
+```java
 public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
     if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
         Class targetClass = config.getTargetClass();
@@ -945,16 +932,16 @@ proxy-target-class=”true”或者<bean>对象没有实现任何接口或者只
 Cglib2AopProxy生成代理的代码就不看了，对Cglib不熟悉的朋友可以看Cglib及其基本使用一文。
 
 JdkDynamicAopProxy生成代理的方式稍微看一下：
-
-    public Object getProxy(ClassLoader classLoader) {
+```java
+public Object getProxy(ClassLoader classLoader) {
     if (logger.isDebugEnabled()) {
-    logger.debug("Creating JDK dynamic proxy: target source is " + this.advised.getTargetSource());
+        logger.debug("Creating JDK dynamic proxy: target source is " + this.advised.getTargetSource());
     }
     Class[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised);
     findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
     return Proxy.newProxyInstance(classLoader, proxiedInterfaces, this);
-    }
-    
+}
+```    
 这边解释一下第5行和第6行的代码，第5行代码的作用是拿到所有要代理的接口，第6行代码的作用是尝试寻找这些接口方法里面有没有equals方法和hashCode方法，同时都有的话打个标记，寻找结束，equals方法和hashCode方法有特殊处理。
 
 最终通过第7行的Proxy.newProxyInstance方法获取接口/类对应的代理对象，Proxy是JDK原生支持的生成代理的方式。
@@ -964,7 +951,7 @@ JdkDynamicAopProxy生成代理的方式稍微看一下：
 
 由于JdkDynamicAopProxy本身实现了InvocationHandler接口，因此具体代理前后处理的逻辑在invoke方法中：
 
-```
+```java
 public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     MethodInvocation invocation;
     Object oldProxy = null;
@@ -1065,46 +1052,18 @@ chain.get(2)：AspectJAfterAdvice，用于在实际方法调用之后的处理
 
 下面我们来看一下CGLIB代理的方式，这里需要读者去了解一下CGLIB以及其创建代理的方式：
 
-
-
-
-
 ![](https://upload-images.jianshu.io/upload_images/5447660-9ab9ff5a18b6a429.jpeg?imageMogr2/auto-orient/strip|imageView2/2/w/915/format/webp)
-
-
-
-
-
-
-
 
 
 ![](https://upload-images.jianshu.io/upload_images/5447660-f3812e8cf27245fa.jpeg?imageMogr2/auto-orient/strip|imageView2/2/w/711/format/webp)
 
 
-
-
-
-
-
-
-
 ![](https://upload-images.jianshu.io/upload_images/5447660-2b8fafa06c78cacf.jpeg?imageMogr2/auto-orient/strip|imageView2/2/w/910/format/webp)
-
-
-
 
 
 这里将拦截器链封装到了DynamicAdvisedInterceptor中，并加入了Callback，DynamicAdvisedInterceptor实现了CGLIB的MethodInterceptor，所以其核心逻辑在intercept方法中：
 
-
-
-
-
 ![](https://upload-images.jianshu.io/upload_images/5447660-c9dde35cfeb0faee.jpeg?imageMogr2/auto-orient/strip|imageView2/2/w/933/format/webp)
-
-
-
 
 
 这里我们看到了与JDK动态代理同样的获取拦截器链的过程，并且CglibMethodInvokcation继承了我们在JDK动态代理看到的ReflectiveMethodInvocation，但是并没有重写其proceed方法，只是重写了执行目标方法的逻辑，所以整体上是大同小异的。
