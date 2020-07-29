@@ -143,8 +143,8 @@ public void intern () {
     String s2 = new String("a");
     //调用intern时,如果s2中的字符不在常量池，则加入常量池并返回常量的引用
     String s3 = s2.intern();
-    System.out.println(s1 == s2);
-    System.out.println(s1 == s3);
+    System.out.println(s1 == s2);//false
+    System.out.println(s1 == s3);//true
 }
 ```
 
@@ -182,7 +182,7 @@ public boolean equals(Object anObject) {
 /**
  * The value is used for character storage.
  */
-char[]value;
+char[]value; //初始化容量为16
 
 /**
  * Constructs a string builder with no characters in it and an
@@ -192,6 +192,7 @@ public StringBuilder(){
         super(16);
 }
 
+//这两个类的append方法都是来自父类AbstractStringBuilder的方法
 public AbstractStringBuilder append(String str){
         if(str==null)
         return appendNull();
@@ -201,6 +202,7 @@ public AbstractStringBuilder append(String str){
         count+=len;
         return this;
 }
+
 @Override
 public StringBuilder append(String str){
         super.append(str);
@@ -216,10 +218,8 @@ public synchronized StringBuffer append(String str){
 ```
 
 ### append方法
-Stringbuffer在大部分涉及字符串修改的操作上加了synchronized关键字来保证线程安全，效率较低。
-String类型在使用 + 运算符例如
-String a = "a"
-a = a + a;时，实际上先把a封装成stringbuilder，调用append方法后再用tostring返回，所以当大量使用字符串加法时，会大量地生成string实例，这是十分浪费的，这种时候应该用stringbuilder来代替string。
+StringBuffer在大部分涉及字符串修改的操作上加了synchronized关键字来保证线程安全，效率较低。
+String类型在使用 + 运算符例如**String a = "a"； a = a + a;**时，实际上先把a封装成stringbuilder，调用append方法后再用tostring返回，所以当大量使用字符串加法时，会大量地生成string实例，这是十分浪费的，这种时候应该用stringbuilder来代替string。
 
 ### 扩容
 注意在append方法中调用到了一个函数
@@ -338,8 +338,14 @@ Java堆（线程共享数据区）：
 >
 > 使用字符串常量池，每当我们使用关键字new（String s=new String(”1”);）创建字符串常量时，JVM会首先检查字符串常量池，**如果该字符串已经存在常量池中，那么不再在字符串常量池创建该字符串对象，而直接堆中复制该对象的副本，然后将堆中对象的地址赋值给引用s，如果字符串不存在常量池中，就会实例化该字符串并且将其放到常量池中，然后在堆中复制该对象的副本，然后将堆中对象的地址赋值给引用s。**
 
+## 什么是不可变？
+
+String不可变很简单，如下图，给一个已有字符串"abcd"第二次赋值成"abcedl"，不是在原内存地址上修改数据，而是重新指向一个新对象，新地址。
+
+![../../../images/0021.png](../../../images/0021.png)
 
 ## String为什么不可变？
+
 翻开JDK源码，java.lang.String类起手前三行，是这样写的：
 
 ```java
@@ -355,6 +361,8 @@ private final char value[];  ...  ...
 final修饰的字段创建以后就不可改变。 有的人以为故事就这样完了，其实没有。因为虽然value是不可变，也只是value这个引用地址不可变。挡不住Array数组是可变的事实。
 
 Array的数据结构看下图。
+
+![../../../images/0022.png](../../../images/0022.png)
 
 也就是说Array变量只是stack上的一个引用，数组的本体结构在heap堆。
 
@@ -372,7 +380,7 @@ value[2]=100 ；
 ```
 
 ### 不可变有什么好处？
-这个最简单地原因，就是为了安全。看下面这个场景（有评论反应例子不够清楚，现在完整地写出来），一个函数appendStr( )在不可变的String参数后面加上一段“bbb”后返回。appendSb( )负责在可变的StringBuilder后面加“bbb”。
+这个最简单地原因，就是为了安全。看下面这个场景，一个函数appendStr( )在不可变的String参数后面加上一段“bbb”后返回。appendSb( )负责在可变的StringBuilder后面加“bbb”。
 
 总结以下String的不可变性。
 

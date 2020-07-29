@@ -27,6 +27,14 @@
             <artifactId>markdown-toc</artifactId>
             <version>1.0.6</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/nu.xom/com.springsource.nu.xom -->
+        <dependency>
+            <groupId>nu.xom</groupId>
+            <artifactId>com.springsource.nu.xom</artifactId>
+            <version>1.2.5</version>
+        </dependency>
+
     </dependencies>
 
 

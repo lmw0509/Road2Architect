@@ -229,8 +229,6 @@ class Auto{
 
 Integer源码
 
-
-	
 ```java
 public final class Integer extends Number implements Comparable<Integer> {
 	private final int value;
@@ -447,9 +445,9 @@ class A{
 }
 ```
 
-是类的成员变量。类实例化的对象存在堆中，所以成员变量也存在堆中，引用a存的是对象的地址，引用i存的是值，这个值1也会存在堆中。可以理解为引用i指向了这个值1。也可以理解为i就是1.
+i是类的成员变量。类实例化的对象存在堆中，所以成员变量也存在堆中，引用a存的是对象的地址，引用i存的是值，这个值1也会存在堆中。可以理解为引用i指向了这个值1。也可以理解为i就是1.
 
-3 包装类对象怎么存
+包装类对象怎么存
 其实我们说的常量池也可以叫对象池。
 比如String a= new String("a").intern()时会先在常量池找是否有“a"对象如果有的话直接返回“a"对象在常量池的地址，即让引用a指向常量”a"对象的内存地址。
 public native String intern();
@@ -497,15 +495,18 @@ private static class IntegerCache {
     private IntegerCache() {}
 }
 ```
-所以基本数据类型的包装类型可以在常量池查找对应值的对象，找不到就会自动在常量池创建该值的对象。
+**所以基本数据类型的包装类型可以在常量池查找对应值的对象，找不到就会自动在常量池创建该值的对象。**
 
-而String类型可以通过intern来完成这个操作。
+**而String类型可以通过intern来完成这个操作。**
+
+
+
+**//TODO**
 
 JDK1.7后，常量池被放入到堆空间中，这导致intern()函数的功能不同，具体怎么个不同法，且看看下面代码，这个例子是网上流传较广的一个例子，分析图也是直接粘贴过来的，这里我会用自己的理解去解释这个例子：
 
 
 ```java
-[java] view plain copy
 String s = new String("1");  
 s.intern();  
 String s2 = "1";  
@@ -517,7 +518,6 @@ String s4 = "11";
 System.out.println(s3 == s4);  
 输出结果为：
 
-[java] view plain copy
 JDK1.6以及以下：false false  
 JDK1.7以及以上：false true
 ```
