@@ -565,9 +565,9 @@ JDK的做法是链表法，Entry用一个next属性实现多个Entry以单向链
 iterator（）时顺着哈希桶数组来遍历，看起来是个乱序。
 
 #### LinkedHashMap
-扩展HashMap，每个Entry增加双向链表，号称是最占内存的数据结构。
+扩展HashMap，每个Entry增加双向链表，号称是**最占内存的数据结构。**
 
-支持iterator（）时按Entry的插入顺序来排序（如果设置accessOrder属性为true，则所有读写访问都排序）。
+支持 iterator（）时按Entry的插入顺序来排序（如果设置accessOrder属性为true，则所有读写访问都排序）。
 
 插入时，Entry把自己加到Header Entry的前面去。如果所有读写访问都要排序，还要把前后Entry的before/after拼接起来以在链表中删除掉自己，所以此时读操作也是线程不安全的了。
 
@@ -584,7 +584,7 @@ iterator（）时顺着哈希桶数组来遍历，看起来是个乱序。
 #### EnumMap
 EnumMap的原理是，在构造函数里要传入枚举类，那它就构建一个与枚举的所有值等大的数组，按Enum. ordinal（）下标来访问数组。性能与内存占用俱佳。
 
-美中不足的是，因为要实现Map接口，而 V get（Object key）中key是Object而不是泛型K，所以安全起见，EnumMap每次访问都要先对Key进行类型判断，在JMC里录得不低的采样命中频率。
+美中不足的是，因为要实现Map接口，而 V get（Object key）中key是Object而不是泛型K，所以**安全起见，EnumMap每次访问都要先对Key进行类型判断**，在JMC里录得不低的采样命中频率。
 
 #### ConcurrentHashMap
 并发优化的HashMap。
@@ -611,9 +611,7 @@ JDK6新增的并发优化的SortedMap，以SkipList结构实现。Concurrent包�
 ### Set
 
 
-所有Set几乎都是内部用一个Map来实现, 因为Map里的KeySet就是一个Set，而value是假值，全部使用同一个Object即可。
-
-Set的特征也继承了那些内部的Map实现的特征。
+**所有Set几乎都是内部用一个Map来实现, 因为Map里的KeySet就是一个Set，而value是假值，全部使用同一个Object即可。Set的特征也继承了那些内部的Map实现的特征。** 
 
 HashSet：内部是HashMap。
 
