@@ -419,11 +419,11 @@ public class Map接口 {
 
 另一种队列则是双端队列，支持在头、尾两端插入和移除元素
 
-ArrayDeque
+- ArrayDeque
 
-LinkedBlockingDeque
+- LinkedBlockingDeque
 
-LinkedList
+- LinkedList
 
 ```java
 public class Queue接口 {
