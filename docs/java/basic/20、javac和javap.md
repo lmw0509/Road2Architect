@@ -1,10 +1,7 @@
 ## 聊聊IDE的实现原理
 
-> IDE是把双刃剑，它可以什么都帮你做了，你只要敲几行代码，点几下鼠标，程序就跑起来了，用起来相当方便。
+> IDE是把双刃剑，它可以什么都帮你做了，你只要敲几行代码，点几下鼠标，程序就跑起来了，用起来相当方便。你不用去关心它后面做了些什么，执行了哪些命令，基于什么原理。然而也是这种过分的依赖往往让人散失了最基本的技能，当到了一个没有IDE的地方，你便觉得无从下手，给你个代码都不知道怎么去跑。好比给你瓶水，你不知道怎么打开去喝，然后活活给渴死。之前用惯了idea，Java文件编译运行的命令基本忘得一干二净。
 >
-> 你不用去关心它后面做了些什么，执行了哪些命令，基于什么原理。然而也是这种过分的依赖往往让人散失了最基本的技能，当到了一个没有IDE的地方，你便觉得无从下手，给你个代码都不知道怎么去跑。好比给你瓶水，你不知道怎么打开去喝，然后活活给渴死。
->
-> 之前用惯了idea，Java文件编译运行的命令基本忘得一干二净。
 
 那好，不如咱们先来了解一下IDE的实现原理，这样一来，即使离开IDE，我们还是知道如何运行Java程序了。
 
@@ -66,63 +63,62 @@ public class MyIDE {
         // 执行编译任务
         task.call();
 
-​        // 通过反射得到对象
-​        // Class clazz = Class.forName("com.tommy.core.test.reflect.Test");
-​        // 使用自定义的类加载器加载class
-​        Class clazz = new MyClassLoader(baseOutputDir).loadClass("com.tommy.core.test.reflect.Test");
-​        // 得到构造器
-​        Constructor constructor = clazz.getConstructor(String.class);
-​        // 通过构造器new一个对象
-​        Object test = constructor.newInstance("jack.tsing");
-​        // 得到sayHello方法
-​        Method method = clazz.getMethod("sayHello", String.class);
-​        // 调用sayHello方法
-​        String result = (String) method.invoke(test, "jack.ma");
-​        System.out.println(result);
-​        }
-​    }
+        // 通过反射得到对象
+        // Class clazz = Class.forName("com.tommy.core.test.reflect.Test");
+        // 使用自定义的类加载器加载class
+        Class clazz = new MyClassLoader(baseOutputDir).loadClass("com.tommy.core.test.reflect.Test");
+        // 得到构造器
+        Constructor constructor = clazz.getConstructor(String.class);
+        // 通过构造器new一个对象
+        Object test = constructor.newInstance("jack.tsing");
+        // 得到sayHello方法
+        Method method = clazz.getMethod("sayHello", String.class);
+        // 调用sayHello方法
+        String result = (String) method.invoke(test, "jack.ma");
+        System.out.println(result);
+        }
+    }
 ```
 
 自定义类加载器代码：
 
 ```java
 public class MyClassLoader extends ClassLoader {
-    ​
-    private String baseDir;​
+    private String baseDir;
 
     public MyClassLoader(String baseDir) {
-​            this.baseDir = baseDir;
-​        }​
+            this.baseDir = baseDir;
+        }
 
     @Override
-​        protected Class<?> findClass(String name) throws ClassNotFoundException {
-​            String fullClassFilePath = this.baseDir + name.replace("\\.","/") + ".class";
-​            File classFilePath = new File(fullClassFilePath);
-​            if (classFilePath.exists()) {
-​                FileInputStream fileInputStream = null;
-​                ByteArrayOutputStream byteArrayOutputStream = null;
-​                try {
-​                    fileInputStream = new FileInputStream(classFilePath);
-​                    byte[] data = new byte[1024];
-​                    int len = -1;
-​                    byteArrayOutputStream = new ByteArrayOutputStream();
-​                    while ((len = fileInputStream.read(data)) != -1) {
-​                        byteArrayOutputStream.write(data,0,len);
-​                    }
-​                    return defineClass(name,byteArrayOutputStream.toByteArray(),0,byteArrayOutputStream.size());
-​                } catch (FileNotFoundException e) {
-​                    e.printStackTrace();
-​                } catch (IOException e) {
-​                    e.printStackTrace();
-​                } finally {
-​                    if (null != fileInputStream) {
-​                        try {
-​                            fileInputStream.close();
-​                        } catch (IOException e) {
-​                            e.printStackTrace();
-​                        }
-​                    }
-​                       if (null != byteArrayOutputStream) {
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        String fullClassFilePath = this.baseDir + name.replace("\\.","/") + ".class";
+        File classFilePath = new File(fullClassFilePath);
+        if (classFilePath.exists()) {
+            FileInputStream fileInputStream = null;
+            ByteArrayOutputStream byteArrayOutputStream = null;
+            try {
+                fileInputStream = new FileInputStream(classFilePath);
+                byte[] data = new byte[1024];
+                int len = -1;
+                byteArrayOutputStream = new ByteArrayOutputStream();
+                while ((len = fileInputStream.read(data)) != -1) {
+                    byteArrayOutputStream.write(data,0,len);
+                }
+                return defineClass(name,byteArrayOutputStream.toByteArray(),0,byteArrayOutputStream.size());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (null != fileInputStream) {
+                    try {
+                        fileInputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (null != byteArrayOutputStream) {
                     try {
                         byteArrayOutputStream.close();
                     } catch (IOException e) {
@@ -135,7 +131,7 @@ public class MyClassLoader extends ClassLoader {
     }
 }
 ```
-    
+
 ## javac命令初窥
 
 注：以下红色标记的参数在下文中有所讲解。
@@ -209,28 +205,30 @@ public class MyClassLoader extends ClassLoader {
 
 在dos下编译java程序，就要用到classpath这个概念，尤其是在没有设置环境变量的时候。classpath就是存放.class等编译后文件的路径。
 
-javac：如果当前你要编译的java文件中引用了其它的类(比如说：继承)，但该引用类的.class文件不在当前目录下，这种情况下就需要在javac命令后面加上-classpath参数，通过使用以下三种类型的方法 来指导编译器在编译的时候去指定的路径下查找引用类。
+javac：如果当前你要编译的java文件中引用了其它的类(比如说：继承)，但该引用类的.class文件不在当前目录下，这种情况下就需要在javac命令后面加上-classpath参数，通过使用以下三种类型的方法来指导编译器在编译的时候去指定的路径下查找引用类。
 
-> (1).绝对路径：javac -classpath c:/junit3.8.1/junit.jar   Xxx.java
+> - 绝对路径：javac -classpath c:/junit3.8.1/junit.jar   Xxx.java
 >
-> (2).相对路径：javac -classpath ../junit3.8.1/Junit.javr  Xxx.java
+> - 相对路径：javac -classpath ../junit3.8.1/Junit.javr  Xxx.java
 >
-> (3).系统变量：javac -classpath %CLASSPATH% Xxx.java (注意：%CLASSPATH%表示使用系统变量CLASSPATH的值进行查找，这里假设Junit.jar的路径就包含在CLASSPATH系统变量中)
+> - 系统变量：javac -classpath %CLASSPATH% Xxx.java (注意：%CLASSPATH%表示使用系统变量CLASSPATH的值进行查找，这里假设Junit.jar的路径就包含在CLASSPATH系统变量中)
 
 
 #### IDE中的classpath
 
 对于一个普通的Javaweb项目，一般有这样的配置：
 
-> 1 WEB-INF/classes,lib才是classpath，WEB-INF/ 是资源目录, 客户端不能直接访问。
+> 1、WEB-INF/classes，lib才是classpath，WEB-INF/ 是资源目录，客户端不能直接访问。
 >
-> 2、WEB-INF/classes目录存放src目录java文件编译之后的class文件，xml、properties等资源配置文件，这是一个定位资源的入口。
+> 2、WEB-INF/classes目录存放src目录java文件编译之后的class文件，xml，properties等资源配置文件，这是一个定位资源的入口。
 >
 > 3、引用classpath路径下的文件，只需在文件名前加classpath:
 >
+> ```xml
 > <param-value>classpath:applicationContext-*.xml</param-value> 
 > <!-- 引用其子目录下的文件,如 -->
 > <param-value>classpath:context/conf/controller.xml</param-value>
+> ```
 >
 > 4、lib和classes同属classpath，两者的访问优先级为: lib>classes。
 >
@@ -239,11 +237,11 @@ javac：如果当前你要编译的java文件中引用了其它的类(比如说�
 > classpath：只会到你的class路径中查找找文件;
 > classpath*：不仅包含class路径，还包括jar文件中(class路径)进行查找。
 
-总结：
+**总结：**
 
-(1).何时需要使用-classpath：当你要编译或执行的类引用了其它的类，但被引用类的.class文件不在当前目录下时，就需要通过-classpath来引入类
+(1)何时需要使用-classpath：当你要编译或执行的类引用了其它的类，但被引用类的class文件不在当前目录下时，就需要通过-classpath来引入类
 
-(2).何时需要指定路径：当你要编译的类所在的目录和你执行javac命令的目录不是同一个目录时，就需要指定源文件的路径(CLASSPATH是用来指定.class路径的，不是用来指定.java文件的路径的) 
+(2)何时需要指定路径：当你要编译的类所在的目录和你执行javac命令的目录不是同一个目录时，就需要指定源文件的路径(CLASSPATH是用来指定.class路径的，不是用来指定.java文件的路径的) 
 #### Java项目和Java web项目的本质区别
 
 （看清IDE及classpath本质）
@@ -256,7 +254,6 @@ javac：如果当前你要编译的java文件中引用了其它的类(比如说�
 >
 > 这里展示一个web项目的.classpath
 
-Xml代码
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
@@ -283,15 +280,11 @@ Xml代码
 
 #### -g、-g:none、-g:{lines,vars,source}
 
-> -g：在生成的class文件中包含所有调试信息（行号、变量、源文件）
-> -g:none ：在生成的class文件中不包含任何调试信息。
->
-> 这个参数在javac编译中是看不到什么作用的，因为调试信息都在class文件中，而我们看不懂这个class文件。
->
-> 为了看出这个参数的作用，我们在eclipse中进行实验。在eclipse中，我们经常做的事就是“debug”，而在debug的时候，我们会
-> 加入“断点”，这个是靠-g:lines起作用，如果不记录行号，则不能加断点。
-> 在“variables”窗口中查看当前的变量，如下图所示，这是靠-g:vars起作用，否则不能查看变量信息。
-> 在多个文件之间来回调用，比如 A.java的main()方法中调用了B.java的fun()函数，而我想看看程序进入fun()后的状态，这是靠-g:source，如果没有这个参数，则不能查看B.java的源代码。
+> - -g：在生成的class文件中包含所有调试信息（行号、变量、源文件）
+> 
+>- -g:none ：在生成的class文件中不包含任何调试信息。这个参数在javac编译中是看不到什么作用的，因为调试信息都在class文件中，而我们看不懂这个class文件。为了看出这个参数的作用，我们在eclipse中进行实验。在eclipse中，我们经常做的事就是“debug”，而在debug的时候，我们会加入“断点”，这个是靠-g:lines起作用，如果不记录行号，则不能加断点。
+> 
+>- 在“variables”窗口中查看当前的变量，如下图所示，这是靠-g:vars起作用，否则不能查看变量信息。在多个文件之间来回调用，比如 A.java的main()方法中调用了B.java的fun()函数，而我想看看程序进入fun()后的状态，这是靠-g:source，如果没有这个参数，则不能查看B.java的源代码。
 
 #### -bootclasspath、-extdirs
 
@@ -300,7 +293,8 @@ Xml代码
 > - 扩展类：Java\jdk1.7.0_25\jre\lib\ext目录中的文件，用-extdirs设置。
 > - 用户自定义类：用-classpath设置。
 >
-> 我们用-verbose编译后出现的“类文件的搜索路径”，就是由上面三个路径组成，如下：
+
+我们用-verbose编译后出现的“类文件的搜索路径”，就是由上面三个路径组成，如下：
 
 ```java
 [类文件的搜索路径: C:\Java\jdk1.7.0_25\jre\lib\resources.jar,C:\Java\jdk1.7.0_25
@@ -323,7 +317,7 @@ pi.jar,C:\Java\jdk1.7.0_25\jre\lib\ext\sunpkcs11.jar,C:\Java\jdk1.7.0_25\jre\lib
 \ext\zipfs.jar,..\bin] 
 
 ```
-            
+
 
 如果利用 -bootclasspath 重新定义： javac -bootclasspath src Xxx.java，则会出现下面错误：
 
@@ -332,8 +326,8 @@ pi.jar,C:\Java\jdk1.7.0_25\jre\lib\ext\sunpkcs11.jar,C:\Java\jdk1.7.0_25\jre\lib
 
 #### -sourcepath和-classpath（-cp）
 
-•-classpath(-cp)指定你依赖的类的class文件的查找位置。在Linux中，用“:”分隔classpath，而在windows中，用“;”分隔。
-•-sourcepath指定你依赖的类的java文件的查找位置。
+-classpath(-cp)指定你依赖的类的class文件的查找位置。在Linux中，用“:”分隔classpath，而在windows中，用“;”分隔。
+-sourcepath指定你依赖的类的java文件的查找位置。
 
 举个例子，
 
@@ -346,17 +340,17 @@ public class A{
 }
 
 public class B{
-​        public void print(){
-​            System.out.println("old");
-​        }
-​ }
+        public void print(){
+            System.out.println("old");
+        }
+}
 ```
 
 
 目录结构如下：
 
 
-sourcepath          //此处为当前目录
+sourcepath //此处为当前目录
 
 ```
 |-src
@@ -379,62 +373,51 @@ javac -sourcepath src/com -classpath bin src/A.java    //同时查找到B.class�
 ```
 
 如果同时找到了B.class和B.java，则：
-•如果B.class和B.java内容一致，则遵循B.class。
-•如果B.class和B.java内容不一致，则遵循B.java，并编译B.java。
+如果B.class和B.java内容一致，则遵循B.class。
+如果B.class和B.java内容不一致，则遵循B.java，并编译B.java。
 
 以上规则可以通过 -verbose选项看出。
 
 #### -d
 
-•d就是 destination，用于指定.class文件的生成目录，在eclipse中，源文件都在src中，编译的class文件都是在bin目录中。
+d就是 destination，用于指定.class文件的生成目录，在eclipse中，源文件都在src中，编译的class文件都是在bin目录中。
 
-这里我用来实现一下这个功能，假设项目名称为project，此目录为当前目录，且在src/com目录中有一个Main.java文件。‘
+这里我用来实现一下这个功能，假设项目名称为project，此目录为当前目录，且在src/com目录中有一个Main.java文件。
 
+```
+package com;
+public class Main{
+	public static void main(String[] args) {
+		System.out.println("Hello");
+	}
+}
+```
 
-​    
-​    package com;
-​    public class Main{
-​        public static void main(String[] args) {
-​            System.out.println("Hello");
-​        }
-​    }
-
-
-​    
-​    
-​    javac -d bin src/com/Main.java
+ javac -d bin src/com/Main.java
 
 上面的语句将Main.class生成在bin/com目录下。
 
 #### -implicit:{none,class}
 
-•如果有文件为A.java（其中有类A），且在类A中使用了类B，类B在B.java中，则编译A.java时，默认会自动编译B.java，且生成B.class。
-•implicit:none：不自动生成隐式引用的类文件。
-•implicit:class（默认）：自动生成隐式引用的类文件。
+如果有文件为A.java（其中有类A），且在类A中使用了类B，类B在B.java中，则编译A.java时，默认会自动编译B.java，且生成B.class。
+implicit:none：不自动生成隐式引用的类文件。
+implicit:class（默认）：自动生成隐式引用的类文件。
 
-    public class A
-    {
+    public class A{
         public static void main(String[] args) {
             B b = new B();
         }
     }
     
-    public class B
-    {
+    public class B{
     }
     
-    如果使用：
-
-
-​    
-​     javac -implicit:none A.java
-
-则不会生成 B.class。
+    如果使用： javac -implicit:none A.java 则不会生成 B.class。
 
 #### -source和-target
 
-•-source：使用指定版本的JDK编译，比如：-source 1.4表示用JDK1.4的标准编译，如果在源文件中使用了泛型，则用JDK1.4是不能编译通过的。
-•-target：指定生成的class文件要运行在哪个JVM版本，以后实际运行的JVM版本必须要高于这个指定的版本。
+-source：使用指定版本的JDK编译，比如：-source 1.4表示用JDK1.4的标准编译，如果在源文件中使用了泛型，则用JDK1.4是不能编译通过的。
+-target：指定生成的class文件要运行在哪个JVM版本，以后实际运行的JVM版本必须要高于这个指定的版本。
 
 
 javac -source 1.4 Xxx.java
@@ -445,7 +428,7 @@ javac -target 1.4 Xxx.java
 
 默认会使用系统环境的编码，比如我们一般用的中文windows就是GBK编码，所以直接javac时会用GBK编码，而Java文件一般要使用utf-8，如果用GBK就会出现乱码。 
 
-•指定源文件的编码格式，如果源文件是UTF-8编码的，而-encoding GBK，则源文件就变成了乱码（特别是有中文时）。
+指定源文件的编码格式，如果源文件是UTF-8编码的，而-encoding GBK，则源文件就变成了乱码（特别是有中文时）。
 
 
 javac -encoding UTF-8 Xxx.java
@@ -482,10 +465,12 @@ D:\Java>javac -verbose -encoding UTF-8 HelloWorld01.java
 #### 其他命令
 
 -J <标记>
-•传递一些信息给 Java Launcher.
+传递一些信息给 Java Launcher.
 
 
-    javac -J-Xms48m   Xxx.java          //set the startup memory to 48M.
+```java
+javac -J-Xms48m   Xxx.java          //set the startup memory to 48M.
+```
 
 -@<文件名>
 
@@ -580,7 +565,7 @@ javac src/com/yp/test/HelloWorld.java -d build
 怎么打成jar包?
 
 > 生成:
-> E:\codeplace\n_learn\java\javacmd\build>jar cvf h.jar *
+> E:\codeplace\n_learn\java\javacmd\build>**jar cvf h.jar ***
 > 运行:
 > E:\codeplace\n_learn\java\javacmd\build>java h.jar
 > 错误: 找不到或无法加载主类 h.jar
@@ -616,22 +601,22 @@ javac src/com/yp/test/HelloWorld.java -d build
 
 先下一个jar包 这里直接下 log4j 
     
-    * main函数改成
-    
-    import com.yp.test.entity.Cat;
-    import org.apache.log4j.Logger;
-    
-    public class HelloWorld {
-    
-        static Logger log = Logger.getLogger(HelloWorld.class);
-    
-        public static void main(String[] args) {
-            Cat c = new Cat("keyboard");
-            log.info("这是log4j");
-            System.out.println("hello," + c.getName());
-        }
-    
+```java
+main函数改成
+
+import com.yp.test.entity.Cat;
+import org.apache.log4j.Logger;
+
+public class HelloWorld {
+    static Logger log = Logger.getLogger(HelloWorld.class);
+
+    public static void main(String[] args) {
+        Cat c = new Cat("keyboard");
+        log.info("这是log4j");
+        System.out.println("hello," + c.getName());
     }
+}
+```
 
 现的文件是这样的
 
@@ -668,26 +653,30 @@ javac src/com/yp/test/HelloWorld.java -d build
 
 由于没有 log4j的配置文件，所以提示上面的问题,往 build 里面加上 log4j.xml
 
-    <?xml version="1.0" encoding="UTF-8" ?>
-    <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
-    <log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
-        <appender name="stdout" class="org.apache.log4j.ConsoleAppender">
-            <layout class="org.apache.log4j.PatternLayout">
-                <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{1}] %m%n" />
-            </layout>
-        </appender>
-    
-        <root>
-            <level value="info" />
-            <appender-ref ref="stdout" />
-        </root>
-    </log4j:configuration>
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+    <appender name="stdout" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{1}] %m%n" />
+        </layout>
+    </appender>
+
+    <root>
+        <level value="info" />
+        <appender-ref ref="stdout" />
+    </root>
+</log4j:configuration>
+```
 
 再运行
 
-    E:\codeplace\n_learn\java\javacmd>java -cp lib/log4j-1.2.17.jar;build com.yp.tes t.HelloWorld
-    15:19:57,359 INFO  [HelloWorld] 这是log4j
-    hello,keyboard
+```java
+E:\codeplace\n_learn\java\javacmd>java -cp lib/log4j-1.2.17.jar;build com.yp.tes t.HelloWorld
+15:19:57,359 INFO  [HelloWorld] 这是log4j
+hello,keyboard
+```
 
 说明: 
 这个log4j配置文件，习惯的做法是放在src目录下, 在编译过程中 copy到build中的,但根据ant的做法，不是用javac的，而是用来处理,我猜测javac是不能copy的，如果想在命令行直接 使用，应该是用cp命令主动去执行 copy操作
@@ -736,12 +725,12 @@ shell 文件整理如下:
 > 以上就是吧java文件放到 $SRC_FILE_LIST_PATH 中去了
 
     编译 :
-         1. 需要编译所有的java文件
-         2. 依赖的java 包都需要加入到 classpath 中去
-         3. 最后设置 编译后的 class 文件存放目录  即 -d bin/
-         4. java文件过多是可以使用  @$SRC_FILE_LIST_PATH 把他们放到一个文件中去
+    1. 需要编译所有的java文件
+    2. 依赖的java 包都需要加入到 classpath 中去
+    3. 最后设置 编译后的 class 文件存放目录  即 -d bin/
+    4. java文件过多是可以使用  @$SRC_FILE_LIST_PATH 把他们放到一个文件中去
     运行:
-       1.需要吧 编译时设置的bin目录和 所有jar包加入到 classpath 中去
+    1.需要吧 编译时设置的bin目录和 所有jar包加入到 classpath 中去
 
 
 ​    
@@ -751,85 +740,90 @@ shell 文件整理如下:
 >
 > 情况下，很少有人使用javap对class文件进行反编译，因为有很多成熟的反编译工具可以使用，比如jad。但是，javap还可以查看java编译器为我们生成的字节码。通过它，可以对照源代码和字节码，从而了解很多编译器内部的工作。
 >
-> 
->
 > javap命令分解一个class文件，它根据options来决定到底输出什么。如果没有使用options,那么javap将会输出包，类里的protected和public域以及类里的所有方法。javap将会把它们输出在标准输出上。来看这个例子，先编译(javac)下面这个类。
 
-    import java.awt.*;
-    import java.applet.*;
-     
-    public class DocFooter extends Applet {
-            String date;
-            String email;
-     
-            public void init() {
-                    resize(500,100);
-                    date = getParameter("LAST_UPDATED");
-                    email = getParameter("EMAIL");
-            }
-    }
+```java
+import java.awt.*;
+import java.applet.*;
+ 
+public class DocFooter extends Applet {
+        String date;
+        String email;
+ 
+        public void init() {
+                resize(500,100);
+                date = getParameter("LAST_UPDATED");
+                email = getParameter("EMAIL");
+        }
+}
+```
 
 在命令行上键入javap DocFooter后，输出结果如下
 
 
 Compiled from "DocFooter.java"
 
-    public class DocFooter extends java.applet.Applet {
-      java.lang.String date;
-      java.lang.String email;
-      public DocFooter();
-      public void init();
-    }
+```java
+public class DocFooter extends java.applet.Applet {
+  java.lang.String date;
+  java.lang.String email;
+  public DocFooter();
+  public void init();
+}
+```
 
 如果加入了-c，即javap -c DocFooter，那么输出结果如下
 
 Compiled from "DocFooter.java"
 
-    public class DocFooter extends java.applet.Applet {
-      java.lang.String date;
-     
-      java.lang.String email;
-     
-      public DocFooter();
-        Code:
-           0: aload_0       
-           1: invokespecial #1                  // Method java/applet/Applet."<init>":()V
-           4: return       
-     
-      public void init();
-        Code:
-           0: aload_0       
-           1: sipush        500
-           4: bipush        100
-           6: invokevirtual #2                  // Method resize:(II)V
-           9: aload_0       
-          10: aload_0       
-          11: ldc           #3                  // String LAST_UPDATED
-          13: invokevirtual #4                  // Method getParameter:(Ljava/lang/String;)Ljava/lang/String;
-          16: putfield      #5                  // Field date:Ljava/lang/String;
-          19: aload_0       
-          20: aload_0       
-          21: ldc           #6                  // String EMAIL
-          23: invokevirtual #4                  // Method getParameter:(Ljava/lang/String;)Ljava/lang/String;
-          26: putfield      #7                  // Field email:Ljava/lang/String;
-          29: return       
-    
-    }
+```java
+public class DocFooter extends java.applet.Applet {
+  java.lang.String date;
+ 
+  java.lang.String email;
+ 
+  public DocFooter();
+    Code:
+       0: aload_0       
+       1: invokespecial #1                  // Method java/applet/Applet."<init>":()V
+       4: return       
+ 
+  public void init();
+    Code:
+       0: aload_0       
+       1: sipush        500
+       4: bipush        100
+       6: invokevirtual #2                  // Method resize:(II)V
+       9: aload_0       
+      10: aload_0       
+      11: ldc           #3                  // String LAST_UPDATED
+      13: invokevirtual #4                  // Method getParameter:(Ljava/lang/String;)Ljava/lang/String;
+      16: putfield      #5                  // Field date:Ljava/lang/String;
+      19: aload_0       
+      20: aload_0       
+      21: ldc           #6                  // String EMAIL
+      23: invokevirtual #4                  // Method getParameter:(Ljava/lang/String;)Ljava/lang/String;
+      26: putfield      #7                  // Field email:Ljava/lang/String;
+      29: return       
+
+}
+```
 上面输出的内容就是字节码。
 
-用法摘要
+| option      | describtion                                                  |
+| ----------- | ------------------------------------------------------------ |
+| -help       | 帮助                                                         |
+| -l          | 输出行和变量的表                                             |
+| -public     | 只输出public的方法和域                                       |
+| -protected  | 只输出public和protected类和成员                              |
+| -package    | 只输出包，public和protected类和成员，这是默认的              |
+| -p -private | 输出所有类和成员                                             |
+| -s          | 输出内部类型签名                                             |
+| -c          | 输出分解后的代码，例如，类中每一个方法内，包含java字节码的指令 |
+| -verbose    | 输出栈大小，方法参数的个数                                   |
+| -constants  | 输出静态final常量                                            |
 
--help 帮助
--l 输出行和变量的表
--public 只输出public方法和域
--protected 只输出public和protected类和成员
--package 只输出包，public和protected类和成员，这是默认的
--p -private 输出所有类和成员
--s 输出内部类型签名
--c 输出分解后的代码，例如，类中每一个方法内，包含java字节码的指令，
--verbose 输出栈大小，方法参数的个数
--constants 输出静态final常量
-总结
+**总结**
 
 javap可以用于反编译和查看编译器编译后的字节码。平时一般用javap -c比较多，该命令用于列出每个方法所执行的JVM指令，并显示每个方法的字节码的实际作用。可以通过字节码和源代码的对比，深入分析java的编译原理，了解和解决各种Java原理级别的问题。
 
