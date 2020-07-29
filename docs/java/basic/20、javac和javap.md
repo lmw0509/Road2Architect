@@ -24,76 +24,77 @@ java提供了JavaCompiler，我们可以通过它来编译java源文件为class�
 
 示例代码：
 
-    public class MyIDE {
-    
-        public static void main(String[] args) throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-            // 定义java代码，并保存到文件（Test.java）
-            StringBuilder sb = new StringBuilder();
-            sb.append("package com.tommy.core.test.reflect;\n");
-            sb.append("public class Test {\n");
-            sb.append("    private String name;\n");
-            sb.append("    public Test(String name){\n");
-            sb.append("        this.name = name;\n");
-            sb.append("        System.out.println(\"hello,my name is \" + name);\n");
-            sb.append("    }\n");
-            sb.append("    public String sayHello(String name) {\n");
-            sb.append("        return \"hello,\" + name;\n");
-            sb.append("    }\n");
-            sb.append("}\n");
-    
-            System.out.println(sb.toString());
-    
-            String baseOutputDir = "F:\\output\\classes\\";
-            String baseDir = baseOutputDir + "com\\tommy\\core\\test\\reflect\\";
-            String targetJavaOutputPath = baseDir + "Test.java";
-            // 保存为java文件
-            FileWriter fileWriter = new FileWriter(targetJavaOutputPath);
-            fileWriter.write(sb.toString());
-            fileWriter.flush();
-            fileWriter.close();
-    
-            // 编译为class文件
-            JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-            StandardJavaFileManager manager = compiler.getStandardFileManager(null,null,null);
-            List<File> files = new ArrayList<>();
-            files.add(new File(targetJavaOutputPath));
-            Iterable compilationUnits = manager.getJavaFileObjectsFromFiles(files);
-    
-            // 编译
-            // 设置编译选项，配置class文件输出路径
-            Iterable<String> options = Arrays.asList("-d",baseOutputDir);
-            JavaCompiler.CompilationTask task = compiler.getTask(null, manager, null, options, null, compilationUnits);
-            // 执行编译任务
-            task.call();
+```java
+public class MyIDE {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        // 定义java代码，并保存到文件（Test.java）
+        StringBuilder sb = new StringBuilder();
+        sb.append("package com.tommy.core.test.reflect;\n");
+        sb.append("public class Test {\n");
+        sb.append("    private String name;\n");
+        sb.append("    public Test(String name){\n");
+        sb.append("        this.name = name;\n");
+        sb.append("        System.out.println(\"hello,my name is \" + name);\n");
+        sb.append("    }\n");
+        sb.append("    public String sayHello(String name) {\n");
+        sb.append("        return \"hello,\" + name;\n");
+        sb.append("    }\n");
+        sb.append("}\n");
 
+        System.out.println(sb.toString());
 
-​    
-​            // 通过反射得到对象
-​    //        Class clazz = Class.forName("com.tommy.core.test.reflect.Test");
-​            // 使用自定义的类加载器加载class
-​            Class clazz = new MyClassLoader(baseOutputDir).loadClass("com.tommy.core.test.reflect.Test");
-​            // 得到构造器
-​            Constructor constructor = clazz.getConstructor(String.class);
-​            // 通过构造器new一个对象
-​            Object test = constructor.newInstance("jack.tsing");
-​            // 得到sayHello方法
-​            Method method = clazz.getMethod("sayHello", String.class);
-​            // 调用sayHello方法
-​            String result = (String) method.invoke(test, "jack.ma");
-​            System.out.println(result);
+        String baseOutputDir = "F:\\output\\classes\\";
+        String baseDir = baseOutputDir + "com\\tommy\\core\\test\\reflect\\";
+        String targetJavaOutputPath = baseDir + "Test.java";
+        // 保存为java文件
+        FileWriter fileWriter = new FileWriter(targetJavaOutputPath);
+        fileWriter.write(sb.toString());
+        fileWriter.flush();
+        fileWriter.close();
+
+        // 编译为class文件
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        StandardJavaFileManager manager = compiler.getStandardFileManager(null,null,null);
+        List<File> files = new ArrayList<>();
+        files.add(new File(targetJavaOutputPath));
+        Iterable compilationUnits = manager.getJavaFileObjectsFromFiles(files);
+
+        // 编译
+        // 设置编译选项，配置class文件输出路径
+        Iterable<String> options = Arrays.asList("-d",baseOutputDir);
+        JavaCompiler.CompilationTask task = compiler.getTask(null, manager, null, options, null, compilationUnits);
+        // 执行编译任务
+        task.call();
+
+​        // 通过反射得到对象
+​        // Class clazz = Class.forName("com.tommy.core.test.reflect.Test");
+​        // 使用自定义的类加载器加载class
+​        Class clazz = new MyClassLoader(baseOutputDir).loadClass("com.tommy.core.test.reflect.Test");
+​        // 得到构造器
+​        Constructor constructor = clazz.getConstructor(String.class);
+​        // 通过构造器new一个对象
+​        Object test = constructor.newInstance("jack.tsing");
+​        // 得到sayHello方法
+​        Method method = clazz.getMethod("sayHello", String.class);
+​        // 调用sayHello方法
+​        String result = (String) method.invoke(test, "jack.ma");
+​        System.out.println(result);
 ​        }
 ​    }
+```
 
 自定义类加载器代码：
 
+```java
+public class MyClassLoader extends ClassLoader {
+    ​
+    private String baseDir;​
 
-​    
-​    public class MyClassLoader extends ClassLoader {
-​        private String baseDir;
-​        public MyClassLoader(String baseDir) {
+    public MyClassLoader(String baseDir) {
 ​            this.baseDir = baseDir;
-​        }
-​        @Override
+​        }​
+
+    @Override
 ​        protected Class<?> findClass(String name) throws ClassNotFoundException {
 ​            String fullClassFilePath = this.baseDir + name.replace("\\.","/") + ".class";
 ​            File classFilePath = new File(fullClassFilePath);
@@ -108,7 +109,6 @@ java提供了JavaCompiler，我们可以通过它来编译java源文件为class�
 ​                    while ((len = fileInputStream.read(data)) != -1) {
 ​                        byteArrayOutputStream.write(data,0,len);
 ​                    }
-​    
 ​                    return defineClass(name,byteArrayOutputStream.toByteArray(),0,byteArrayOutputStream.size());
 ​                } catch (FileNotFoundException e) {
 ​                    e.printStackTrace();
@@ -122,20 +122,20 @@ java提供了JavaCompiler，我们可以通过它来编译java源文件为class�
 ​                            e.printStackTrace();
 ​                        }
 ​                    }
-​    
-                    if (null != byteArrayOutputStream) {
-                        try {
-                            byteArrayOutputStream.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+​                       if (null != byteArrayOutputStream) {
+                    try {
+                        byteArrayOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }
-            return super.findClass(name);
         }
-    }    
-
+        return super.findClass(name);
+    }
+}
+```
+    
 ## javac命令初窥
 
 注：以下红色标记的参数在下文中有所讲解。
@@ -205,7 +205,6 @@ java提供了JavaCompiler，我们可以通过它来编译java源文件为class�
 
 在详细介绍javac命令之前，先看看这个classpath是什么
 
-
 ### classpath是什么
 
 在dos下编译java程序，就要用到classpath这个概念，尤其是在没有设置环境变量的时候。classpath就是存放.class等编译后文件的路径。
@@ -258,18 +257,19 @@ javac：如果当前你要编译的java文件中引用了其它的类(比如说�
 > 这里展示一个web项目的.classpath
 
 Xml代码
-
-    <?xml version="1.0" encoding="UTF-8"?>
-    <classpath>
-    <classpathentry kind="src" path="src"/>
-    <classpathentry kind="src" path="resources"/>
-    <classpathentry kind="src" path="test"/>
-    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-    <classpathentry kind="lib" path="lib/servlet-api.jar"/>
-    <classpathentry kind="lib" path="webapp/WEB-INF/lib/struts2-core-2.1.8.1.jar"/>
-         ……
-    <classpathentry kind="output" path="webapp/WEB-INF/classes"/>
-    </classpath>
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+<classpathentry kind="src" path="src"/>
+<classpathentry kind="src" path="resources"/>
+<classpathentry kind="src" path="test"/>
+<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+<classpathentry kind="lib" path="lib/servlet-api.jar"/>
+<classpathentry kind="lib" path="webapp/WEB-INF/lib/struts2-core-2.1.8.1.jar"/>
+     ……
+<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
+</classpath>
+```
 
 > XML文档包含一个根元素，就是classpath，类路径，那么这里面包含了什么信息呢？子元素是classpathentry，kind属性区别了种 类信息，src源码，con你看看后面的path就知道是JRE容器的信息。lib是项目依赖的第三方类库，output是src编译后的位置。
 
@@ -283,44 +283,47 @@ Xml代码
 
 #### -g、-g:none、-g:{lines,vars,source}
 
-> •-g：在生成的class文件中包含所有调试信息（行号、变量、源文件）
-> •-g:none ：在生成的class文件中不包含任何调试信息。
+> -g：在生成的class文件中包含所有调试信息（行号、变量、源文件）
+> -g:none ：在生成的class文件中不包含任何调试信息。
 >
 > 这个参数在javac编译中是看不到什么作用的，因为调试信息都在class文件中，而我们看不懂这个class文件。
 >
 > 为了看出这个参数的作用，我们在eclipse中进行实验。在eclipse中，我们经常做的事就是“debug”，而在debug的时候，我们会
-> •加入“断点”，这个是靠-g:lines起作用，如果不记录行号，则不能加断点。
-> •在“variables”窗口中查看当前的变量，如下图所示，这是靠-g:vars起作用，否则不能查看变量信息。
-> •在多个文件之间来回调用，比如 A.java的main()方法中调用了B.java的fun()函数，而我想看看程序进入fun()后的状态，这是靠-g:source，如果没有这个参数，则不能查看B.java的源代码。
+> 加入“断点”，这个是靠-g:lines起作用，如果不记录行号，则不能加断点。
+> 在“variables”窗口中查看当前的变量，如下图所示，这是靠-g:vars起作用，否则不能查看变量信息。
+> 在多个文件之间来回调用，比如 A.java的main()方法中调用了B.java的fun()函数，而我想看看程序进入fun()后的状态，这是靠-g:source，如果没有这个参数，则不能查看B.java的源代码。
 
 #### -bootclasspath、-extdirs
 
 > -bootclasspath和-extdirs 几乎不需要用的，因为他是用来改变 “引导类”和“扩展类”。
-> •引导类(组成Java平台的类)：Java\jdk1.7.0_25\jre\lib\rt.jar等，用-bootclasspath设置。
-> •扩展类：Java\jdk1.7.0_25\jre\lib\ext目录中的文件，用-extdirs设置。
-> •用户自定义类：用-classpath设置。
+> - 引导类(组成Java平台的类)：Java\jdk1.7.0_25\jre\lib\rt.jar等，用-bootclasspath设置。
+> - 扩展类：Java\jdk1.7.0_25\jre\lib\ext目录中的文件，用-extdirs设置。
+> - 用户自定义类：用-classpath设置。
 >
 > 我们用-verbose编译后出现的“类文件的搜索路径”，就是由上面三个路径组成，如下：
 
+```java
+[类文件的搜索路径: C:\Java\jdk1.7.0_25\jre\lib\resources.jar,C:\Java\jdk1.7.0_25
 
-    [类文件的搜索路径: C:\Java\jdk1.7.0_25\jre\lib\resources.jar,C:\Java\jdk1.7.0_25
-    
-    \jre\lib\rt.jar,C:\Java\jdk1.7.0_25\jre\lib\sunrsasign.jar,C:\Java\jdk1.7.0_25\j
-    
-    re\lib\jsse.jar,C:\Java\jdk1.7.0_25\jre\lib\jce.jar,C:\Java\jdk1.7.0_25\jre\lib\
-    
-    charsets.jar,C:\Java\jdk1.7.0_25\jre\lib\jfr.jar,C:\Java\jdk1.7.0_25\jre\classes
-    
-    ,C:\Java\jdk1.7.0_25\jre\lib\ext\access-bridge-32.jar,C:\Java\jdk1.7.0_25\jre\li
-    
-    b\ext\dnsns.jar,C:\Java\jdk1.7.0_25\jre\lib\ext\jaccess.jar,C:\Java\jdk1.7.0_25\
-    
-    jre\lib\ext\localedata.jar,C:\Java\jdk1.7.0_25\jre\lib\ext\sunec.jar,C:\Java\jdk
-    
-    1.7.0_25\jre\lib\ext\sunjce_provider.jar,C:\Java\jdk1.7.0_25\jre\lib\ext\sunmsca
-    
-    pi.jar,C:\Java\jdk1.7.0_25\jre\lib\ext\sunpkcs11.jar,C:\Java\jdk1.7.0_25\jre\lib
-    \ext\zipfs.jar,..\bin]             
+\jre\lib\rt.jar,C:\Java\jdk1.7.0_25\jre\lib\sunrsasign.jar,C:\Java\jdk1.7.0_25\j
+
+re\lib\jsse.jar,C:\Java\jdk1.7.0_25\jre\lib\jce.jar,C:\Java\jdk1.7.0_25\jre\lib\
+
+charsets.jar,C:\Java\jdk1.7.0_25\jre\lib\jfr.jar,C:\Java\jdk1.7.0_25\jre\classes
+
+,C:\Java\jdk1.7.0_25\jre\lib\ext\access-bridge-32.jar,C:\Java\jdk1.7.0_25\jre\li
+
+b\ext\dnsns.jar,C:\Java\jdk1.7.0_25\jre\lib\ext\jaccess.jar,C:\Java\jdk1.7.0_25\
+
+jre\lib\ext\localedata.jar,C:\Java\jdk1.7.0_25\jre\lib\ext\sunec.jar,C:\Java\jdk
+
+1.7.0_25\jre\lib\ext\sunjce_provider.jar,C:\Java\jdk1.7.0_25\jre\lib\ext\sunmsca
+
+pi.jar,C:\Java\jdk1.7.0_25\jre\lib\ext\sunpkcs11.jar,C:\Java\jdk1.7.0_25\jre\lib
+\ext\zipfs.jar,..\bin] 
+
+```
+            
 
 如果利用 -bootclasspath 重新定义： javac -bootclasspath src Xxx.java，则会出现下面错误：
 
@@ -334,26 +337,20 @@ Xml代码
 
 举个例子，
 
-
-
-    public class A
-    {
-        public static void main(String[] args) {
-            B b = new B();
-            b.print();
-        }
+```java
+public class A{
+    public static void main(String[] args) {
+        B b = new B();
+        b.print();
     }
+}
 
-
-​    
-​    
-​    public class B
-​    {
-​        public void print()
-​        {
+public class B{
+​        public void print(){
 ​            System.out.println("old");
 ​        }
-​    }
+​ }
+```
 
 
 目录结构如下：
@@ -373,12 +370,13 @@ sourcepath          //此处为当前目录
 
 如果要编译 A.java，则必须要让编译器找到类B的位置，你可以指定B.class的位置，也可以是B.java的位置，也可以同时都存在。
 
+```java
+javac -classpath bin src/A.java                            //查找到B.class
 
-    javac -classpath bin src/A.java                            //查找到B.class
-    
-    javac -sourcepath src/com src/A.java                   //查找到B.java
-    
-    javac -sourcepath src/com -classpath bin src/A.java    //同时查找到B.class和B.java
+javac -sourcepath src/com src/A.java                   //查找到B.java
+
+javac -sourcepath src/com -classpath bin src/A.java    //同时查找到B.class和B.java
+```
 
 如果同时找到了B.class和B.java，则：
 •如果B.class和B.java内容一致，则遵循B.class。
@@ -395,8 +393,7 @@ sourcepath          //此处为当前目录
 
 ​    
 ​    package com;
-​    public class Main
-​    {
+​    public class Main{
 ​        public static void main(String[] args) {
 ​            System.out.println("Hello");
 ​        }
