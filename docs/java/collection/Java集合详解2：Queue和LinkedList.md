@@ -1,49 +1,3 @@
-# Table of Contents
-
-  * [LinkedList](#linkedlist)
-    * [概述](#概述)
-    * [源码分析](#源码分析)
-      * [定义](#定义)
-      * [属性](#属性)
-      * [构造方法](#构造方法)
-      * [增加方法](#增加方法)
-      * [移除方法](#移除方法)
-      * [查找方法](#查找方法)
-  * [Queue](#queue)
-    * [DeQueue](#dequeue)
-    * [ArrayDeque （底层使用循环数组实现双向队列）](#arraydeque-（底层使用循环数组实现双向队列）)
-      * [创建](#创建)
-      * [add操作](#add操作)
-      * [remove操作](#remove操作)
-    * [PriorityQueue（底层用数组实现堆的结构）](#priorityqueue（底层用数组实现堆的结构）)
-      * [add 添加方法](#add-添加方法)
-      * [poll，出队方法](#poll，出队方法)
-      * [remove，删除队列元素](#remove，删除队列元素)
-  * [总结和同步的问题](#总结和同步的问题)
-  * [参考文章](#参考文章)
-  * [微信公众号](#微信公众号)
-    * [Java技术江湖](#java技术江湖)
-    * [个人公众号：黄小斜](#个人公众号：黄小斜)
-本文参考 http://cmsblogs.com/?p=155 
-和 
-https://www.jianshu.com/p/0e84b8d3606c
-
-《Java集合详解系列》是我在完成夯实Java基础篇的系列博客后准备开始整理的新系列文章。
-为了更好地诠释知识点，形成体系文章，本系列文章整理了很多优质的博客内容，如有侵权请联系我，一定删除。
-
-这些文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star、fork哈
-
-本系列文章将整理于我的个人博客：
-
-> www.how2playlife.com
-
-
-
 ## LinkedList
 ### 概述
 > 
@@ -156,7 +110,7 @@ LinkedList提供了两个构造方法：LinkedList()和LinkedList(Collection<? e
         return true;
     }
       在addAll()方法中，涉及到了两个方法，一个是entry(int index)，该方法为LinkedList的私有方法，主要是用来查找index位置的节点元素。
-
+    
     /**
          * 返回指定位置(若存在)的节点元素
          */
@@ -176,7 +130,7 @@ LinkedList提供了两个构造方法：LinkedList()和LinkedList(Collection<? e
             }
             return e;
         }
-        
+
   从该方法有两个遍历方向中我们也可以看出LinkedList是双向链表，这也是在构造方法中为什么需要将header的前、后节点均指向自己。
 
   如果对数据结构有点了解，对上面所涉及的内容应该问题，我们只需要清楚一点：LinkedList是双向链表，其余都迎刃而解。
@@ -186,7 +140,7 @@ LinkedList提供了两个构造方法：LinkedList()和LinkedList(Collection<? e
 #### 增加方法
 
       add(E e): 将指定元素添加到此列表的结尾。
-
+    
     public boolean add(E e) {
         addBefore(e, header);
             return true;
@@ -210,19 +164,19 @@ LinkedList提供了两个构造方法：LinkedList()和LinkedList(Collection<? e
   LinkedList还提供了其他的增加方法：
 
       add(int index, E element)：在此列表中指定的位置插入指定的元素。
-
+    
       addAll(Collection<? extends E> c)：添加指定 collection 中的所有元素到此列表的结尾，顺序是指定 collection 的迭代器返回这些元素的顺序。
-
+    
       addAll(int index, Collection<? extends E> c)：将指定 collection 中的所有元素从指定位置开始插入此列表。
-
+    
       AddFirst(E e): 将指定元素插入此列表的开头。
-
+    
       addLast(E e): 将指定元素添加到此列表的结尾。
 
 #### 移除方法
 
       remove(Object o)：从此列表中移除首次出现的指定元素（如果存在）。该方法的源代码如下：
-
+    
     public boolean remove(Object o) {
             if (o==null) {
                 for (Entry<E> e = header.next; e != header; e = e.next) {
@@ -241,7 +195,7 @@ LinkedList提供了两个构造方法：LinkedList()和LinkedList(Collection<? e
             }
             return false;
         }
-        
+
   该方法首先会判断移除的元素是否为null，然后迭代这个链表找到该元素节点，最后调用remove(Entry<E> e)，remove(Entry<E> e)为私有方法，是LinkedList中所有移除方法的基础方法，如下：
 
     private E remove(Entry<E> e) {
@@ -263,39 +217,39 @@ LinkedList提供了两个构造方法：LinkedList()和LinkedList(Collection<? e
             modCount++;
             return result;
         }
-        
+
 其他的移除方法：
 
       clear()： 从此列表中移除所有元素。
-
+    
       remove()：获取并移除此列表的头（第一个元素）。
-
+    
       remove(int index)：移除此列表中指定位置处的元素。
-
+    
       remove(Objec o)：从此列表中移除首次出现的指定元素（如果存在）。
-
+    
       removeFirst()：移除并返回此列表的第一个元素。
-
+    
       removeFirstOccurrence(Object o)：从此列表中移除第一次出现的指定元素（从头部到尾部遍历列表时）。
-
+    
       removeLast()：移除并返回此列表的最后一个元素。
-
+    
       removeLastOccurrence(Object o)：从此列表中移除最后一次出现的指定元素（从头部到尾部遍历列表时）。
 
 #### 查找方法
 
       对于查找方法的源码就没有什么好介绍了，无非就是迭代，比对，然后就是返回当前值。
-
+    
       get(int index)：返回此列表中指定位置处的元素。
-
+    
       getFirst()：返回此列表的第一个元素。
-
+    
       getLast()：返回此列表的最后一个元素。
-
+    
       indexOf(Object o)：返回此列表中首次出现的指定元素的索引，如果此列表中不包含该元素，则返回 -1。
-
+    
       lastIndexOf(Object o)：返回此列表中最后出现的指定元素的索引，如果此列表中不包含该元素，则返回 -1。
-      
+
 ## Queue
 
 Queue接口定义了队列数据结构，元素是有序的(按插入顺序)，先进先出。Queue接口相关的部分UML类图如下：
@@ -540,21 +494,3 @@ https://blog.csdn.net/m0_37869177/article/details/88847569
 https://www.iteye.com/blog/shmilyaw-hotmail-com-1825171
 
 https://blog.csdn.net/weixin_36378917/article/details/81812210
-
-## 微信公众号
-
-### Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的公众号【Java技术江湖】一位阿里 Java 工程师的技术小站，作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-**Java工程师必备学习资源:** 一些Java工程师常用学习资源，关注公众号后，后台回复关键字 **“Java”** 即可免费无套路获取。
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
-
-### 个人公众号：黄小斜
-
-作者是 985 硕士，蚂蚁金服 JAVA 工程师，专注于 JAVA 后端技术栈：SpringBoot、MySQL、分布式、中间件、微服务，同时也懂点投资理财，偶尔讲点算法和计算机理论基础，坚持学习和写作，相信终身学习的力量！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取。	
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
