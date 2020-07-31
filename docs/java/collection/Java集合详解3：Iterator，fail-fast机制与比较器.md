@@ -6,10 +6,10 @@
 
 ```java
 Iterator iterator = list.iterator();
-        while(iterator.hasNext()){
-            String string = iterator.next();
-            do something
-        }
+while(iterator.hasNext()){
+    String string = iterator.next();
+    do something
+}
 ```
 迭代其实我们可以简单地理解为遍历，是一个标准化遍历各类容器里面的所有对象的方法类，它是一个很典型的设计模式。Iterator模式是用于遍历集合类的标准访问方法。
 
@@ -19,20 +19,20 @@ Iterator iterator = list.iterator();
 
 ```java
 int[] arrays = new int[10];
-   for(int i = 0 ; i  arrays.length ; i++){
-       int a = arrays[i];
-       do something
-   }
+for(int i = 0 ; i  arrays.length ; i++){
+    int a = arrays[i];
+    do something
+}
 ```
 
 对于ArrayList是这么处理的
 
 ```java
 ListString list = new ArrayListString();
-   for(int i = 0 ; i  list.size() ;  i++){
-      String string = list.get(i);
-      do something
-   }
+for(int i = 0 ; i  list.size() ;  i++){
+    String string = list.get(i);
+    do something
+}
 ```
 
 对于这两种方式，我们总是都事先知道集合的内部结构，访问代码和集合本身是紧密耦合的，无法将访问逻辑从集合类和客户端代码中分离出来。同时每一种集合对应一种遍历方法，客户端代码无法复用。
@@ -47,9 +47,9 @@ ListString list = new ArrayListString();
 
 在Java中Iterator为一个接口，它只提供了迭代了基本规则，在JDK中他是这样定义的：对 collection 进行迭代的迭代器。迭代器取代了 Java Collections Framework 中的 Enumeration。迭代器与枚举有两点不同：
 
-    1、迭代器允许调用者利用定义良好的语义在迭代期间从迭代器所指向的 collection 移除元素。
-    
-    2、方法名称得到了改进。
+1. 迭代器允许调用者利用定义良好的语义在迭代期间从迭代器所指向的 collection 移除元素。
+
+2. 方法名称得到了改进。
 
 其接口定义如下：
 
@@ -62,24 +62,24 @@ public interface Iterator {
 ```
 其中：
 
-    Object next()：返回迭代器刚越过的元素的引用，返回值是Object，需要强制转换成自己需要的类型
-    
-    boolean hasNext()：判断容器内是否还有可供访问的元素
-    
-    void remove()：删除迭代器刚越过的元素
+```java
+Object next()：返回迭代器刚越过的元素的引用，返回值是Object，需要强制转换成自己需要的类型
+
+boolean hasNext()：判断容器内是否还有可供访问的元素
+
+void remove()：删除迭代器刚越过的元素
+```
 
 对于我们而言，我们只一般只需使用next()、hasNext()两个方法即可完成迭代。如下：
 
 ```java
-for(Iterator it = c.iterator(); it.hasNext(); ) {
+for(Iterator it = c.iterator(); it.hasNext();) {
 　　Object o = it.next();
-　　 do something
+　　do something
 }
 ```
 
-==前面阐述了Iterator有一个很大的优点,就是我们不必知道集合的内部结果,集合的内部结构、状态由Iterator来维持，通过统一的方法hasNext()、next()来判断、获取下一个元素，至于具体的内部实现我们就不用关心了。==
-
-但是作为一个合格的程序员我们非常有必要来弄清楚Iterator的实现。下面就ArrayList的源码进行分析分析。
+前面阐述了Iterator有一个很大的优点，就是我们不必知道集合的内部结果，集合的内部结构，状态由Iterator来维持，通过统一的方法hasNext()、next()来判断、获取下一个元素，至于具体的内部实现我们就不用关心了。但是作为一个合格的程序员我们非常有必要来弄清楚Iterator的实现。下面就ArrayList的源码进行分析分析。
 
 ### 各个集合的Iterator的实现
 
@@ -90,14 +90,13 @@ ArrayList的Iterator实现
 在ArrayList内部首先是定义一个内部类Itr，该内部类实现Iterator接口，如下：
 
 ```java
-private class Itr implements IteratorE {
+private class Itr implements Iterator<E> {
     do something
 }
-而ArrayList的iterator()方法实现：
-
-public IteratorE iterator() {
+//ArrayList的iterator()方法实现
+public Iterator<E> iterator() {
         return new Itr();
-    }
+}
 ```
 
 所以通过使用ArrayList.iterator()方法返回的是Itr()内部类，所以现在我们需要关心的就是Itr()内部类的实现：
@@ -123,31 +122,32 @@ public boolean hasNext() {
 ```java
 public E next() {
     checkForComodification();
-    int i = cursor;    记录索引位置
-    if (i = size)    如果获取元素大于集合元素个数，则抛出异常
+    int i = cursor;    //记录索引位置
+    if (i = size)    //如果获取元素大于集合元素个数，则抛出异常
         throw new NoSuchElementException();
     Object[] elementData = ArrayList.this.elementData;
     if (i = elementData.length)
         throw new ConcurrentModificationException();
-    cursor = i + 1;      cursor + 1
-    return (E) elementData[lastRet = i];  lastRet + 1 且返回cursor处元素
+    cursor = i + 1;      //cursor + 1
+    return (E) elementData[lastRet = i];  //lastRet + 1 且返回cursor处元素
 }
 ```
 
- checkForComodification()主要用来判断集合的修改次数是否合法，即用来判断遍历过程中集合是否被修改过。
+checkForComodification()主要用来判断集合的修改次数是否合法，即用来判断遍历过程中集合是否被修改过。
 
- 。modCount用于记录ArrayList集合的修改次数，初始化为0，，每当集合被修改一次（结构上面的修改，内部update不算），如add、remove等方法，modCount + 1，所以如果modCount不变，则表示集合内容没有被修改。
+modCount用于记录ArrayList集合的修改次数，初始化为0，每当集合被修改一次（结构上面的修改，内部update不算），如add、remove等方法，modCount + 1，所以如果modCount不变，则表示集合内容没有被修改。
 
- 该机制主要是用于实现ArrayList集合的快速失败机制，在Java的集合中，较大一部分集合是存在快速失败机制的，这里就不多说，后面会讲到。
+该机制主要是用于实现ArrayList集合的快速失败机制，在Java的集合中，较大一部分集合是存在快速失败机制的，这里就不多说，后面会讲到。
 
- 所以要保证在遍历过程中不出错误，我们就应该保证在遍历过程中不会对集合产生结构上的修改（当然remove方法除外），出现了异常错误，我们就应该认真检查程序是否出错而不是catch后不做处理。
+所以要保证在遍历过程中不出错误，我们就应该保证在遍历过程中不会对集合产生结构上的修改（当然remove方法除外），出现了异常错误，我们就应该认真检查程序是否出错而不是catch后不做处理。
 
 ```java
 final void checkForComodification() {
-            if (modCount != expectedModCount)
-                throw new ConcurrentModificationException();
-        }
-对于remove()方法的是实现，它是调用ArrayList本身的remove()方法删除lastRet位置元素，然后修改modCount即可。
+    if (modCount != expectedModCount)
+        throw new ConcurrentModificationException();
+}
+//对于remove()方法的是实现，它是调用ArrayList本身的remove()方法删除lastRet位置元素，
+//然后修改modCount即可。
 
 public void remove() {
     if (lastRet  0)
@@ -172,41 +172,28 @@ public void remove() {
 
 在JDK的Collection中我们时常会看到类似于这样的话：
 
-例如，ArrayList
-    
- 注意，迭代器的快速失败行为无法得到保证，因为一般来说，不可能对是否出现不同步并发修改做出任何硬性保证。快速失败迭代器会尽最大努力抛出ConcurrentModificationException。
- 因此，为提高这类迭代器的正确性而编写一个依赖于此异常的程序是错误的做法：迭代器的快速失败行为应该仅用于检测 bug。
+例如，ArrayList。注意，迭代器的快速失败行为无法得到保证，因为一般来说，不可能对是否出现不同步并发修改做出任何硬性保证。快速失败迭代器会尽最大努力抛出ConcurrentModificationException。因此，为提高这类迭代器的正确性而编写一个依赖于此异常的程序是错误的做法：迭代器的快速失败行为应该仅用于检测 bug。
 
 HashMap中：
 
- 注意，迭代器的快速失败行为不能得到保证，一般来说，存在非同步的并发修改时，不可能作出任何坚决的保证。快速失败迭代器尽最大努力抛出 ConcurrentModificationException。因此，编写依赖于此异常的程序的做法是错误的，正确做法是：迭代器的快速失败行为应该仅用于检测程序错误。
+注意，迭代器的快速失败行为不能得到保证，一般来说，存在非同步的并发修改时，不可能作出任何坚决的保证。快速失败迭代器尽最大努力抛出 ConcurrentModificationException。因此，编写依赖于此异常的程序的做法是错误的，正确做法是：迭代器的快速失败行为应该仅用于检测程序错误。
 
 在这两段话中反复地提到”快速失败”。那么何为”快速失败”机制呢？
 
  “快速失败”也就是fail-fast，它是Java集合的一种错误检测机制。当多个线程对集合进行结构上的改变的操作时，有可能会产生fail-fast机制。
 
- 记住是有可能，而不是一定。例如：假设存在两个线程（线程1、线程2），线程1通过Iterator在遍历集合A中的元素，在某个时候线程2修改了集合A的结构（是结构上面的修改，而不是简单的修改集合元素的内容），那么这个时候程序就会抛出 ConcurrentModificationException异常，从而产生fail-fast机制。
+记住是有可能，而不是一定。例如：假设存在两个线程（线程1、线程2），线程1通过Iterator在遍历集合A中的元素，在某个时候线程2修改了集合A的结构（是结构上面的修改，而不是简单的修改集合元素的内容），那么这个时候程序就会抛出 ConcurrentModificationException异常，从而产生fail-fast机制。
 
-#### fail-fast示例
+#### fail-fast示例    
 
 ```java
 public class FailFastTest {
     private static ListInteger list = new ArrayList();
-```
 
-
-​        
-​          @desc线程one迭代list
-​          @Projecttest
-​          @fileFailFastTest.java
-​          @Authrochenssy
-​          @data2014年7月26日
-​         
-```java
-    private static class threadOne extends Thread{
+    private static class threadOne extends Thread {
         public void run() {
             IteratorInteger iterator = list.iterator();
-            while(iterator.hasNext()){
+            while (iterator.hasNext()) {
                 int i = iterator.next();
                 System.out.println(ThreadOne 遍历 + i);
                 try {
@@ -217,32 +204,23 @@ public class FailFastTest {
             }
         }
     }
-```
 
-
-​        
-​          @desc当i == 3时，修改list
-​          @Projecttest
-​          @fileFailFastTest.java
-​          @Authrochenssy
-​          @data2014年7月26日
-​         
-```java
-    private static class threadTwo extends Thread{
-        public void run(){
-            int i = 0 ; 
-            while(i  6){
-                System.out.println(ThreadTwo run： + i);
-                if(i == 3){
+    private static class threadTwo extends Thread {
+        public void run() {
+            int i = 0;
+            while (i 6){
+                System.out.println(ThreadTwo run : + i);
+                if (i == 3) {
                     list.remove(i);
                 }
                 i++;
             }
         }
     }
-    
+
     public static void main(String[] args) {
-        for(int i = 0 ; i  10;i++){
+        for (int i = 0; i 10;
+        i++){
             list.add(i);
         }
         new threadOne().start();
@@ -270,7 +248,7 @@ Exception in thread Thread-0 java.util.ConcurrentModificationException
 
 通过上面的示例和讲解，我初步知道fail-fast产生的原因就在于程序在对 collection 进行迭代时，某个线程对该 collection 在结构上对其做了修改，这时迭代器就会抛出 ConcurrentModificationException 异常信息，从而产生 fail-fast。
 
- 要了解fail-fast机制，我们首先要对ConcurrentModificationException 异常有所了解。当方法检测到对象的并发修改，但不允许这种修改时就抛出该异常。同时需要注意的是，该异常不会始终指出对象已经由不同线程并发修改，如果单线程违反了规则，同样也有可能会抛出改异常。
+要了解fail-fast机制，我们首先要对ConcurrentModificationException 异常有所了解。当方法检测到对象的并发修改，但不允许这种修改时就抛出该异常。同时需要注意的是，该异常不会始终指出对象已经由不同线程并发修改，如果单线程违反了规则，同样也有可能会抛出改异常。
 
 
 诚然，迭代器的快速失败行为无法得到保证，它不能保证一定会出现该错误，但是快速失败操作会尽最大努力抛出ConcurrentModificationException异常，所以因此，为提高此类操作的正确性而编写一个依赖于此异常的程序是错误的做法，正确做法是：ConcurrentModificationException 应该仅用于检测 bug。下面我将以ArrayList为例进一步分析fail-fast产生的原因。
@@ -330,28 +308,26 @@ private void ensureExplicitCapacity(int paramInt) {
     this.modCount += 1;    修改modCount
      省略此处代码 
 }
-```
 
-   public boolean remove(Object paramObject) {
-        int i;
-        if (paramObject == null)
-            for (i = 0; i  this.size; ++i) {
-                if (this.elementData[i] != null)
-                    continue;
-                fastRemove(i);
-                return true;
-            }
-        else
-            for (i = 0; i  this.size; ++i) {
-                if (!(paramObject.equals(this.elementData[i])))
-                    continue;
-                fastRemove(i);
-                return true;
-            }
-        return false;
-    }
+public boolean remove(Object paramObject) {
+    int i;
+    if (paramObject == null)
+        for (i = 0; i  this.size; ++i) {
+            if (this.elementData[i] != null)
+                continue;
+            fastRemove(i);
+            return true;
+        }
+    else
+        for (i = 0; i  this.size; ++i) {
+            if (!(paramObject.equals(this.elementData[i])))
+                continue;
+            fastRemove(i);
+            return true;
+        }
+    return false;
+}
 
-```java
 private void fastRemove(int paramInt) {
     this.modCount += 1;   修改modCount
      省略此处代码 
@@ -362,7 +338,8 @@ public void clear() {
      省略此处代码 
 }
 ```
- 从上面的源代码我们可以看出，ArrayList中无论add、remove、clear方法只要是涉及了改变ArrayList元素的个数的方法都会导致modCount的改变。
+
+从上面的源代码我们可以看出，ArrayList中无论add、remove、clear方法只要是涉及了改变ArrayList元素的个数的方法都会导致modCount的改变。
 
 所以我们这里可以初步判断由于expectedModCount 得值与modCount的改变不同步，导致两者之间不等从而产生fail-fast机制。知道产生fail-fast产生的根本原因了，我们可以有如下场景：
 
@@ -393,42 +370,38 @@ CopyOnWriteArrayList为何物？ArrayList 的一个线程安全的变体，其�
 
 ```java
 private static class COWIteratorE implements ListIteratorE {
-         省略此处代码 
+    省略此处代码 
         public E next() {
-            if (!(hasNext()))
-                throw new NoSuchElementException();
-            return this.snapshot[(this.cursor++)];
-        }
-
-         省略此处代码 
+        if (!(hasNext()))
+            throw new NoSuchElementException();
+        return this.snapshot[(this.cursor++)];
     }
+
+    省略此处代码 
+}
 ```
 CopyOnWriterArrayList的方法根本就没有像ArrayList中使用checkForComodification方法来判断expectedModCount 与 modCount 是否相等。它为什么会这么做，凭什么可以这么做呢？我们以add方法为例：
 
 ```java
 public boolean add(E paramE) {
-        ReentrantLock localReentrantLock = this.lock;
-        localReentrantLock.lock();
-        try {
-            Object[] arrayOfObject1 = getArray();
-            int i = arrayOfObject1.length;
-            Object[] arrayOfObject2 = Arrays.copyOf(arrayOfObject1, i + 1);
-            arrayOfObject2[i] = paramE;
-            setArray(arrayOfObject2);
-            int j = 1;
-            return j;
-        } finally {
-            localReentrantLock.unlock();
-        }
+    ReentrantLock localReentrantLock = this.lock;
+    localReentrantLock.lock();
+    try {
+        Object[] arrayOfObject1 = getArray();
+        int i = arrayOfObject1.length;
+        Object[] arrayOfObject2 = Arrays.copyOf(arrayOfObject1, i + 1);
+        arrayOfObject2[i] = paramE;
+        setArray(arrayOfObject2);
+        int j = 1;
+        return j;
+    } finally {
+        localReentrantLock.unlock();
     }
-```
+}
 
-
-​      
-```java
-    final void setArray(Object[] paramArrayOfObject) {
-        this.array = paramArrayOfObject;
-    }
+final void setArray(Object[] paramArrayOfObject) {
+    this.array = paramArrayOfObject;
+}
 ```
 
 CopyOnWriterArrayList的add方法与ArrayList的add方法有一个最大的不同点就在于，下面三句代码：
@@ -483,114 +456,84 @@ e1.compareTo(e2)  0 即 e1  e2
 因此自己定义的类如果想要使用有序的集合类，需要实现 Comparable 接口，比如：
 
 
-  description 测试用的实体类 书, 实现了 Comparable 接口，自然排序
+description 测试用的实体类 书, 实现了 Comparable 接口，自然排序
+
 
 ```java
-  author shixinzhang
-  br
-  data 1052016
-
 public class BookBean implements Serializable, Comparable {
     private String name;
     private int count;
-```
+    
+    public BookBean(String name, int count) {
+        this.name = name;
+        this.count = count;
+    }
 
+    public String getName() {
+        return name;
+    }
 
-```java
-public BookBean(String name, int count) {
-    this.name = name;
-    this.count = count;
-}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-public String getName() {
-    return name;
-}
+    public int getCount() {
+        return count;
+    }
 
-public void setName(String name) {
-    this.name = name;
-}
+    public void setCount(int count) {
+        this.count = count;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BookBean)) return false;
 
-public int getCount() {
-    return count;
-}
+        BookBean bean = (BookBean) o;
 
-public void setCount(int count) {
-    this.count = count;
-}
-```
+        if (getCount() != bean.getCount()) return false;
+        return getName().equals(bean.getName());
 
-
-​    
-​      重写 equals
-​      @param o
-​      @return
-​     
-```java
-@Override
-public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof BookBean)) return false;
-
-    BookBean bean = (BookBean) o;
-
-    if (getCount() != bean.getCount()) return false;
-    return getName().equals(bean.getName());
-
-}
-```
-
-
-​    
-​      重写 hashCode 的计算方法
-​      根据所有属性进行 迭代计算，避免重复
-​      计算 hashCode 时 计算因子 31 见得很多，是一个质数，不能再被除
-​      @return
-​     
-```java
-@Override
-public int hashCode() {
-    调用 String 的 hashCode(), 唯一表示一个字符串内容
-    int result = getName().hashCode();
-    乘以 31, 再加上 count
-    result = 31  result + getCount();
-    return result;
-}
-
-@Override
-public String toString() {
-    return BookBean{ +
-            name=' + name + ''' +
-            , count= + count +
-            '}';
-}
-```
-
-
-​      当向 TreeSet 中添加 BookBean 时，会调用这个方法进行排序
-​      @param another
-​      @return
-
-```java
-@Override
-public int compareTo(Object another) {
-    if (another instanceof BookBean){
-        BookBean anotherBook = (BookBean) another;
-        int result;
-
-        比如这里按照书价排序
-        result = getCount() - anotherBook.getCount();     
-
-      或者按照 String 的比较顺序
-      result = getName().compareTo(anotherBook.getName());
-
-        if (result == 0){   当书价一致时，再对比书名。 保证所有属性比较一遍
-            result = getName().compareTo(anotherBook.getName());
-        }
+    }
+    
+    @Override
+    public int hashCode() {
+        调用 String 的 hashCode(), 唯一表示一个字符串内容
+        int result = getName().hashCode();
+        乘以 31, 再加上 count
+        result = 31  result + getCount();
         return result;
     }
-     一样就返回 0
-    return 0;
-}
+
+    @Override
+    public String toString() {
+        return BookBean{ +
+                name=' + name + ''' +
+                , count= + count +
+                '}';
+    }
+        
+    @Override
+    public int compareTo(Object another) {
+        if (another instanceof BookBean){
+            BookBean anotherBook = (BookBean) another;
+            int result;
+
+            比如这里按照书价排序
+            result = getCount() - anotherBook.getCount();     
+
+          或者按照 String 的比较顺序
+          result = getName().compareTo(anotherBook.getName());
+
+            if (result == 0){   当书价一致时，再对比书名。 保证所有属性比较一遍
+                result = getName().compareTo(anotherBook.getName());
+            }
+            return result;
+        }
+         一样就返回 0
+        return 0;
+    }   
 ```
 
 上述代码还重写了 equlas(), hashCode() 方法，自定义的类将来可能会进行比较时，建议重写这些方法。
@@ -610,7 +553,6 @@ Comparator 是javase中的接口，位于java.util包下，该接口抽象度极
 输入一个正整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。例如输入数组{3，32，321}，则打印出这三个数字能排成的最小数字为321323。
 
 代码实现：
-    
 ```java
 import java.util.ArrayList;
 import java.util.Collections;
