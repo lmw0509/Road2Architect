@@ -37,6 +37,55 @@ HashMap数据结构图
 
 下图的table数组的每个格子都是一个桶。负载因子就是map中的元素占用的容量百分比。比如负载因子是0.75，初始容量（桶数量）为16时，那么允许装填的元素最大个数就是16*0.75 = 12，这个最大个数也被成为阈值，就是map中定义的threshold。超过这个阈值时，map就会自动扩容。
 
+从上图我们可以看出HashMap底层实现还是数组，只是数组的每一项都是一条链。其中参数initialCapacity就代表了该数组的长度。下面为HashMap构造函数的源码：
+
+```java
+public HashMap(int initialCapacity, float loadFactor) {
+	//初始容量不能<0
+	if(initialCapacity < 0)
+		throw new IllegalArgumentException("Illegal initial capacity: "+ initialCapacity);
+	//初始容量不能 > 最大容量值，HashMap的最大容量值为2^30
+	if(initialCapacity > MAXIMUM_CAPACITY)
+		nitialCapacity = MAXIMUM_CAPACITY;
+	//负载因子不能 < 0
+	if(loadFactor <= 0 || Float.isNaN(loadFactor))
+		throw new IllegalArgumentException("Illegal load factor: " + loadFactor);
+	// 计算出大于 initialCapacity 的最小的 2 的 n 次方值。
+	int capacity = 1;
+	while (capacity < initialCapacity)
+		capacity <<= 1;
+	this.loadFactor = loadFactor;
+	//设置HashMap的容量极限，当HashMap的容量达到该极限时就会进行扩容操作
+	threshold = (int) (capacity * loadFactor);
+	//初始化table数组，也就是桶数组。
+	table = new Entry[capacity];
+	init();
+}
+
+//从源码中可以看出，每次新建一个HashMap时，都会初始化一个table数组。table数组的元素为Entry节点。
+static class Entry<K,V> implements Map.Entry<K,V> {
+	final K key;
+	V value;
+	Entry<K,V> next;
+	final int hash;
+    /**
+      * Creates new entry.
+      */
+    Entry(int h, K k, V v, Entry<K,V> n) {
+    	value = v;
+    	next= n;
+    	key = k;
+    	hash = h;
+	}
+	.......
+}
+
+//其中Entry为HashMap的内部类，它包含了键key、值value、下一个节点next，以及hash值，这是非常重要的，正是由于Entry才构成了table数组的项为链表。
+//上面简单分析了HashMap的数据结构，下面将探讨HashMap是如何实现快速存取的。
+```
+
+
+
 
 ### 存储实现：put(key,vlaue)
 
@@ -102,7 +151,15 @@ HashMap的底层数组长度总是2的n次方，在构造函数中存在：capac
 
 这里我们假设length为16(2^n)和15，h为5、6、7。
 
+table1图 https://mp.weixin.qq.com/s/DithysFMRpXlN4iZ5nBD5Q
+
 当n=15时，6和7的结果一样，这样表示他们在table存储的位置是相同的，也就是产生了碰撞，6、7就会在一个位置形成链表，这样就会导致查询速度降低。诚然这里只分析三个数字不是很多，那么我们就看0-15。
+
+table2图 https://mp.weixin.qq.com/s/DithysFMRpXlN4iZ5nBD5Q
+
+从上面的图表中我们看到总共发生了8次碰撞，同时发现浪费的空间非常大，有1、3、5、7、9、11、13、15处没有记录，也就是没有存放数据。
+
+这是因为他们在与14进行&运算时，得到的结果最后一位永远都是0，即0001、0011、0101、0111、1001、1011、1101、1111位置处是不可能存储数据的，空间减少，进一步增加碰撞几率，这样就会导致查询速度慢。
 
 >   而当length = 16时，length – 1 = 15 即1111，那么进行低位&运算时，值总是与原来hash值相同，而进行高位运算时，其值等于其低位值。所以说当length = 2^n时，不同的hash值发生碰撞的概率比较小，这样就会使得数据在table数组中分布较均匀，查询速度也较快。
 >
@@ -456,9 +513,23 @@ public synchronized V put(K key, V value) {
   }
 ```
 
->   put方法的整个处理流程是：计算key的hash值，根据hash值获得key在table数组中的索引位置，然后迭代该key处的Entry链表（我们暂且理解为链表），若该链表中存在一个这个的key对象，那么就直接替换其value值即可，否则在将改key-value节点插入该index索引位置处
+>   put方法的整个处理流程是：计算key的hash值，根据hash值获得key在table数组中的索引位置，然后迭代该key处的Entry链表（我们暂且理解为链表），若该链表中存在一个这个的key对象，那么就直接替换其value值即可，否则在将改key-value节点插入该index索引位置处。如下：
 
- 在HashTabled的put方法中有两个地方需要注意：
+首先我们假设一个容量为5的table，存在8、10、13、16、17、21。他们在table中位置如下：
+
+图见  https://mp.weixin.qq.com/s/DithysFMRpXlN4iZ5nBD5Q
+
+然后我们插入一个数：put(16,22)，key=16在table的索引位置为1，同时在1索引位置有两个数，程序对该“链表”进行迭代，发现存在一个key=16,这时要做的工作就是用newValue=22替换oldValue16，并将oldValue=16返回。
+
+图见  https://mp.weixin.qq.com/s/DithysFMRpXlN4iZ5nBD5Q
+
+在put(33,33)，key=33所在的索引位置为3，并且在该链表中也没有存在某个key=33的节点，所以就将该节点插入该链表的第一个位置。
+
+图见  https://mp.weixin.qq.com/s/DithysFMRpXlN4iZ5nBD5Q
+
+
+
+在HashTabled的put方法中有两个地方需要注意：
 
 1、HashTable的扩容操作，在put方法中，如果需要向table[]中添加Entry元素，会首先进行容量校验，如果容量已经达到了阀值，HashTable就会进行扩容处理rehash()，如下:
 
