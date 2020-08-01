@@ -10,7 +10,9 @@ List接口下的实现类有ArrayList，linkedlist，vector等等，一般就是
 ArrayList的扩容方式是1.5倍扩容，这样扩容避免2倍扩容可能浪费空间，是一种折中的方案。
 另外他不是线程安全，vector则是线程安全的，它是两倍扩容的。
 
-linkedlist没啥好说的，多用于实现链表。
+linkedlist没啥好说的，多用于实现链表。并且很坑的一点是，Java里的linkedlist自带按索引访问的api，结果我没用过，面试的时候被问到答错了，导致我美团直接凉凉。
+
+除此之外还有一个copyonwritelist，用于线程安全的场景。
 
 
 ## Map
@@ -56,8 +58,9 @@ set就是hashmap将value固定为一个object，只存key元素包装成一个en
 
 ## Linkedhashmap
 
-
 在原来hashmap基础上将所有的节点依据插入的次序另外连成一个链表。用来保持顺序，可以使用它实现lru缓存，当访问命中时将节点移到队头，当插入元素超过长度时，删除队尾元素即可。
+
+使用的时候先继承linkedhashmap或者直接使用linkedhashmap作为成员变量，然后重写removeEldestEntry方法即可，注意传入size参数，判断当元素个数超过size时返回true，表示可以删除就行了。
 
 
 ## collections和Arrays工具类
@@ -67,7 +70,15 @@ set就是hashmap将value固定为一个object，只存key元素包装成一个en
 ## comparable和comparator
 实现comparable接口可以让一个类的实例互相使用compareTo方法进行比较大小，可以自定义比较规则，comparator则是一个通用的比较器，比较指定类型的两个元素之间的大小关系。
 
+这个东西还是很好用的，做算法题的时候经常会用到自定义的排序方式。
+
 
 ## treemap和treeset
 
 主要是基于红黑树实现的两个数据结构，可以保证key序列是有序的，获取sortedset就可以顺序打印key值了。其中涉及到红黑树的插入和删除，调整等操作，比较复杂，这里就不细说了。
+
+另外我们也可以获取逆序的set集合。
+
+## 其他
+
+集合类要学的东西其实还很多，但是面试的东西可能就这么多了把。当然可能还有一些遗漏，但是大部分我在面试中能遇到的问题都已经包含进去了。
