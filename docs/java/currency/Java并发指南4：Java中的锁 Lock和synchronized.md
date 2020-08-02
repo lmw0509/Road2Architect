@@ -19,10 +19,11 @@ class MonitorExample {
     }                                    //6
 }
 ```
-根据程序次序规则，1 happens before 2, 2 happens before 3; 4 happens before 5, 5 happens before 6。假设线程A执行writer()方法，随后线程B执行reader()方法。根据happens before规则，这个过程包含的happens before 关系可以分为两类：
+假设线程A执行writer()方法，随后线程B执行reader()方法。根据happens before规则，这个过程包含的happens before 关系可以分为两类：
 
-1.  根据监视器锁规则，3 happens before 4。
-2.  根据happens before 的传递性，2 happens before 5。
+1. 根据程序次序规则，1 happens before 2, 2 happens before 3; 4 happens before 5, 5 happens before 6。
+2. 根据监视器锁规则，3 happens before 4。
+3. 根据happens before 的传递性，2 happens before 5。
 
 上述happens before 关系的图形化表现形式如下：
 
@@ -318,7 +319,7 @@ synchronized方法则会被翻译成普通的方法调用和返回指令如:invo
 
 下面我们来继续分析，但是在深入之前我们需要了解两个重要的概念：**Java对象头、Monitor。**
 
- **Java对象头、monitor：Java对象头和monitor是实现synchronized的基础！下面就这两个概念来做详细介绍。**
+**Java对象头和monitor是实现synchronized的基础！下面就这两个概念来做详细介绍。**
 
 ### **2、Java对象头**
 
@@ -491,7 +492,9 @@ https://blog.csdn.net/qq_35357656/article/details/78657373
 
 5.  执行同步代码块。 
 
-释放锁偏向锁的释放采用了一种只有竞争才会释放锁的机制，线程是不会主动去释放偏向锁，需要等待其他线程来竞争。偏向锁的撤销需要等待全局安全点（这个时间点是上没有正在执行的代码）。
+释放锁
+
+偏向锁的释放采用了一种只有竞争才会释放锁的机制，线程是不会主动去释放偏向锁，需要等待其他线程来竞争。偏向锁的撤销需要等待全局安全点（这个时间点是上没有正在执行的代码）。
 
 其步骤如下：
 

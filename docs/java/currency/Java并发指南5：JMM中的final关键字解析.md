@@ -9,26 +9,6 @@
   * [JSR-133为什么要增强final的语义](#jsr-133为什么要增强final的语义)
   * [参考文献](#参考文献)
 
-
-**本文转载自互联网，侵删**
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章首发于我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《Java并发指南》其中一篇，本文大部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何全面深入地学习Java并发技术，从Java多线程基础，再到并发编程的基础知识，从Java并发包的入门和实战，再到JUC的源码剖析，一步步地学习Java并发编程，并上手进行实战，以便让你更完整地了解整个Java并发编程知识体系，形成自己的知识框架。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供一些对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-<!-- more -->
 ## 前言
 
 与前面介绍的锁和volatile相比较，对final域的读和写更像是普通的变量访问。对于final域，编译器和处理器要遵守两个重排序规则：
@@ -38,15 +18,13 @@
 
 下面，我们通过一些示例性的代码来分别说明这两个规则：
 
-
-
-```
+```java
 public class FinalExample {
     int i;                            //普通变量
     final int j;                      //final变量
     static FinalExample obj;
 
-    public void FinalExample () {     //构造函数
+    public FinalExample () {     //构造函数
         i = 1;                        //写普通域
         j = 2;                        //写final域
     }
@@ -61,10 +39,7 @@ public class FinalExample {
         int b = object.j;                //读final域
     }
 }
-
 ```
-
-![](data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw== "点击并拖拽以移动")
 
 这里假设一个线程A执行writer ()方法，随后另一个线程B执行reader ()方法。下面我们通过这两个线程的交互来说明这两个规则。
 
@@ -82,9 +57,11 @@ public class FinalExample {
 
 假设线程B读对象引用与读对象的成员域之间没有重排序（马上会说明为什么需要这个假设），下图是一种可能的执行时序：
 
+![../../../images/0024.png](../../../images/0024.png)
+
 在上图中，写普通域的操作被编译器重排序到了构造函数之外，读线程B错误的读取了普通变量i初始化之前的值。而写final域的操作，被写final域的重排序规则“限定”在了构造函数之内，读线程B正确的读取了final变量初始化之后的值。
 
-写final域的重排序规则可以确保：在对象引用为任意线程可见之前，对象的final域已经被正确初始化过了，而普通域不具有这个保障。以上图为例，在读线程B“看到”对象引用obj时，很可能obj对象还没有构造完成（对普通域i的写操作被重排序到构造函数外，此时初始值2还没有写入普通域i）。
+**写final域的重排序规则可以确保：在对象引用为任意线程可见之前，对象的final域已经被正确初始化过了，而普通域不具有这个保障。以上图为例，在读线程B“看到”对象引用obj时，很可能obj对象还没有构造完成（对普通域i的写操作被重排序到构造函数外，此时初始值2还没有写入普通域i）。**
 
 ## 读final域的重排序规则
 
@@ -102,9 +79,11 @@ reader()方法包含三个操作：
 
 现在我们假设写线程A没有发生任何重排序，同时程序在不遵守间接依赖的处理器上执行，下面是一种可能的执行时序：
 
+![../../../images/0025.png](../../../images/0025.png)
+
 在上图中，读对象的普通域的操作被处理器重排序到读对象引用之前。读普通域时，该域还没有被写线程A写入，这是一个错误的读取操作。而读final域的重排序规则会把读对象final域的操作“限定”在读对象引用之后，此时该final域已经被A线程初始化过了，这是一个正确的读取操作。
 
-读final域的重排序规则可以确保：在读一个对象的final域之前，一定会先读包含这个final域的对象的引用。在这个示例程序中，如果该引用不为null，那么引用对象的final域一定已经被A线程初始化过了。
+**读final域的重排序规则可以确保：在读一个对象的final域之前，一定会先读包含这个final域的对象的引用。在这个示例程序中，如果该引用不为null，那么引用对象的final域一定已经被A线程初始化过了。**
 
 ## 如果final域是引用类型
 
@@ -112,33 +91,30 @@ reader()方法包含三个操作：
 
 请看下列示例代码：
 
-
-
-```
+```java
 public class FinalReferenceExample {
-final int[] intArray;                     //final是引用类型
-static FinalReferenceExample obj;
+    final int[] intArray;                     //final是引用类型
+    static FinalReferenceExample obj;
 
-public FinalReferenceExample () {        //构造函数
-    intArray = new int[1];              //1
-    intArray[0] = 1;                   //2
-}
+    public FinalReferenceExample () {        //构造函数
+        intArray = new int[1];               //1
+        intArray[0] = 1;                     //2
+    } 
 
-public static void writerOne () {          //写线程A执行
-    obj = new FinalReferenceExample ();  //3
-}
+    public static void writerOne () {          //写线程A执行
+        obj = new FinalReferenceExample ();    //3
+    }
 
-public static void writerTwo () {          //写线程B执行
-    obj.intArray[0] = 2;                 //4
-}
+    public static void writerTwo () {          //写线程B执行
+        obj.intArray[0] = 2;                   //4
+    }
 
-public static void reader () {              //读线程C执行
-    if (obj != null) {                    //5
-        int temp1 = obj.intArray[0];       //6
+    public static void reader () {              //读线程C执行
+        if (obj != null) {                      //5
+            int temp1 = obj.intArray[0];        //6
+        } 
     }
 }
-}
-
 ```
 
 ![](data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw== "点击并拖拽以移动")
@@ -149,44 +125,45 @@ public static void reader () {              //读线程C执行
 
 对上面的示例程序，我们假设首先线程A执行writerOne()方法，执行完后线程B执行writerTwo()方法，执行完后线程C执行reader ()方法。下面是一种可能的线程执行时序：
 
+![../../../images/0026.png](../../../images/0026.png)
+
 在上图中，1是对final域的写入，2是对这个final域引用的对象的成员域的写入，3是把被构造的对象的引用赋值给某个引用变量。这里除了前面提到的1不能和3重排序外，2和3也不能重排序。
 
 JMM可以确保读线程C至少能看到写线程A在构造函数中对final引用对象的成员域的写入。即C至少能看到数组下标0的值为1。而写线程B对数组元素的写入，读线程C可能看的到，也可能看不到。JMM不保证线程B的写入对读线程C可见，因为写线程B和读线程C之间存在数据竞争，此时的执行结果不可预知。
 
-如果想要确保读线程C看到写线程B对数组元素的写入，写线程B和读线程C之间需要使用同步原语（lock或volatile）来确保内存可见性。
+**如果想要确保读线程C看到写线程B对数组元素的写入，写线程B和读线程C之间需要使用同步原语（lock或volatile）来确保内存可见性。**
 
 ## 为什么final引用不能从构造函数内“逸出”
 
 前面我们提到过，写final域的重排序规则可以确保：在引用变量为任意线程可见之前，该引用变量指向的对象的final域已经在构造函数中被正确初始化过了。其实要得到这个效果，还需要一个保证：在构造函数内部，不能让这个被构造对象的引用为其他线程可见，也就是对象引用不能在构造函数中“逸出”。为了说明问题，让我们来看下面示例代码：
 
-
-
-```
+```java
 public class FinalReferenceEscapeExample {
-final int i;
-static FinalReferenceEscapeExample obj;
+    final int i;
+    static FinalReferenceEscapeExample obj;
 
-public FinalReferenceEscapeExample () {
-    i = 1;                              //1写final域
-    obj = this;                          //2 this引用在此“逸出”
-}
+    public FinalReferenceEscapeExample () {
+        i = 1;                              //1写final域
+        obj = this;                          //2 this引用在此“逸出”
+    }
 
-public static void writer() {
-    new FinalReferenceEscapeExample ();
-}
+    public static void writer() {
+        new FinalReferenceEscapeExample ();
+    }
 
-public static void reader {
-    if (obj != null) {                     //3
-        int temp = obj.i;                 //4
+    public static void reader {
+        if (obj != null) {                     //3
+            int temp = obj.i;                 //4
+        }
     }
 }
-}
-
 ```
 
 ![](data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw== "点击并拖拽以移动")
 
 假设一个线程A执行writer()方法，另一个线程B执行reader()方法。这里的操作2使得对象还未完成构造前就为线程B可见。即使这里的操作2是构造函数的最后一步，且即使在程序中操作2排在操作1后面，执行read()方法的线程仍然可能无法看到final域被初始化后的值，因为这里的操作1和操作2之间可能被重排序。实际的执行时序可能如下图所示：
+
+![../../../images/0027.png](../../../images/0027.png)
 
 从上图我们可以看出：在构造函数返回前，被构造对象的引用不能为其他线程可见，因为此时的final域可能还没有被初始化。在构造函数返回后，任意线程都将保证能看到final域正确初始化之后的值。
 
@@ -207,11 +184,6 @@ public static void reader {
 ## 参考文献
 
 1.  [ Java Concurrency in Practice](http://www.amazon.com/Java-Concurrency-Practice-Brian-Goetz/dp/0321349601/ref=pd_sim_b_1)
-
 2.  [ JSR 133 (Java Memory Model) FAQ](http://www.cs.umd.edu/users/pugh/java/memoryModel/jsr-133-faq.html)
-
-3.  [ Java Concurrency in Practice](http://www.amazon.com/Java-Concurrency-Practice-Brian-Goetz/dp/0321349601/ref=pd_sim_b_1)
-
 4.  [ The JSR-133 Cookbook for Compiler Writers](http://gee.cs.oswego.edu/dl/jmm/cookbook.html)
-
-[Intel® 64 and IA-32 ArchitecturesvSoftware Developer’s Manual Volume 3A: System Programming Guide, Part 1](http://download.intel.com/products/processor/manual/253668.pdf)
+4.  [Intel® 64 and IA-32 ArchitecturesvSoftware Developer’s Manual Volume 3A: System Programming Guide, Part 1](http://download.intel.com/products/processor/manual/253668.pdf)
