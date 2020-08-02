@@ -1,66 +1,23 @@
-# Table of Contents
-
-  * [序言](#序言)
-  * [原子性](#原子性)
-  * [可见性](#可见性)
-  * [有序性 ](#有序性 )
-  * [volatile关键字详解：在JMM中volatile的内存语义是锁](#volatile关键字详解：在jmm中volatile的内存语义是锁)
-    * [volatile的特性](#volatile的特性)
-  * [volatile写-读建立的happens before关系](#volatile写-读建立的happens-before关系)
-    * [volatile写-读的内存语义](#volatile写-读的内存语义)
-    * [volatile内存语义的实现](#volatile内存语义的实现)
-    * [JSR-133为什么要增强volatile的内存语义](#jsr-133为什么要增强volatile的内存语义)
-                * [](#)
-    * [引言](#引言)
-    * [术语定义](#术语定义)
-    * [3    处理器如何实现原子操作](#3   -处理器如何实现原子操作)
-      * [3.1   处理器自动保证基本内存操作的原子性](#31  -处理器自动保证基本内存操作的原子性)
-      * [3.2   使用总线锁保证原子性](#32  -使用总线锁保证原子性)
-      * [3.3 使用缓存锁保证原子性](#33-使用缓存锁保证原子性)
-    * [4    JAVA如何实现原子操作](#4   -java如何实现原子操作)
-  * [4.1 使用循环CAS实现原子操作](#41-使用循环cas实现原子操作)
-      * [4.2 使用锁机制实现原子操作](#42-使用锁机制实现原子操作)
-  * [5      参考资料](#5     -参考资料)
-
-
-**本文转载自互联网，侵删**
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章同步发于我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《Java并发指南》其中一篇，本文大部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何全面深入地学习Java并发技术，从Java多线程基础，再到并发编程的基础知识，从Java并发包的入门和实战，再到JUC的源码剖析，一步步地学习Java并发编程，并上手进行实战，以便让你更完整地了解整个Java并发编程知识体系，形成自己的知识框架。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供一些对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-<!--more -->
 ## 序言
 
 先来看如下这个简单的Java类，该类中并没有使用任何的同步。
 
 
-    final class SetCheck {
-    	private int a = 0;
-    	private long b = 0;
-     
-    	void set() {
-    		a = 1;
-    		b = -1;
-    	}
-     
-    	boolean check() {
-    		return ((b == 0) || (b == -1 && a == 1));
-    	}
-    }
-     
-
+```java
+final class SetCheck {
+	private int a = 0;
+	private long b = 0;
+ 
+	void set() {
+		a = 1;
+		b = -1;
+	}
+ 
+	boolean check() {
+		return ((b == 0) || (b == -1 && a == 1));
+	}
+}
+```
 
 
 如果是在一个串行执行的语言中，执行SetCheck类中的check方法永远不会返回false，即使编译器，运行时和计算机硬件并没有按照你所期望的逻辑来处理这段程序，该方法依然不会返回false。在程序执行过程中，下面这些你所不能预料的行为都是可能发生的：
@@ -95,13 +52,13 @@ Java内存模型是Java语言规范的一部分，主要在JLS的第17章节介�
 
 （1.2.4）
 
-在这个模型中，每一个线程都可以被看作为运行在不同的CPU上，然而即使是在多处理器上，这种情况也是很罕见的。但是实际上，通过模型所具备的某些特性，这种CPU和线程单一映射能够通过一些合理的方法去实现。例如，因为CPU的寄存器不能被另一个CPU直接访问，这种模型必须考虑到某个线程无法得知被另一个线程操作变量的值的情况。这种情况不仅仅存在于多处理器环境上，在单核CPU环境里，因为编译器和处理器的不可预测的行为也可能导致同样的情况。
+在这个模型中，**每一个线程都可以被看作为运行在不同的CPU上，然而即使是在多处理器上，这种情况也是很罕见的。**但是实际上，通过模型所具备的某些特性，这种CPU和线程单一映射能够通过一些合理的方法去实现。例如，因为CPU的寄存器不能被另一个CPU直接访问，这种模型必须考虑到某个线程无法得知被另一个线程操作变量的值的情况。这种情况不仅仅存在于多处理器环境上，在单核CPU环境里，因为编译器和处理器的不可预测的行为也可能导致同样的情况。
 
 Java内存模型没有具体讲述前面讨论的执行策略是由编译器，CPU，缓存控制器还是其它机制促成的。甚至没有用开发人员所熟悉的类，对象及方法来讨论。取而代之，Java内存模型中仅仅定义了线程和内存之间那种抽象的关系。众所周知，每个线程都拥有自己的工作存储单元（缓存和寄存器的抽象）来存储线程当前使用的变量的值。Java内存模型仅仅保证了代码指令与变量操作的有序性，大多数规则都只是指出什么时候变量值应该在内存和线程工作内存之间传输。这些规则主要是为了解决如下三个相互牵连的问题：
 
-1.  原子性：哪些指令必须是不可分割的。在Java内存模型中，这些规则需声明仅适用于-—实例变量和静态变量，也包括数组元素，但不包括方法中的局部变量-—的内存单元的简单读写操作。
-2.  可见性：在哪些情况下，一个线程执行的结果对另一个线程是可见的。这里需要关心的结果有，写入的字段以及读取这个字段所看到的值。
-3.  有序性：在什么情况下，某个线程的操作结果对其它线程来看是无序的。最主要的乱序执行问题主要表现在读写操作和赋值语句的相互执行顺序上。
+1.  **原子性**：哪些指令必须是不可分割的。在Java内存模型中，这些规则需声明仅适用于-—实例变量和静态变量，也包括数组元素，但不包括方法中的局部变量-—的内存单元的简单读写操作。
+2.  **可见性**：在哪些情况下，一个线程执行的结果对另一个线程是可见的。这里需要关心的结果有，写入的字段以及读取这个字段所看到的值。
+3.  **有序性**：在什么情况下，某个线程的操作结果对其它线程来看是无序的。最主要的乱序执行问题主要表现在读写操作和赋值语句的相互执行顺序上。
 
 ## 原子性
 
@@ -164,46 +121,46 @@ Java内存模型没有具体讲述前面讨论的执行策略是由编译器，C
 
 当我们声明共享变量为volatile后，对这个变量的读/写将会很特别。理解volatile特性的一个好方法是：把对volatile变量的单个读/写，看成是使用同一个监视器锁对这些单个读/写操作做了同步。下面我们通过具体的示例来说明，请看下面的示例代码：
 
-    class VolatileFeaturesExample {
-    	volatile long vl = 0L; // 使用volatile声明64位的long型变量
-     
-    	public void set(long l) {
-    		vl = l; // 单个volatile变量的写
-    	}
-     
-    	public void getAndIncrement() {
-    		vl++; // 复合（多个）volatile变量的读/写
-    	}
-     
-    	public long get() {
-    		return vl; // 单个volatile变量的读
-    	}
+```java
+class VolatileFeaturesExample {
+	volatile long vl = 0L; // 使用volatile声明64位的long型变量
+ 
+	public void set(long l) {
+		vl = l; // 单个volatile变量的写
+	}
+ 
+	public void getAndIncrement() {
+		vl++; // 复合（多个）volatile变量的读/写
+	}
+ 
+	public long get() {
+		return vl; // 单个volatile变量的读
+	}
+}
+```
+
+假设有多个线程分别调用上面程序的三个方法，这个程序在语意上和下面程序等价：   
+
+```java
+class VolatileFeaturesExample {
+    long vl = 0L;               // 64位的long型普通变量    
+	
+	public synchronized void set(long l) {     //对单个的普通 变量的写用同一个监视器同步
+        vl = l;
     }
-
-
-    
-
-假设有多个线程分别调用上面程序的三个方法，这个程序在语意上和下面程序等价：
-    class VolatileFeaturesExample {
-        long vl = 0L;               // 64位的long型普通变量
-     
-        public synchronized void set(long l) {     //对单个的普通 变量的写用同一个监视器同步
-            vl = l;
-        }
-     
-        public void getAndIncrement () { //普通方法调用
-            long temp = get();           //调用已同步的读方法
-            temp += 1L;                  //普通写操作
-            set(temp);                   //调用已同步的写方法
-        }
-        public synchronized long get() { 
-        //对单个的普通变量的读用同一个监视器同步
-            return vl;
-        }
+ 
+    public void getAndIncrement () { //普通方法调用
+        long temp = get();           //调用已同步的读方法
+        temp += 1L;                  //普通写操作
+        set(temp);                   //调用已同步的写方法
     }
+    public synchronized long get() { 
+    //对单个的普通变量的读用同一个监视器同步
+        return vl;
+    }
+}
+```
 
-
-    
 
 如上面示例程序所示，对一个volatile变量的单个读/写操作，与对一个普通变量的读/写操作使用同一个监视器锁来同步，它们之间的执行效果相同。
 
@@ -214,7 +171,7 @@ Java内存模型没有具体讲述前面讨论的执行策略是由编译器，C
 *   可见性。对一个volatile变量的读，总是能看到（任意线程）对这个volatile变量最后的写入。
 *   原子性：对任意单个volatile变量的读/写具有原子性，但类似于volatile++这种复合操作不具有原子性。
 
-## volatile写-读建立的happens before关系
+### volatile写-读建立的happens before关系
 
 上面讲的是volatile变量自身的特性，对程序员来说，volatile对线程的内存可见性的影响比volatile自身的特性更为重要，也更需要我们去关注。
 
@@ -223,25 +180,25 @@ Java内存模型没有具体讲述前面讨论的执行策略是由编译器，C
 从内存语义的角度来说，volatile与监视器锁有相同的效果：volatile写和监视器的释放有相同的内存语义；volatile读与监视器的获取有相同的内存语义。
 
 请看下面使用volatile变量的示例代码：
+
+```java
 class VolatileExample {
 	int a = 0;
 	volatile boolean flag = false;
- 
-	public void writer() {
-		a = 1; // 1
-		flag = true; // 2
-	}
-	public void reader() {
+    
+    public void writer() {
+        a = 1; // 1
+        flag = true; // 2
+    }
+   
+    public void reader() {
         if (flag) {                //3
             int i =  a;           //4
             ……
         }
     }
 }
-
-
-    
-
+```
 假设线程A执行writer()方法之后，线程B执行reader()方法。根据happens before规则，这个过程建立的happens before 关系可以分为两类：
 
 1.  根据程序次序规则，1 happens before 2; 3 happens before 4。
@@ -292,16 +249,12 @@ volatile读的内存语义如下：
 
 前文我们提到过重排序分为编译器重排序和处理器重排序。为了实现volatile内存语义，JMM会分别限制这两种类型的重排序类型。下面是JMM针对编译器制定的volatile重排序规则表：
 
-
-
 | 是否能重排序 | 第二个操作 |
 | --- | --- |
 | 第一个操作 | 普通读/写 | volatile读 | volatile写 |
 | 普通读/写 |   |   | NO |
 | volatile读 | NO | NO | NO |
 | volatile写 |   | NO | NO |
-
-
 
 举例来说，第三行最后一个单元格的意思是：在程序顺序中，当第一个操作为普通变量的读或写时，如果第二个操作为volatile写，则编译器不能重排序这两个操作。
 
@@ -334,23 +287,22 @@ volatile读的内存语义如下：
 
 上图中的LoadLoad屏障用来禁止处理器把上面的volatile读与下面的普通读重排序。LoadStore屏障用来禁止处理器把上面的volatile读与下面的普通写重排序。
 
-上述volatile写和volatile读的内存屏障插入策略非常保守。在实际执行时，只要不改变volatile写-读的内存语义，编译器可以根据具体情况省略不必要的屏障。下面我们通过具体的示例代码来说明：
-    class VolatileBarrierExample {
-    	int a;
-    	volatile int v1 = 1;
-    	volatile int v2 = 2;
-     
-    	void readAndWrite() {
-    		int i = v1; // 第一个volatile读
-    		int j = v2; // 第二个volatile读
-    		a = i + j; // 普通写
-    		v1 = i + 1; // 第一个volatile写
-    		v2 = j * 2; // 第二个 volatile写
-    	}
-    }
+上述volatile写和volatile读的内存屏障插入策略非常保守。在实际执行时，只要不改变volatile写-读的内存语义，编译器可以根据具体情况省略不必要的屏障。下面我们通过具体的示例代码来说明：     
+```java
+class VolatileBarrierExample {
+    int a;
+    volatile int v1 = 1;
+    volatile int v2 = 2;
 
-
-    
+	void readAndWrite() {
+		int i = v1; // 第一个volatile读
+		int j = v2; // 第二个volatile读
+		a = i + j; // 普通写
+		v1 = i + 1; // 第一个volatile写
+		v2 = j * 2; // 第二个 volatile写
+	}
+}
+```
 
 针对readAndWrite()方法，编译器在生成字节码时可以做如下的优化：
 
@@ -378,7 +330,7 @@ volatile读的内存语义如下：
 
 由于volatile仅仅保证对单个volatile变量的读/写具有原子性，而监视器锁的互斥执行的特性可以确保对整个临界区代码的执行具有原子性。在功能上，监视器锁比volatile更强大；在可伸缩性和执行性能上，volatile更有优势。如果读者想在程序中用volatile代替监视器锁，请一定谨慎。
 
-##CAS操作详解
+## CAS操作详解
 
 本文属于作者原创，原文发表于InfoQ：[http://www.infoq.com/cn/articles/atomic-operation](http://www.infoq.com/cn/articles/atomic-operation)
 
@@ -388,8 +340,6 @@ volatile读的内存语义如下：
 
 ### 术语定义
 
-
-
 | 术语名称 | 英文 | 解释 |
 | --- | --- | --- |
 | 缓存行 | Cache line | 缓存的最小操作单位 |
@@ -397,17 +347,15 @@ volatile读的内存语义如下：
 | CPU流水线 | CPU pipeline | CPU流水线的工作方式就象工业生产上的装配流水线，在CPU中由5~6个不同功能的电路单元组成一条指令处理流水线，然后将一条X86指令分成5~6步后再由这些电路单元分别执行，这样就能实现在一个CPU时钟周期完成一条指令，因此提高CPU的运算速度。 |
 | 内存顺序冲突 | Memory order violation | 内存顺序冲突一般是由假共享引起，假共享是指多个CPU同时修改同一个缓存行的不同部分而引起其中一个CPU的操作无效，当出现这个内存顺序冲突时，CPU必须清空流水线。 |
 
-
-
-### 3    处理器如何实现原子操作
+### 处理器如何实现原子操作
 
 32位IA-32处理器使用基于对缓存加锁或总线加锁的方式来实现多处理器之间的原子操作。
 
-#### 3.1   处理器自动保证基本内存操作的原子性
+#### 处理器自动保证基本内存操作的原子性
 
 首先处理器会自动保证基本的内存操作的原子性。处理器保证从系统内存当中读取或者写入一个字节是原子的，意思是当一个处理器读取一个字节时，其他处理器不能访问这个字节的内存地址。奔腾6和最新的处理器能自动保证单处理器对同一个缓存行里进行16/32/64位的操作是原子的，但是复杂的内存操作处理器不能自动保证其原子性，比如跨总线宽度，跨多个缓存行，跨页表的访问。但是处理器提供总线锁定和缓存锁定两个机制来保证复杂内存操作的原子性。
 
-#### 3.2   使用总线锁保证原子性
+#### 使用总线锁保证原子性
 
 第一个机制是通过总线锁保证原子性。如果多个处理器同时对共享变量进行读改写（i++就是经典的读改写操作）操作，那么共享变量就会被多个处理器同时进行操作，这样读改写操作就不是原子的，操作完之后共享变量的值会和期望的不一致，举个例子：如果i=1,我们进行两次i++操作，我们期望的结果是3，但是有可能结果是2。如下图
 [![1](http://ifeve.com/wp-content/uploads/2012/12/1.png)](http://ifeve.com/atomic_operation/attachment/1/)
@@ -418,7 +366,7 @@ volatile读的内存语义如下：
 
 处理器使用总线锁就是来解决这个问题的。所谓总线锁就是使用处理器提供的一个LOCK＃信号，当一个处理器在总线上输出此信号时，其他处理器的请求将被阻塞住,那么该处理器可以独占使用共享内存。
 
-#### 3.3 使用缓存锁保证原子性
+#### 使用缓存锁保证原子性
 
 第二个机制是通过缓存锁定保证原子性。在同一时刻我们只需保证对某个内存地址的操作是原子性即可，但总线锁定把CPU和内存之间通信锁住了，这使得锁定期间，其他处理器不能操作其他内存地址的数据，所以总线锁定的开销比较大，最近的处理器在某些场合下使用缓存锁定代替总线锁定来进行优化。
 
@@ -428,110 +376,93 @@ volatile读的内存语义如下：
 
 以上两个机制我们可以通过Inter处理器提供了很多LOCK前缀的指令来实现。比如位测试和修改指令BTS，BTR，BTC，交换指令XADD，CMPXCHG和其他一些操作数和逻辑指令，比如ADD（加），OR（或）等，被这些指令操作的内存区域就会加锁，导致其他处理器不能同时访问它。
 
-### 4    JAVA如何实现原子操作
+### JAVA如何实现原子操作
 
 在java中可以通过锁和循环CAS的方式来实现原子操作。
 
-## 4.1 使用循环CAS实现原子操作
+#### 使用循环CAS实现原子操作
 
 JVM中的CAS操作正是利用了上一节中提到的处理器提供的CMPXCHG指令实现的。自旋CAS实现的基本思路就是循环进行CAS操作直到成功为止，以下代码实现了一个基于CAS线程安全的计数器方法safeCount和一个非线程安全的计数器count。
 
 
-    package Test;
-     
-    import java.util.ArrayList;
-    import java.util.List;
-    import java.util.concurrent.atomic.AtomicInteger;
-     
-    public class Counter {
-     
-    	private AtomicInteger atomicI = new AtomicInteger();
-     
-    	private int i = 0;
-     
-    	public static void main(String[] args) {
-     
-    		final Counter cas = new Counter();
-     
-    		List<Thread> ts = new ArrayList<Thread>();
-     
-    		long start = System.currentTimeMillis();
-     
-    		for (int j = 0; j < 100; j++) {
-     
-    			Thread t = new Thread(new Runnable() {
-    				@Override
-    				public void run() {
-    					for (int i = 0; i < 10000; i++) {
-    						cas.count();
-    						cas.safeCount();
-    					}
-     
-    				}
-     
-    			});
-    			ts.add(t);
-    		}
-     
-    		for (Thread t : ts) {
-    			t.start();
-    		}
-     
-    		// 等待所有线程执行完成
-     
-    		for (Thread t : ts) {
-    			try {
-     
-    				t.join();
-     
-    			} catch (InterruptedException e) {
-     
-    				e.printStackTrace();
-     
-    			}
-     
-    		}
-     
-    		System.out.println(cas.i);
-     
-    		System.out.println(cas.atomicI.get());
-     
-    		System.out.println(System.currentTimeMillis() - start);
-     
-    	}
-     
-    	/**
-    	 * 
-    	 * 使用CAS实现线程安全计数器
-    	 * 
-    	 */
-     
-    	private void safeCount() {
-    		for (;;) {
-    			int i = atomicI.get();
-    			boolean suc = atomicI.compareAndSet(i, ++i);
-    			if (suc) {
-    				break;
-    			}
-    		}
-    	}
-     
-    	/**
-    	 * 
-    	 * 非线程安全计数器
-    	 * 
-    	 */
-     
-    	private void count() {
-    		i++;
-    	}
-    }
-    结果
-    992362
-    1000000
-    75
+```java
+package Test;
+ 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+ 
+public class Counter {
+	private AtomicInteger atomicI = new AtomicInteger();
+	private int i = 0;
     
-
+	public static void main(String[] args) {
+		final Counter cas = new Counter();
+		List<Thread> ts = new ArrayList<Thread>();
+		long start = System.currentTimeMillis();
+        
+		for (int j = 0; j < 100; j++) {
+			Thread t = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					for (int i = 0; i < 10000; i++) {
+						cas.count();
+						cas.safeCount();
+					}
+				}
+			});
+			ts.add(t);
+		}
+ 
+		for (Thread t : ts) {
+			t.start();
+		}
+ 
+		// 等待所有线程执行完成
+		for (Thread t : ts) {
+			try {
+				t.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} 
+		}
+		System.out.println(cas.i); 
+		System.out.println(cas.atomicI.get());
+		System.out.println(System.currentTimeMillis() - start);
+ 
+	}
+ 
+	/**
+	 * 
+	 * 使用CAS实现线程安全计数器
+	 * 
+	 */
+ 
+	private void safeCount() {
+		for (;;) {
+			int i = atomicI.get();
+			boolean suc = atomicI.compareAndSet(i, ++i);
+			if (suc) {
+				break;
+			}
+		}
+	}
+ 
+	/**
+	 * 
+	 * 非线程安全计数器
+	 * 
+	 */
+ 
+	private void count() {
+		i++;
+	}
+}
+//结果
+//992362
+//1000000
+//75
+```
 
 
 从Java1.5开始JDK的并发包里提供了一些类来支持原子操作，如[AtomicBoolean](http://www.cjsdn.net/doc/jdk60/java/util/concurrent/atomic/AtomicBoolean.html)（用原子方式更新的 boolean 值），[AtomicInteger](http://www.cjsdn.net/doc/jdk60/java/util/concurrent/atomic/AtomicInteger.html)（用原子方式更新的 int 值），[AtomicLong](http://www.cjsdn.net/doc/jdk60/java/util/concurrent/atomic/AtomicLong.html)（用原子方式更新的 long 值），这些原子包装类还提供了有用的工具方法，比如以原子的方式将当前值自增1和自减1。
@@ -542,16 +473,18 @@ JVM中的CAS操作正是利用了上一节中提到的处理器提供的CMPXCHG�
 
 从Java1.5开始JDK的atomic包里提供了一个类AtomicStampedReference来解决ABA问题。这个类的compareAndSet方法作用是首先检查当前引用是否等于预期引用，并且当前标志是否等于预期标志，如果全部相等，则以原子方式将该引用和该标志的值设置为给定的更新值。
 
-    
-    public boolean compareAndSet(
-       V      expectedReference,//预期引用
-     
-       V      newReference,//更新后的引用
-     
-      int    expectedStamp, //预期标志
-     
-      int    newStamp //更新后的标志
-    )
+
+```java
+public boolean compareAndSet(
+   V      expectedReference,//预期引用
+ 
+   V      newReference,//更新后的引用
+ 
+  int    expectedStamp, //预期标志
+ 
+  int    newStamp //更新后的标志
+)
+```
 
 
 
@@ -560,11 +493,11 @@ JVM中的CAS操作正是利用了上一节中提到的处理器提供的CMPXCHG�
 
 2.  只能保证一个共享变量的原子操作。当对一个共享变量执行操作时，我们可以使用循环CAS的方式来保证原子操作，但是对多个共享变量操作时，循环CAS就无法保证操作的原子性，这个时候就可以用锁，或者有一个取巧的办法，就是把多个共享变量合并成一个共享变量来操作。比如有两个共享变量i＝2,j=a，合并一下ij=2a，然后用CAS来操作ij。从Java1.5开始JDK提供了AtomicReference类来保证引用对象之间的原子性，你可以把多个变量放在一个对象里来进行CAS操作。
 
-#### 4.2 使用锁机制实现原子操作
+#### 使用锁机制实现原子操作
 
 锁机制保证了只有获得锁的线程能够操作锁定的内存区域。JVM内部实现了很多种锁机制，有偏向锁，轻量级锁和互斥锁，有意思的是除了偏向锁，JVM实现锁的方式都用到的循环CAS，当一个线程想进入同步块的时候使用循环CAS的方式来获取锁，当它退出同步块的时候使用循环CAS释放锁。详细说明可以参见文章[Java SE1.6中的Synchronized](http://www.infoq.com/cn/articles/java-se-16-synchronized)。
 
-## 5      参考资料
+## 参考资料
 
 1.  [Java SE1.6中的Synchronized](http://www.infoq.com/cn/articles/java-se-16-synchronized)
 2.  [Intel 64和IA-32架构软件开发人员手册](http://www.intel.com/products/processor/manuals/)
