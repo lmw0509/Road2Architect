@@ -184,4 +184,3 @@ happens-before的概念最初由Leslie Lamport在其一篇影响深远的论文�
 ![](https://images2018.cnblogs.com/blog/1332556/201806/1332556-20180611201524034-1587404964.png)
 
 一个happens-before规则对应于一个或多个编译器和处理器重排序规则。对于Java程序员来说，happens-before规则简单易懂，它避免Java程序员为了理解JMM提供的内存可见性保证而去学习复杂的重排序规则以及这些规则的具体实现方法
-
