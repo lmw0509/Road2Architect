@@ -10,22 +10,6 @@
 
 本文转自：https://www.javadoop.com/post/AbstractQueuedSynchronizer#toc4
 
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章同步发于我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《Java并发指南》其中一篇，本文大部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何全面深入地学习Java并发技术，从Java多线程基础，再到并发编程的基础知识，从Java并发包的入门和实战，再到JUC的源码剖析，一步步地学习Java并发编程，并上手进行实战，以便让你更完整地了解整个Java并发编程知识体系，形成自己的知识框架。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供一些对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-<!--more -->
 ## 简介
 
 在分析 Java 并发包 java.util.concurrent 源码的时候，少不了需要了解 AbstractQueuedSynchronizer（以下简写AQS）这个抽象类，因为它是 Java 并发包的基础工具类，是实现 ReentrantLock、CountDownLatch、Semaphore、FutureTask 等类的基础。
@@ -47,7 +31,7 @@ Google 一下 AbstractQueuedSynchronizer，我们可以找到很多关于 AQS �
 
 先来看看 AQS 有哪些属性，搞清楚这些基本就知道 AQS 是什么套路了，毕竟可以猜嘛！
 
-```
+```java
 // 头结点，你直接把它当做 当前持有锁的线程 可能是最好理解的
 private transient volatile Node head;
 
@@ -72,7 +56,7 @@ AbstractQueuedSynchronizer 的等待队列示意如下所示，注意了，之�
 
 等待队列中每个线程被包装成一个 Node 实例，数据结构是链表，一起看看源码吧：
 
-```
+```java
 static final class Node {
     // 标识节点当前在共享模式下
     static final Node SHARED = new Node();
@@ -119,7 +103,7 @@ Node 的数据结构其实也挺简单的，就是 thread + waitStatus + pre + n
 
 首先，我们先看下 ReentrantLock 的使用方式。
 
-```
+```java
 // 我用个web开发中的service概念吧
 public class OrderService {
     // 使用static，这样每个线程拿到的是同一把锁，当然，spring mvc中service默认就是单例，别纠结这个
@@ -145,14 +129,14 @@ public class OrderService {
 
 ReentrantLock 在内部用了内部类 Sync 来管理锁，所以真正的获取锁和释放锁是由 Sync 的实现类来控制的。
 
-```
+```java
 abstract static class Sync extends AbstractQueuedSynchronizer {
 }
 ```
 
 Sync 有两个实现，分别为 NonfairSync（非公平锁）和 FairSync（公平锁），我们看 FairSync 部分。
 
-```
+```java
 public ReentrantLock(boolean fair) {
     sync = fair ? new FairSync() : new NonfairSync();
 }
@@ -162,7 +146,7 @@ public ReentrantLock(boolean fair) {
 
 很多人肯定开始嫌弃上面废话太多了，下面跟着代码走，我就不废话了。
 
-```
+```java
 static final class FairSync extends Sync {
     private static final long serialVersionUID = -3000897897090466540L;
       // 争锁
@@ -430,7 +414,7 @@ static final class FairSync extends Sync {
 
 最后，就是还需要介绍下唤醒的动作了。我们知道，正常情况下，如果线程没获取到锁，线程会被 `LockSupport.park(this);` 挂起停止，等待被唤醒。
 
-```
+```java
 // 唤醒的代码还是比较简单的，你如果上面加锁的都看懂了，下面都不需要看就知道怎么回事了
 public void unlock() {
     sync.release(1);
@@ -504,7 +488,7 @@ private void unparkSuccessor(Node node) {
 
 唤醒线程以后，被唤醒的线程将从以下代码中继续往前走：
 
-```
+```java
 private final boolean parkAndCheckInterrupt() {
     LockSupport.park(this); // 刚刚线程被挂起在这里了
     return Thread.interrupted();
@@ -534,7 +518,7 @@ private final boolean parkAndCheckInterrupt() {
 
 线程 2 会初始化 head【new Node()】，同时线程 2 也会插入到阻塞队列并挂起 (注意看这里是一个 for 循环，而且设置 head 和 tail 的部分是不 return 的，只有入队成功才会跳出循环)
 
-```
+```java
 private Node enq(final Node node) {
     for (;;) {
         Node t = tail;
