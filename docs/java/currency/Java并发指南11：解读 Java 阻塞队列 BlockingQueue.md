@@ -1,34 +1,3 @@
-# Table of Contents
-
-  * [前言](#前言)
-  * [BlockingQueue](#blockingqueue)
-  * [BlockingQueue 实现之 ArrayBlockingQueue](#blockingqueue-实现之-arrayblockingqueue)
-  * [BlockingQueue 实现之 LinkedBlockingQueue](#blockingqueue-实现之-linkedblockingqueue)
-  * [BlockingQueue 实现之 SynchronousQueue](#blockingqueue-实现之-synchronousqueue)
-  * [BlockingQueue 实现之 PriorityBlockingQueue](#blockingqueue-实现之-priorityblockingqueue)
-  * [总结](#总结)
-
-
-本文转自：https://www.javadoop.com/
-
-**本文转载自互联网，侵删**
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章同步发于我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《Java并发指南》其中一篇，本文大部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何全面深入地学习Java并发技术，从Java多线程基础，再到并发编程的基础知识，从Java并发包的入门和实战，再到JUC的源码剖析，一步步地学习Java并发编程，并上手进行实战，以便让你更完整地了解整个Java并发编程知识体系，形成自己的知识框架。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供一些对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-<!--more -->
 ## 前言
 
 最近得空，想写篇文章好好说说 java 线程池问题，我相信很多人都一知半解的，包括我自己在仔仔细细看源码之前，也有许多的不解，甚至有些地方我一直都没有理解到位。
@@ -85,7 +54,7 @@ ArrayBlockingQueue 是 BlockingQueue 接口的有界队列实现类，底层采�
 
 ArrayBlockingQueue 共有以下几个属性：
 
-```
+```java
 // 用于存放元素的数组
 final Object[] items;
 // 下一次读取操作的位置
@@ -119,14 +88,14 @@ ArrayBlockingQueue 实现并发同步的原理就是，读操作和写操作都�
 
 底层基于单向链表实现的阻塞队列，可以当做无界队列也可以当做有界队列来使用。看构造方法：
 
-```
+```java
 // 传说中的无界队列
 public LinkedBlockingQueue() {
     this(Integer.MAX_VALUE);
 }
 ```
 
-```
+```java
 // 传说中的有界队列
 public LinkedBlockingQueue(int capacity) {
     if (capacity <= 0) throw new IllegalArgumentException();
@@ -137,7 +106,7 @@ public LinkedBlockingQueue(int capacity) {
 
 我们看看这个类有哪些属性：
 
-```
+```java
 // 队列容量
 private final int capacity;
 
@@ -177,7 +146,7 @@ private final Condition notFull = putLock.newCondition();
 
 先上构造方法：
 
-```
+```java
 public LinkedBlockingQueue(int capacity) {
     if (capacity <= 0) throw new IllegalArgumentException();
     this.capacity = capacity;
@@ -189,7 +158,7 @@ public LinkedBlockingQueue(int capacity) {
 
 我们来看下 put 方法是怎么将元素插入到队尾的：
 
-```
+```java
 public void put(E e) throws InterruptedException {
     if (e == null) throw new NullPointerException();
     // 如果你纠结这里为什么是 -1，可以看看 offer 方法。这就是个标识成功、失败的标志而已。
@@ -244,7 +213,7 @@ private void signalNotEmpty() {
 
 我们再看看 take 方法：
 
-```
+```java
 public E take() throws InterruptedException {
     E x;
     int c = -1;
@@ -316,7 +285,7 @@ private void signalNotFull() {
 
 源码加注释大概有 1200 行，我们先看大框架：
 
-```
+```java
 // 构造时，我们可以指定公平模式还是非公平模式，区别之后再说
 public SynchronousQueue(boolean fair) {
     transferer = fair ? new TransferQueue() : new TransferStack();
@@ -340,7 +309,7 @@ Transferer 有两个内部实现类，是因为构造 SynchronousQueue 的时候
 
 接下来，我们看看 put 方法和 take 方法：
 
-```
+```java
 // 写入值
 public void put(E o) throws InterruptedException {
     if (o == null) throw new NullPointerException();
@@ -372,7 +341,7 @@ public E take() throws InterruptedException {
 
 既然这里说到了等待队列，我们先看看其实现，也就是 QNode:
 
-```
+```java
 static final class QNode {
     volatile QNode next;          // 可以看出来，等待队列是单向链表
     volatile Object item;         // CAS'ed to or from null
@@ -388,7 +357,7 @@ static final class QNode {
 
 相信说了这么多以后，我们再来看 transfer 方法的代码就轻松多了。
 
-```
+```java
 /**
  * Puts or takes an item.
  */
@@ -470,7 +439,7 @@ void advanceTail(QNode t, QNode nt) {
 }
 ```
 
-```
+```java
 // 自旋或阻塞，直到满足条件，这个方法返回
 Object awaitFulfill(QNode s, Object e, boolean timed, long nanos) {
 
@@ -536,7 +505,7 @@ Doug Lea 的巧妙之处在于，将各个代码凑在了一起，使得代码�
 
 我们来看看它有哪些属性：
 
-```
+```java
 // 构造方法中，如果不指定大小的话，默认大小为 11
 private static final int DEFAULT_INITIAL_CAPACITY = 11;
 // 数组的最大容量
@@ -577,7 +546,7 @@ PriorityBlockingQueue 使用了基于数组的**二叉堆**来存放元素，所
 
 下面开始 PriorityBlockingQueue 的源码分析，首先我们来看看构造方法:
 
-```
+```java
 // 默认构造方法，采用默认值(11)来进行初始化
 public PriorityBlockingQueue() {
     this(DEFAULT_INITIAL_CAPACITY, null);
@@ -635,7 +604,7 @@ public PriorityBlockingQueue(Collection<? extends E> c) {
 
 接下来，我们来看看其内部的自动扩容实现：
 
-```
+```java
 private void tryGrow(Object[] array, int oldCap) {
     // 这边做了释放锁的操作
     lock.unlock(); // must release and then re-acquire main lock
@@ -684,7 +653,7 @@ private void tryGrow(Object[] array, int oldCap) {
 
 下面，我们来分析下写操作 put 方法和读操作 take 方法。
 
-```
+```java
 public void put(E e) {
     // 直接调用 offer 方法，因为前面我们也说了，在这里，put 方法不会阻塞
     offer(e); 
@@ -720,7 +689,7 @@ public boolean offer(E e) {
 
 对于二叉堆而言，插入一个节点是简单的，插入的节点如果比父节点小，交换它们，然后继续和父节点比较。
 
-```
+```java
 // 这个方法就是将数据 x 插入到数组 array 的位置 k 处，然后再调整树
 private static <T> void siftUpComparable(int k, T x, Object[] array) {
     Comparable<? super T> key = (Comparable<? super T>) x;
@@ -743,7 +712,7 @@ private static <T> void siftUpComparable(int k, T x, Object[] array) {
 
 我们再看看 take 方法：
 
-```
+```java
 public E take() throws InterruptedException {
     final ReentrantLock lock = this.lock;
     // 独占锁
@@ -760,7 +729,7 @@ public E take() throws InterruptedException {
 }
 ```
 
-```
+```java
 private E dequeue() {
     int n = size - 1;
     if (n < 0)
@@ -788,7 +757,7 @@ dequeue 方法返回队头，并调整二叉堆的树，调用这个方法必须
 
 废话不多说，出队是非常简单的，因为队头就是最小的元素，对应的是数组的第一个元素。难点是队头出队后，需要调整树。
 
-```
+```java
 private static <T> void siftDownComparable(int k, T x, Object[] array,
                                            int n) {
     if (n > 0) {
