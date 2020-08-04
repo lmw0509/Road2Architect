@@ -95,7 +95,7 @@ static final class Node {
 }
 ```
 
-Node 的数据结构其实也挺简单的，就是 thread + waitStatus + pre + next 四个属性而已，大家先要有这个概念在心里。
+**Node 的数据结构其实也挺简单的，就是 thread + waitStatus + pre + next 四个属性而已**，大家先要有这个概念在心里。
 
 上面的是基础知识，后面会多次用到，心里要时刻记着它们，心里想着这个结构图就可以了。下面，我们开始说 ReentrantLock 的公平锁。再次强调，我说的阻塞队列不包含 head 节点。
 
@@ -127,7 +127,7 @@ public class OrderService {
 }
 ```
 
-ReentrantLock 在内部用了内部类 Sync 来管理锁，所以真正的获取锁和释放锁是由 Sync 的实现类来控制的。
+ReentrantLock 在内部用了静态抽象内部类 Sync 来管理锁，所以真正的获取锁和释放锁是由 Sync 的实现类来控制的。
 
 ```java
 abstract static class Sync extends AbstractQueuedSynchronizer {
@@ -153,7 +153,7 @@ static final class FairSync extends Sync {
     final void lock() {
         acquire(1);
     }
-      // 来自父类AQS，我直接贴过来这边，下面分析的时候同样会这样做，不会给读者带来阅读压力
+    // 来自父类AQS，我直接贴过来这边，下面分析的时候同样会这样做，不会给读者带来阅读压力
     // 我们看到，这个方法，如果tryAcquire(arg) 返回true, 也就结束了。
     // 否则，acquireQueued方法会将线程压到队列中
     public final void acquire(int arg) { // 此时 arg == 1
