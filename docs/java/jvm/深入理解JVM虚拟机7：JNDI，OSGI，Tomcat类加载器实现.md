@@ -1,47 +1,6 @@
-# Table of Contents
-
-  * [打破双亲委派模型](#打破双亲委派模型)
-    * [JNDI](#jndi)
-    * [[JNDI 的理解](https://yq.aliyun.com/go/articleRenderRedirect?url=https%3A%2F%2Fwww.cnblogs.com%2Fzhchoutai%2Fp%2F7389089.html)](#[jndi-的理解]httpsyqaliyuncomgoarticlerenderredirecturlhttps3a2f2fwwwcnblogscom2fzhchoutai2fp2f7389089html)
-  * [OSGI](#osgi)
-    * [1.如何正确的理解和认识OSGI技术？](#1如何正确的理解和认识osgi技术？)
-  * [Tomcat类加载器以及应用间class隔离与共享](#tomcat类加载器以及应用间class隔离与共享)
-    * [类加载器](#类加载器)
-  * [参考文章](#参考文章)
-  * [微信公众号](#微信公众号)
-    * [Java技术江湖](#java技术江湖)
-    * [个人公众号：黄小斜](#个人公众号：黄小斜)
-
-
-本文转自互联网，侵删
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章将同步到我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《深入理解JVM虚拟机》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何从入门到进阶，一步步地学习JVM基础知识，并上手进行JVM调优实战，JVM是每一个Java工程师必须要学习和理解的知识点，你必须要掌握其实现原理，才能更完整地了解整个Java技术体系，形成自己的知识框架。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供每个知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-<!-- more -->
-
 ## 打破双亲委派模型
 
 ### JNDI
-
-### [JNDI 的理解](https://yq.aliyun.com/go/articleRenderRedirect?url=https%3A%2F%2Fwww.cnblogs.com%2Fzhchoutai%2Fp%2F7389089.html)
-
-
-
-
 
 JNDI是 Java 命名与文件夹接口（Java Naming and Directory Interface），在J2EE规范中是重要的规范之中的一个，不少专家觉得，没有透彻理解JNDI的意义和作用，就没有真正掌握J2EE特别是EJB的知识。 
 
@@ -54,9 +13,6 @@ JNDI是 Java 命名与文件夹接口（Java Naming and Directory Interface）�
 程序猿开发时，知道要开发訪问MySQL数据库的应用，于是将一个对 MySQL JDBC 驱动程序类的引用进行了编码，并通过使用适当的 JDBC URL 连接到数据库。 
 就像以下代码这样： 
 
-    
-    
-    
     1.  Connection conn=null;  
     2.  try {  
     3.    Class.forName("com.mysql.jdbc.Driver",  
@@ -113,8 +69,8 @@ JNDI是 Java 命名与文件夹接口（Java Naming and Directory Interface）�
 改动 mysql-ds.xml 文件的内容，使之能通过JDBC正确訪问你的MySQL数据库。例如以下： 
 
 
-    
-    
+​    
+​    
     1.  <?
     
         xml version="1.0" encoding="UTF-8"?>  
@@ -144,7 +100,7 @@ JNDI是 Java 命名与文件夹接口（Java Naming and Directory Interface）�
 
 
 
-    
+​    
     1.  Connection conn=null;  
     2.  try {  
     3.    Context ctx=new InitialContext();  
@@ -162,7 +118,7 @@ JNDI是 Java 命名与文件夹接口（Java Naming and Directory Interface）�
     15.      } catch(SQLException e) { }  
     16.    }  
     17.  }  
-    
+
 
 
 直接使用JDBC或者通过JNDI引用数据源的编程代码量相差无几，可是如今的程序能够不用关心详细JDBC參数了。
@@ -214,16 +170,14 @@ J2EE 规范要求全部 J2EE 容器都要提供 JNDI 规范的实现。//sun 果
 
   
 
-## OSGI
-
-  
+### OSGI
 
 目前，业内关于OSGI技术的学习资源或者技术文档还是很少的。我在某宝网搜索了一下“OSGI”的书籍，结果倒是有，但是种类少的可怜，而且几乎没有人购买。
 因为工作的原因我需要学习OSGI，所以我不得不想尽办法来主动学习OSGI。我将用文字记录学习OSGI的整个过程，通过整理书籍和视频教程，来让我更加了解这门技术，同时也让需要学习这门技术的同志们有一个清晰的学习路线。
 
 我们需要解决一下几问题:
 
-### 1.如何正确的理解和认识OSGI技术？
+### 如何正确的理解和认识OSGI技术？
 
 我们从外文资料上或者从翻译过来的资料上看到OSGi解释和定义，都是直译过来的，但是OSGI的真实意义未必是中文直译过来的意思。OSGI的解释就是Open Service Gateway Initiative，直译过来就是“开放的服务入口(网关)的初始化”，听起来非常费解，什么是服务入口初始化？
 
@@ -252,7 +206,7 @@ J2EE 规范要求全部 J2EE 容器都要提供 JNDI 规范的实现。//sun 果
 
 但是OSGI仍然脱离不了框架的支持，因为OSGI本身也使用了很多spring等框架的基本控件(因为要实现AOP依赖注入等功能)，但是哪个项目又不去依赖第三方jar呢？
 
-  
+
    双亲委派模型的另一次“被破坏”是由于用户对程序动态性的追求而导致的，这里所说的“ 动态性”指的是当前一些非常“热门”的名词：代码热替换（HotSwap）、模块热部署（HotDeployment）等 ，说白了就是希望应用程序能像我们的计算机外设那样，接上鼠标、U盘，不用重启机器就能立即使用，鼠标有问题或要升级就换个鼠标，不用停机也不用重启。
 
    对于个人计算机来说，重启一次其实没有什么大不了的，但对于一些生产系统来说，关机重启一次可能就要被列为生产事故，这种情况下热部署就对软件开发者，尤其是企业级软件开发者具有很大的吸引力。Sun 公司所提出的JSR-294、JSR-277规范在与 JCP组织的模块化规范之争中落败给JSR-291（即 OSGi R4.2），虽然Sun不甘失去Java 模块化的主导权，独立在发展 Jigsaw项目，但目前OSGi已经成为了业界“ 事实上” 的Java模块化标准，而OSGi实现模块化热部署的关键则是它自定义的类加载器机制的实现。
@@ -280,9 +234,7 @@ J2EE 规范要求全部 J2EE 容器都要提供 JNDI 规范的实现。//sun 果
    只要有足够意义和理由，突破已有的原则就可认为是一种创新。正如OSGi中的类加载器并不符合传统的双亲委派的类加载器，并且业界对其为了实现热部署而带来的额外的高复杂度还存在不少争议，但在Java 程序员中基本有一个共识：OSGi中对类加载器的使用是很值得学习的，弄懂了OSGi的实现，就可以算是掌握了类加载器的精髓。
 
 
-## Tomcat类加载器以及应用间class隔离与共享
-
-
+### Tomcat类加载器以及应用间class隔离与共享
 
 Tomcat的用户一定都使用过其应用部署功能，无论是直接拷贝文件到webapps目录，还是修改server.xml以目录的形式部署，或者是增加虚拟主机，指定新的appBase等等。
 
@@ -368,8 +320,6 @@ Servlet规范指出，容器用于加载Web应用内Servlet的class loader, 允�
 
   看spring源码发现，spring加载类所用的Classloader是通过Thread.currentThread().getContextClassLoader()来获取的，而当线程创建时会默认setContextClassLoader(AppClassLoader)，即线程上下文类加载器被设置为 AppClassLoader，spring中始终可以获取到这个AppClassLoader( 在 Tomcat里就是WebAppClassLoader)子类加载器来加载bean ，以后任何一个线程都可以通过 getContextClassLoader()获取到WebAppClassLoader来getbean 了 。
 
-  
-
 本篇博文内容取材自《深入理解Java虚拟机：JVM高级特性与最佳实践》
 
 ## 参考文章
@@ -384,20 +334,4 @@ Servlet规范指出，容器用于加载Web应用内Servlet的class loader, 允�
 
 https://blog.csdn.net/android_hl/article/details/53228348
 
-## 微信公众号
-
-### Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的公众号【Java技术江湖】一位阿里 Java 工程师的技术小站，作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-**Java工程师必备学习资源:** 一些Java工程师常用学习资源，关注公众号后，后台回复关键字 **“Java”** 即可免费无套路获取。
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
-
-### 个人公众号：黄小斜
-
-作者是 985 硕士，蚂蚁金服 JAVA 工程师，专注于 JAVA 后端技术栈：SpringBoot、MySQL、分布式、中间件、微服务，同时也懂点投资理财，偶尔讲点算法和计算机理论基础，坚持学习和写作，相信终身学习的力量！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取。	
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
+https://yq.aliyun.com/go/articleRenderRedirect?url=https%3A%2F%2Fwww.cnblogs.com%2Fzhchoutai%2Fp%2F7389089.html

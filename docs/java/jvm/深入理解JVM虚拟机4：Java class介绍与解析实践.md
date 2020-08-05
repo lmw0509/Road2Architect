@@ -1,37 +1,3 @@
-# Table of Contents
-
-  * [前言](#前言)
-  * [Class文件](#class文件)
-    * [什么是Class文件？](#什么是class文件？)
-    * [基本结构](#基本结构)
-  * [解析](#解析)
-    * [字段类型](#字段类型)
-    * [常量池](#常量池)
-    * [字节码指令](#字节码指令)
-  * [运行](#运行)
-  * [总结](#总结)
-  * [参考：](#参考：)
-
-
-本文转自：https://juejin.im/post/589834a20ce4630056097a56
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章将同步到我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《深入理解JVM虚拟机》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何从入门到进阶，一步步地学习JVM基础知识，并上手进行JVM调优实战，JVM是每一个Java工程师必须要学习和理解的知识点，你必须要掌握其实现原理，才能更完整地了解整个Java技术体系，形成自己的知识框架。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供每个知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-<!-- more -->
 ## 前言
 
 身为一个java程序员，怎么能不了解JVM呢，倘若想学习JVM，那就又必须要了解Class文件，Class之于虚拟机，就如鱼之于水，虚拟机因为Class而有了生命。《深入理解java虚拟机》中花了一整个章节来讲解Class文件，可是看完后，一直都还是迷迷糊糊，似懂非懂。正好前段时间看见一本书很不错：《自己动手写Java虚拟机》，作者利用go语言实现了一个简单的JVM，虽然没有完整实现JVM的所有功能，但是对于一些对JVM稍感兴趣的人来说，可读性还是很高的。作者讲解的很详细，每个过程都分为了一章，其中一部分就是讲解如何解析Class文件。
@@ -55,7 +21,7 @@ java之所以能够实现跨平台，便在于其编译阶段不是将代码直�
 
 是不是一脸懵逼，不过java虚拟机规范中给出了class文件的基本格式，只要按照这个格式去解析就可以了：
 
-```
+```java
 ClassFile {
     u4 magic;
        u2 minor_version;
@@ -88,7 +54,7 @@ ClassFile中的字段类型有u1、u2、u4,这是什么类型呢？其实很简�
 
 上面说到ClassFile中的字段类型有u1、u2、u4，分别表示1个字节，2个字节和4个字节的无符号整数。java中short、int、long分别为2、4、8个字节的有符号整数，去掉符号位，刚好可以用来表示u1、u2、u4。
 
-```
+```java
 public class U1 {
     public static short read(InputStream inputStream) {
         byte[] bytes = new byte[1];
@@ -141,7 +107,7 @@ public class U4 {
 
 定义好字段类型后，我们就可以读取class文件了，首先是读取魔数之类的基本信息，这部分很简单：
 
-```
+```java
 FileInputStream inputStream = new FileInputStream(file);
 ClassFile classFile = new ClassFile();
 classFile.magic = U4.read(inputStream);
@@ -153,7 +119,7 @@ classFile.majorVersion = U2.read(inputStream);
 
 常量池，顾名思义，存放常量的资源池，这里的常量指的是字面量和符号引用。字面量指的是一些字符串资源，而符号引用分为三类：类符号引用、方法符号引用和字段符号引用。通过将资源放在常量池中，其他项就可以直接定义成常量池中的索引了，避免了空间的浪费，不只是class文件，Android可执行文件dex也是同样如此，将字符串资源等放在DexData中，其他项通过索引定位资源。java虚拟机规范给出了常量池中每一项的格式：
 
-```
+```java
 cp_info {
     u1 tag;
     u1 info[]; 
@@ -165,7 +131,7 @@ cp_info {
 
 这里首先读取常量池的大小，初始化常量池：
 
-```
+```java
 //解析常量池
 int constant_pool_count = U2.read(inputStream);
 ConstantPool constantPool = new ConstantPool(constant_pool_count);
@@ -174,7 +140,7 @@ constantPool.read(inputStream);
 
 接下来再逐个读取每项内容，并存储到数组cpInfo中，这里需要注意的是，cpInfo[]下标从1开始，0无效，且真正的常量池大小为constant_pool_count-1。
 
-```
+```java
 public class ConstantPool {
     public int constant_pool_count;
     public ConstantInfo[] cpInfo;
@@ -200,7 +166,7 @@ public class ConstantPool {
 
 我们先来看看CONSTANT_Utf8格式，这一项里面存放的是MUTF-8编码的字符串：
 
-```
+```java
 CONSTANT_Utf8_info { 
     u1 tag;
     u2 length;
@@ -210,7 +176,7 @@ CONSTANT_Utf8_info {
 
 那么如何读取这一项呢？
 
-```
+```java
 public class ConstantUtf8 extends ConstantInfo {
     public String value;
 
@@ -240,7 +206,7 @@ public class ConstantUtf8 extends ConstantInfo {
 
 再来看看CONSTANT_Class这一项，这一项存储的是类或者接口的符号引用：
 
-```
+```java
 CONSTANT_Class_info {
     u1 tag;
     u2 name_index;
@@ -249,7 +215,7 @@ CONSTANT_Class_info {
 
 注意这里的name_index并不是直接的字符串，而是指向常量池中cpInfo数组的name_index项，且cpInfo[name_index]一定是CONSTANT_Utf8格式。
 
-```
+```java
 public class ConstantClass extends ConstantInfo {
     public int nameIndex;
 
@@ -262,7 +228,7 @@ public class ConstantClass extends ConstantInfo {
 
 常量池解析完毕后，就可以供后面的数据使用了，比方说ClassFile中的this_class指向的就是常量池中格式为CONSTANT_Class的某一项,那么我们就可以读取出类名：
 
-```
+```java
 int classIndex = U2.read(inputStream);
 ConstantClass clazz = (ConstantClass) constantPool.cpInfo[classIndex];
 ConstantUtf8 className = (ConstantUtf8) constantPool.cpInfo[clazz.nameIndex];
@@ -274,7 +240,7 @@ System.out.print("classname:" + classFile.className + "\n");
 
 解析常量池之后还需要接着解析一些类信息，如父类、接口类、字段等，但是相信大家最好奇的还是java指令的存储，大家都知道，我们平时写的java代码会被编译成java字节码，那么这些字节码到底存储在哪呢？别急，讲解指令之前，我们先来了解下ClassFile中的method_info，其格式如下：
 
-```
+```java
 method_info {
     u2 access_flags;
     u2 name_index;
@@ -286,7 +252,7 @@ method_info {
 
 method_info里主要是一些方法信息：如访问标志、方法名索引、方法描述符索引及属性数组。这里要强调的是属性数组，因为字节码指令就存储在这个属性数组里。属性有很多种，比如说异常表就是一个属性，而存储字节码指令的属性为CODE属性，看这名字也知道是用来存储代码的了。属性的通用格式为：
 
-```
+```java
 attribute_info {
     u2 attribute_name_index;
     u4 attribute_length;
@@ -298,7 +264,7 @@ attribute_info {
 
 Code属性的具体格式为：
 
-```
+```java
 Code_attribute {
     u2 attribute_name_index; u4 attribute_length;
     u2 max_stack;
@@ -321,7 +287,7 @@ Code_attribute {
 
 接下来我们就可以解析字节码了：
 
-```
+```java
 for (int j = 0; j < methodInfo.attributesCount; j++) {
     if (methodInfo.attributes[j] instanceof CodeAttribute) {
         CodeAttribute codeAttribute = (CodeAttribute) methodInfo.attributes[j];
@@ -339,10 +305,6 @@ for (int j = 0; j < methodInfo.attributesCount; j++) {
 
 ![](https://user-gold-cdn.xitu.io/2017/2/6/fa350cdc04576bab58ade0955b9f0388?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
-<figcaption></figcaption>
-
-</figure>
-
 哈哈，是不是很赞！
 
 **最后再贴一下项目地址：[github.com/HalfStackDe…](https://github.com/HalfStackDeveloper/ClassReader)，欢迎Fork And Star！**
@@ -351,7 +313,7 @@ for (int j = 0; j < methodInfo.attributesCount; j++) {
 
 Class文件看起来很复杂，其实真正解析起来，也没有那么难，关键是要自己动手试试，才能彻底理解，希望各位看完后也能觉知此事要躬行！
 
-## 参考：
+## 参考
 
 [1\. 周志明《java虚拟机规范（JavaSE7）》](https://book.douban.com/subject/25792515/)
 
@@ -359,7 +321,5 @@ Class文件看起来很复杂，其实真正解析起来，也没有那么难，
 
 [3\. 周志明《深入理解Java虚拟机（第2版）》](https://book.douban.com/subject/26802084/)
 
-**（如有错误，欢迎指正！）**
-
-**(转载请标明ID：半栈工程师，个人博客：[halfstackdeveloper.github.io](https://halfstackdeveloper.github.io/))**
+[4.halfstackdeveloper.github.io](https://halfstackdeveloper.github.io/)
 

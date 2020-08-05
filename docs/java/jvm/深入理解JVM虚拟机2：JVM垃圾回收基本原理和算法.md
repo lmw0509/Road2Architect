@@ -1,70 +1,3 @@
-# Table of Contents
-
-  * [JVM GC基本原理与GC算法](#jvm-gc基本原理与gc算法)
-  * [Java关键术语](#java关键术语)
-  * [Java HotSpot 虚拟机](#java-hotspot-虚拟机)
-  * [Java堆内存](#java堆内存)
-  * [启动Java垃圾回收](#启动java垃圾回收)
-  * [各种GC的触发时机(When)](#各种gc的触发时机when)
-    * [GC类型](#gc类型)
-    * [触发时机](#触发时机)
-    * [FULL GC触发条件详解](#full-gc触发条件详解)
-    * [总结](#总结)
-    * [什么是Stop the world](#什么是stop-the-world)
-  * [Java垃圾回收过程](#java垃圾回收过程)
-  * [垃圾回收中实例的终结](#垃圾回收中实例的终结)
-  * [对象什么时候符合垃圾回收的条件？](#对象什么时候符合垃圾回收的条件？)
-    * [GC Scope 示例程序](#gc-scope-示例程序)
-  * [[JVM GC算法](https://www.cnblogs.com/wupeixuan/p/8670341.html)](#[jvm-gc算法]httpswwwcnblogscomwupeixuanp8670341html)
-  * [JVM垃圾判定算法](#jvm垃圾判定算法)
-    * [引用计数算法(Reference Counting)](#引用计数算法reference-counting)
-    * [可达性分析算法（根搜索算法）](#可达性分析算法（根搜索算法）)
-  * [四种引用](#四种引用)
-  * [JVM垃圾回收算法](#jvm垃圾回收算法)
-  * [标记—清除算法（Mark-Sweep）](#标记清除算法（mark-sweep）)
-  * [复制算法（Copying）](#复制算法（copying）)
-  * [标记—整理算法（Mark-Compact）](#标记整理算法（mark-compact）)
-  * [分代收集算法(Generational Collection)](#分代收集算法generational-collection)
-  * [参考文章](#参考文章)
-  * [微信公众号](#微信公众号)
-    * [Java技术江湖](#java技术江湖)
-    * [个人公众号：黄小斜](#个人公众号：黄小斜)
-
-
-本文转自互联网，侵删
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章将同步到我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《深入理解JVM虚拟机》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何从入门到进阶，一步步地学习JVM基础知识，并上手进行JVM调优实战，JVM是每一个Java工程师必须要学习和理解的知识点，你必须要掌握其实现原理，才能更完整地了解整个Java技术体系，形成自己的知识框架。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供每个知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-<!-- more -->
-
-## JVM GC基本原理与GC算法
-
-
-
-Java的内存分配与回收全部由JVM垃圾回收进程自动完成。与C语言不同，Java开发者不需要自己编写代码实现垃圾回收。这是Java深受大家欢迎的众多特性之一，能够帮助程序员更好地编写Java程序。
-
-下面四篇教程是了解Java 垃圾回收（GC）的基础：
-
-1.  [垃圾回收简介](http://www.importnew.com/13504.html)
-2.  [圾回收是如何工作的？](http://www.importnew.com/13493.html)
-3.  [垃圾回收的类别](http://www.importnew.com/13827.html)
-
-这篇教程是系列第一部分。首先会解释基本的术语，比如JDK、JVM、JRE和HotSpotVM。接着会介绍JVM结构和Java 堆内存结构。理解这些基础对于理解后面的垃圾回收知识很重要。
-
 ## Java关键术语
 
 *   JavaAPI：一系列帮助开发者创建Java应用程序的封装好的库。
@@ -89,12 +22,9 @@ HotSpot JVM是目前Oracle SE平台标准核心组件的一部分。在这篇垃
 2.  老年代（Old Generation）实例将从S1提升到Tenured（终身代）
 3.  永久代（Permanent Generation）包含类、方法等细节的元信息
 
-
-永久代空间[在Java SE8特性](http://javapapers.com/java/java-8-features/)中已经被移除。
-
 Java 垃圾回收是一项自动化的过程，用来管理程序所使用的运行时内存。通过这一自动化过程，JVM 解除了程序员在程序中分配和释放内存资源的开销。
 
-## 启动Java垃圾回收
+启动Java垃圾回收
 
 作为一个自动的过程，程序员不需要在代码中显示地启动垃圾回收过程。`System.gc()`和`Runtime.gc()`用来请求JVM启动垃圾回收。
 
@@ -127,29 +57,23 @@ Java 垃圾回收是一项自动化的过程，用来管理程序所使用的运
 
 1. 旧生代空间不足
 
-旧生代空间只有在新生代对象转入及创建为大对象、大数组时才会出现不足的现象，当执行Full GC后空间仍然不足，则抛出如下错误：
-
-java.lang.OutOfMemoryError: Java heap space 
+旧生代空间只有在新生代对象转入及创建为大对象、大数组时才会出现不足的现象，当执行Full GC后空间仍然不足，则抛出如下错误：java.lang.OutOfMemoryError: Java heap space 
 
 为避免以上两种状况引起的Full GC，调优时应尽量做到让对象在Minor GC阶段被回收、让对象在新生代多存活一段时间及不要创建过大的对象及数组。
 
-2\. Permanet Generation空间满
+2. Permanet Generation空间满
 
-Permanet Generation中存放的为一些class的信息等，当系统中要加载的类、反射的类和调用的方法较多时，Permanet Generation可能会被占满，在未配置为采用CMS GC的情况下会执行Full GC。如果经过Full GC仍然回收不了，那么JVM会抛出如下错误信息：
-
-java.lang.OutOfMemoryError: PermGen space 
+Permanet Generation中存放的为一些class的信息等，当系统中要加载的类、反射的类和调用的方法较多时，Permanet Generation可能会被占满，在未配置为采用CMS GC的情况下会执行Full GC。如果经过Full GC仍然回收不了，那么JVM会抛出如下错误信息：java.lang.OutOfMemoryError: PermGen space 
 
 为避免Perm Gen占满造成Full GC现象，可采用的方法为增大Perm Gen空间或转为使用CMS GC。
 
-3\. CMS GC时出现promotion failed和concurrent mode failure
+3. CMS GC时出现promotion failed和concurrent mode failure
 
-对于采用CMS进行旧生代GC的程序而言，尤其要注意GC日志中是否有promotion failed和concurrent mode failure两种状况，当这两种状况出现时可能会触发Full GC。
-
-promotion failed是在进行Minor GC时，survivor space放不下、对象只能放入旧生代，而此时旧生代也放不下造成的；concurrent mode failure是在执行CMS GC的过程中同时有对象要放入旧生代，而此时旧生代空间不足造成的。
+对于采用CMS进行旧生代GC的程序而言，尤其要注意GC日志中是否有promotion failed和concurrent mode failure两种状况，当这两种状况出现时可能会触发Full GC。promotion failed是在进行Minor GC时，survivor space放不下、对象只能放入旧生代，而此时旧生代也放不下造成的；concurrent mode failure是在执行CMS GC的过程中同时有对象要放入旧生代，而此时旧生代空间不足造成的。
 
 应对措施为：增大survivor space、旧生代空间或调低触发并发GC的比率，但在JDK 5.0+、6.0+的版本中有可能会由于JDK的bug29导致CMS在remark完毕后很久才触发sweeping动作。对于这种状况，可通过设置-XX: CMSMaxAbortablePrecleanTime=5（单位为ms）来避免。
 
-4. 统计得到的Minor GC晋升到旧生代的平均大小大于旧生代的剩余空间
+4. 统计得到的Minor GC晋升到旧生代的平均大小大于旧生代的剩余空间
 
 这是一个较为复杂的触发情况，Hotspot为了避免由于新生代对象晋升到旧生代导致旧生代空间不足的现象，在进行Minor GC时，做了一个判断，如果之前统计所得到的Minor GC晋升到旧生代的平均大小大于旧生代的剩余空间，那么就直接触发Full GC。
 
@@ -160,8 +84,6 @@ promotion failed是在进行Minor GC时，survivor space放不下、对象只能
 除了以上4种状况外，对于使用RMI来进行RPC或管理的Sun JDK应用而言，默认情况下会一小时执行一次Full GC。可通过在启动时通过- java -Dsun.rmi.dgc.client.gcInterval=3600000来设置Full GC执行的间隔时间或通过-XX:+ DisableExplicitGC来禁止RMI调用System.gc。
 
 ### 总结
-
-** Minor GC ，Full GC 触发条件**
 
 Minor GC触发条件：当Eden区满时，触发Minor GC。
 
@@ -230,34 +152,27 @@ Survivor 区（S0 和 S1）：作为年轻代 GC（Minor GC）周期的一部分
 
 [Java 中有不同的引用类型](http://javapapers.com/core-java/java-weak-reference/)。判断实例是否符合垃圾收集的条件都依赖于它的引用类型。
 
-| 引用类型 | 垃圾收集 |
-| --- | --- |
-| 强引用（Strong Reference） | 不符合垃圾收集 |
-| 软引用（Soft Reference） | 垃圾收集可能会执行，但会作为最后的选择 |
-| 弱引用（Weak Reference） | 符合垃圾收集 |
-| 虚引用（Phantom Reference） | 符合垃圾收集 |
+| 引用类型                    | 垃圾收集                               |
+| --------------------------- | -------------------------------------- |
+| 强引用（Strong Reference）  | 不符合垃圾收集                         |
+| 软引用（Soft Reference）    | 垃圾收集可能会执行，但会作为最后的选择 |
+| 弱引用（Weak Reference）    | 符合垃圾收集                           |
+| 虚引用（Phantom Reference） | 符合垃圾收集                           |
 
 在编译过程中作为一种优化技术，Java 编译器能选择给实例赋 `null` 值，从而标记实例为可回收。
 
-    class Animal {
-    
-        public static void main(String[] args) {
-    
-            Animal lion = new Animal();
-    
-            System.out.println("Main is completed.");
-    
-        }
-    
-     
-    
-        protected void finalize() {
-    
-            System.out.println("Rest in Peace!");
-    
-        }
-    
+```java
+class Animal {
+    public static void main(String[] args) {
+        Animal lion = new Animal();
+        System.out.println("Main is completed.");
     }
+    
+    protected void finalize() {
+        System.out.println("Rest in Peace!");
+    }
+}
+```
 
 在上面的类中，`lion` 对象在实例化行后从未被使用过。因此 Java 编译器作为一种优化措施可以直接在实例化行后赋值`lion = null`。因此，即使在 SOP 输出之前， finalize 函数也能够打印出 `'Rest in Peace!'`。我们不能证明这确定会发生，因为它依赖JVM的实现方式和运行时使用的内存。然而，我们还能学习到一点：如果编译器看到该实例在未来再也不会被引用，能够选择并提早释放实例空间。
 
@@ -266,140 +181,59 @@ Survivor 区（S0 和 S1）：作为年轻代 GC（Minor GC）周期的一部分
 *   当 `finalize()` 方法被调用时，JVM 会释放该线程上的所有同步锁。
 
 ### GC Scope 示例程序
-    Class GCScope {
+
+```java
+class GCScope {
+    GCScope t;
+    static int i = 1;
+    public static void main(String args[]) {
+        GCScope t1 = new GCScope();
+        GCScope t2 = new GCScope();
+        GCScope t3 = new GCScope();
+        // 没有对象符合GC
+        t1.t = t2; // 没有对象符合GC
+        t2.t = t3; // 没有对象符合GC
+        t3.t = t1; // 没有对象符合GC
+        t1 = null;
+        // 没有对象符合GC (t3.t 仍然有一个到 t1 的引用)
+        t2 = null;
+        // 没有对象符合GC (t3.t.t 仍然有一个到 t2 的引用)
+        t3 = null;
+        // 所有三个对象都符合GC (它们中没有一个拥有引用。
+        // 只有各对象的变量 t 还指向了彼此，
+        // 形成了一个由对象组成的环形的岛，而没有任何外部的引用。)
+    }
     
-        GCScope t;
-    
-        static int i = 1;
-    
-     
-    
-        public static void main(String args[]) {
-    
-            GCScope t1 = new GCScope();
-    
-            GCScope t2 = new GCScope();
-    
-            GCScope t3 = new GCScope();
-    
-     
-    
-            // No Object Is Eligible for GC
-    
-     
-    
-            t1.t = t2; // No Object Is Eligible for GC
-    
-            t2.t = t3; // No Object Is Eligible for GC
-    
-            t3.t = t1; // No Object Is Eligible for GC
-    
-     
-    
-            t1 = null;
-    
-            // No Object Is Eligible for GC (t3.t still has a reference to t1)
-    
-     
-    
-            t2 = null;
-    
-            // No Object Is Eligible for GC (t3.t.t still has a reference to t2)
-    
-     
-    
-            t3 = null;
-    
-            // All the 3 Object Is Eligible for GC (None of them have a reference.
-    
-            // only the variable t of the objects are referring each other in a
-    
-            // rounded fashion forming the Island of objects with out any external
-    
-            // reference)
-    
-        }
-    
-     
-    
-        protected void finalize() {
-    
-            System.out.println("Garbage collected from object" + i);
-    
-            i++;
-    
-        }
-    
-     
-    
-    class GCScope {
-    
-        GCScope t;
-    
-        static int i = 1;
-    
-     
-    
-        public static void main(String args[]) {
-    
-            GCScope t1 = new GCScope();
-    
-            GCScope t2 = new GCScope();
-    
-            GCScope t3 = new GCScope();
-    
-     
-    
-            // 没有对象符合GC
-    
-            t1.t = t2; // 没有对象符合GC
-    
-            t2.t = t3; // 没有对象符合GC
-    
-            t3.t = t1; // 没有对象符合GC
-    
-     
-    
-            t1 = null;
-    
-            // 没有对象符合GC (t3.t 仍然有一个到 t1 的引用)
-    
-     
-    
-            t2 = null;
-    
-            // 没有对象符合GC (t3.t.t 仍然有一个到 t2 的引用)
-    
-     
-    
-            t3 = null;
-    
-            // 所有三个对象都符合GC (它们中没有一个拥有引用。
-    
-            // 只有各对象的变量 t 还指向了彼此，
-    
-            // 形成了一个由对象组成的环形的岛，而没有任何外部的引用。)
-    
-        }
-    
-     
-    
-        protected void finalize() {
-    
-            System.out.println("Garbage collected from object" + i);
-    
-            i++;
-    
-        }
-## [JVM GC算法](https://www.cnblogs.com/wupeixuan/p/8670341.html)
+    protected void finalize() {
+        System.out.println("Garbage collected from object" + i);
+        i++;
+    }
+}
+```
+
+
+
+## JVM GC算法
 
 在判断哪些内存需要回收和什么时候回收用到GC 算法，本文主要对GC 算法进行讲解。
 
-## JVM垃圾判定算法
+### JVM GC基本原理与GC算法
+
+Java的内存分配与回收全部由JVM垃圾回收进程自动完成。与C语言不同，Java开发者不需要自己编写代码实现垃圾回收。这是Java深受大家欢迎的众多特性之一，能够帮助程序员更好地编写Java程序。
+
+下面四篇教程是了解Java 垃圾回收（GC）的基础：
+
+1.  [垃圾回收简介](http://www.importnew.com/13504.html)
+2.  [圾回收是如何工作的？](http://www.importnew.com/13493.html)
+3.  [垃圾回收的类别](http://www.importnew.com/13827.html)
+
+这篇教程是系列第一部分。首先会解释基本的术语，比如JDK、JVM、JRE和HotSpotVM。接着会介绍JVM结构和Java 堆内存结构。理解这些基础对于理解后面的垃圾回收知识很重要。
+
+### JVM垃圾判定算法
 
 常见的JVM垃圾判定算法包括：引用计数算法、可达性分析算法。
 
-### 引用计数算法(Reference Counting)
+#### 引用计数算法(Reference Counting)
 
 引用计数算法是通过判断对象的引用数量来决定对象是否可以被回收。
 
@@ -411,8 +245,7 @@ Survivor 区（S0 和 S1）：作为年轻代 GC（Minor GC）周期的一部分
 
 举个简单的例子，对象objA和objB都有字段instance，赋值令objA.instance=objB及objB.instance=objA，除此之外，这两个对象没有任何引用，实际上这两个对象已经不可能再被访问，但是因为互相引用，导致它们的引用计数都不为0，因此引用计数算法无法通知GC收集器回收它们。
 
-```
-
+```java
 public class ReferenceCountingGC {
     public Object instance = null;
 
@@ -432,8 +265,7 @@ public class ReferenceCountingGC {
 
 运行结果
 
-```
-
+```java
 [GC (System.gc()) [PSYoungGen: 3329K->744K(38400K)] 3329K->752K(125952K), 0.0341414 secs] [Times: user=0.00 sys=0.00, real=0.06 secs] 
 [Full GC (System.gc()) [PSYoungGen: 744K->0K(38400K)] [ParOldGen: 8K->628K(87552K)] 752K->628K(125952K), [Metaspace: 3450K->3450K(1056768K)], 0.0060728 secs] [Times: user=0.05 sys=0.00, real=0.01 secs] 
 Heap
@@ -451,7 +283,7 @@ Process finished with exit code 0
 
 从运行结果看，GC日志中包含“3329K->744K”,意味着虚拟机并没有因为这两个对象互相引用就不回收它们，说明虚拟机不是通过引用技术算法来判断对象是否存活的。
 
-### 可达性分析算法（根搜索算法）
+#### 可达性分析算法（根搜索算法）
 
 可达性分析算法是通过判断对象的引用链是否可达来决定对象是否可以被回收。
 
@@ -468,40 +300,36 @@ Process finished with exit code 0
 
 真正标记以为对象为可回收状态至少要标记两次。
 
-## 四种引用
+### 四种引用
 
 强引用就是指在程序代码之中普遍存在的，类似"Object obj = new Object()"这类的引用，只要强引用还存在，垃圾收集器永远不会回收掉被引用的对象。
 
-```
-
+```java
 Object obj = new Object();
 ```
 
 软引用是用来描述一些还有用但并非必需的对象，对于软引用关联着的对象，在系统将要发生内存溢出异常之前，将会把这些对象列进回收范围进行第二次回收。如果这次回收还没有足够的内存，才会抛出内存溢出异常。在JDK1.2之后，提供了SoftReference类来实现软引用。
 
-```
-
+```java
 Object obj = new Object();
 SoftReference<Object> sf = new SoftReference<Object>(obj);
 ```
 
 弱引用也是用来描述非必需对象的，但是它的强度比软引用更弱一些，被弱引用关联的对象，只能生存到下一次垃圾收集发生之前。当垃圾收集器工作时，无论当前内存是否足够，都会回收掉只被弱引用关联的对象。在JDK1.2之后，提供了WeakReference类来实现弱引用。
 
-```
-
+```java
 Object obj = new Object();
 WeakReference<Object> wf = new WeakReference<Object>(obj);
 ```
 
 虚引用也成为幽灵引用或者幻影引用，它是最弱的一中引用关系。一个对象是否有虚引用的存在，完全不会对其生存时间构成影响，也无法通过虚引用来取得一个对象实例。为一个对象设置虚引用关联的唯一目的就是能在这个对象被收集器回收时收到一个系统通知。在JDK1.2之后，提供给了PhantomReference类来实现虚引用。
 
-```
-
+```java
 Object obj = new Object();
 PhantomReference<Object> pf = new PhantomReference<Object>(obj);
 ```
 
-## JVM垃圾回收算法
+### JVM垃圾回收算法
 
 常见的垃圾回收算法包括：标记-清除算法，复制算法，标记-整理算法，分代收集算法。
 
@@ -511,7 +339,7 @@ Stop-the-World
 
 Stop-the-world意味着 JVM由于要执行GC而停止了应用程序的执行，并且这种情形会在任何一种GC算法中发生。当Stop-the-world发生时，除了GC所需的线程以外，所有线程都处于等待状态直到GC任务完成。事实上，GC优化很多时候就是指减少Stop-the-world发生的时间，从而使系统具有高吞吐 、低停顿的特点。
 
-## 标记—清除算法（Mark-Sweep）
+#### 标记—清除算法（Mark-Sweep）
 
 之所以说标记/清除算法是几种GC算法中最基础的算法，是因为后续的收集算法都是基于这种思路并对其不足进行改进而得到的。标记/清除算法的基本思想就跟它的名字一样，分为“标记”和“清除”两个阶段：首先标记出所有需要回收的对象，在标记完成后统一回收所有被标记的对象。
 
@@ -526,7 +354,7 @@ Stop-the-world意味着 JVM由于要执行GC而停止了应用程序的执行，
 
 ![标记-清除](https://images.cnblogs.com/cnblogs_com/wupeixuan/1186116/o_a4248c4b-6c1d-4fb8-a557-86da92d3a294.jpg)
 
-## 复制算法（Copying）
+#### 复制算法（Copying）
 
 将内存划分为大小相等的两块，每次只使用其中一块，当这一块内存用完了就将还存活的对象复制到另一块上面，然后再把使用过的内存空间进行一次清理。
 
@@ -539,7 +367,7 @@ Stop-the-world意味着 JVM由于要执行GC而停止了应用程序的执行，
 
 ![复制](https://images.cnblogs.com/cnblogs_com/wupeixuan/1186116/o_e6b733ad-606d-4028-b3e8-83c3a73a3797.jpg)
 
-## 标记—整理算法（Mark-Compact）
+#### 标记—整理算法（Mark-Compact）
 
 标记—整理算法和标记—清除算法一样，但是标记—整理算法不是把存活对象复制到另一块内存，而是把存活对象往内存的一端移动，然后直接回收边界以外的内存，因此其不会产生内存碎片。标记—整理算法提高了内存的利用率，并且它适合在收集对象存活时间较长的老年代。
 
@@ -549,7 +377,7 @@ Stop-the-world意味着 JVM由于要执行GC而停止了应用程序的执行，
 
 ![标记—整理](https://images.cnblogs.com/cnblogs_com/wupeixuan/1186116/o_902b83ab-8054-4bd2-898f-9a4a0fe52830.jpg)
 
-## 分代收集算法(Generational Collection)
+#### 分代收集算法(Generational Collection)
 
 分代回收算法实际上是把复制算法和标记整理法的结合，并不是真正一个新的算法，一般分为：老年代（Old Generation）和新生代（Young Generation），老年代就是很少垃圾需要进行回收的，新生代就是有很多的内存空间需要回收，所以不同代就采用不同的回收算法，以此来达到高效的回收算法。
 
@@ -569,20 +397,4 @@ Stop-the-world意味着 JVM由于要执行GC而停止了应用程序的执行，
 
 https://blog.csdn.net/android_hl/article/details/53228348
 
-## 微信公众号
-
-### Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的公众号【Java技术江湖】一位阿里 Java 工程师的技术小站，作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-**Java工程师必备学习资源:** 一些Java工程师常用学习资源，关注公众号后，后台回复关键字 **“Java”** 即可免费无套路获取。
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
-
-### 个人公众号：黄小斜
-
-作者是 985 硕士，蚂蚁金服 JAVA 工程师，专注于 JAVA 后端技术栈：SpringBoot、MySQL、分布式、中间件、微服务，同时也懂点投资理财，偶尔讲点算法和计算机理论基础，坚持学习和写作，相信终身学习的力量！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取。	
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
+https://www.cnblogs.com/wupeixuan/p/8670341.html
