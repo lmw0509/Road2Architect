@@ -1,52 +1,3 @@
-# Table of Contents
-
-  * [实战内存溢出异常](#实战内存溢出异常)
-  * [1 . 对象的创建过程](#1--对象的创建过程)
-  * [2 . 对象的内存布局](#2--对象的内存布局)
-  * [3 . 对象的访问定位](#3--对象的访问定位)
-  * [4 .实战内存异常](#4-实战内存异常)
-    * [Java堆内存异常](#java堆内存异常)
-    * [Java栈内存异常](#java栈内存异常)
-    * [方法区内存异常](#方法区内存异常)
-    * [方法区与运行时常量池OOM](#方法区与运行时常量池oom)
-    * [附加-直接内存异常](#附加-直接内存异常)
-  * [Java内存泄漏](#java内存泄漏)
-  * [Java是如何管理内存？](#java是如何管理内存？)
-  * [什么是Java中的内存泄露？](#什么是java中的内存泄露？)
-    * [其他常见内存泄漏](#其他常见内存泄漏)
-      * [1、静态集合类引起内存泄露：](#1、静态集合类引起内存泄露：)
-      * [2、当集合里面的对象属性被修改后，再调用remove（）方法时不起作用。](#2、当集合里面的对象属性被修改后，再调用remove（）方法时不起作用。)
-      * [3、监听器](#3、监听器)
-      * [4、各种连接](#4、各种连接)
-      * [5、内部类和外部模块等的引用](#5、内部类和外部模块等的引用)
-      * [6、单例模式](#6、单例模式)
-  * [如何检测内存泄漏](#如何检测内存泄漏)
-  * [参考文章](#参考文章)
-  * [微信公众号](#微信公众号)
-    * [Java技术江湖](#java技术江湖)
-    * [个人公众号：黄小斜](#个人公众号：黄小斜)
-
-
-本文转自互联网，侵删
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章将同步到我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《深入理解JVM虚拟机》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何从入门到进阶，一步步地学习JVM基础知识，并上手进行JVM调优实战，JVM是每一个Java工程师必须要学习和理解的知识点，你必须要掌握其实现原理，才能更完整地了解整个Java技术体系，形成自己的知识框架。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供每个知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-<!-- more -->
-
 ## 实战内存溢出异常
 
 大家好，相信大部分Javaer在code时经常会遇到本地代码运行正常，但在生产环境偶尔会莫名其妙的报一些关于内存的异常，StackOverFlowError,OutOfMemoryError异常是最常见的。今天就基于上篇文章JVM系列之Java内存结构详解讲解的各个内存区域重点实战分析下内存溢出的情况。在此之前，我还是想多余累赘一些其他关于对象的问题，具体内容如下:
@@ -61,9 +12,8 @@
 
 关于对象的创建，第一反应是new关键字，那么本文就主要讲解new关键字创建对象的过程。
 
-```
+```java
 Student stu =new Student("张三"，"18");
-
 ```
 
 就拿上面这句代码来说，虚拟机首先会去检查Student这个类有没有被加载，如果没有，首先去加载这个类到方法区，然后根据加载的Class类对象创建stu实例对象，需要注意的是，stu对象所需的内存大小在Student类加载完成后便可完全确定。内存分配完成后，虚拟机需要将分配到的内存空间的实例数据部分初始化为零值,这也就是为什么我们在编写Java代码时创建一个变量不需要初始化。紧接着，虚拟机会对对象的对象头进行必要的设置，如这个对象属于哪个类，如何找到类的元数据(Class对象),对象的锁信息，GC分代年龄等。设置完对象头信息后，调用类的构造函数。
@@ -106,7 +56,7 @@ Student stu =new Student("张三"，"18");
 
 ### Java堆内存异常
 
-```
+```java
 /**
     VM Args:
     //这两个参数保证了堆中的可分配内存固定为20M
@@ -148,11 +98,10 @@ Dumping heap to /Users/zdy/Desktop/dump/java_pid1099.hprof …
 
 老实说，在栈中出现异常(StackOverFlowError)的概率小到和去苹果专卖店买手机，买回来后发现是Android系统的概率是一样的。因为作者确实没有在生产环境中遇到过，除了自己作死写样例代码测试。先说一下异常出现的情况，前面讲到过，方法调用的过程就是方法帧进虚拟机栈和出虚拟机栈的过程，那么有两种情况可以导致StackOverFlowError,当一个方法帧(比如需要2M内存)进入到虚拟机栈(比如还剩下1M内存)的时候，就会报出StackOverFlow.这里先说一个概念，栈深度:指目前虚拟机栈中没有出栈的方法帧。虚拟机栈容量通过参数-Xss来控制,下面通过一段代码，把栈容量人为的调小一点，然后通过递归调用触发异常。
 
-```
+```java
 /**
- * VM Args：
-    //设置栈容量为160K，默认1M
-   -Xss160k
+ *设置栈容量为160K，默认1M 
+ *VM Args：-Xss160k
  */
 public class JavaVMStackSOF {
     private int stackLength = 1;
@@ -172,7 +121,6 @@ public class JavaVMStackSOF {
         }
     }
 }
-
 ```
 
 > 结果如下:
@@ -202,7 +150,7 @@ public class JavaVMStackSOF {
 
 Java 永久代是非堆内存的组成部分，用来存放类名、访问修饰符、常量池、字段描述、方法描述等，因运行时常量池是方法区的一部分，所以这里也包含运行时常量池。我们可以通过 jvm 参数 -XX：PermSize=10M -XX：MaxPermSize=10M 来指定该区域的内存大小，-XX：PermSize 默认为物理内存的 1/64 ,-XX：MaxPermSize 默认为物理内存的 1/4 。String.intern() 方法是一个 Native 方法，它的作用是：如果字符串常量池中已经包含一个等于此 String 对象的字符串，则返回代表池中这个字符串的 String 对象；否则，将此 String 对象包含的字符串添加到常量池中，并且返回此 String 对象的引用。在 JDK 1.6 及之前的版本中，由于常量池分配在永久代内，我们可以通过 -XX：PermSize 和 -XX：MaxPermSize 限制方法区大小，从而间接限制其中常量池的容量,通过运行 java -XX：PermSize=8M -XX：MaxPermSize=8M RuntimeConstantPoolOom 下面的代码我们可以模仿一个运行时常量池内存溢出的情况：
 
-```
+```java
 import java.util.ArrayList;
 import java.util.List;
 
@@ -215,22 +163,20 @@ public class RuntimeConstantPoolOom {
     }
   }
 }
-
 ```
 
 运行结果如下：
 
-```
+```java
 [root@9683817ada51 oom]# ../jdk1.6.0_45/bin/java -XX:PermSize=8m -XX:MaxPermSize=8m RuntimeConstantPoolOom
 Exception in thread "main" java.lang.OutOfMemoryError: PermGen space
     at java.lang.String.intern(Native Method)
     at RuntimeConstantPoolOom.main(RuntimeConstantPoolOom.java:9)
-
 ```
 
 还有一种情况就是我们可以通过不停的加载class来模拟方法区内存溢出，《深入理解java虚拟机》中借助 CGLIB 这类字节码技术模拟了这个异常，我们这里使用不同的 classloader 来实现（同一个类在不同的 classloader 中是不同的），代码如下
 
-```
+```java
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -250,10 +196,9 @@ public class MethodAreaOom {
     }
   }
 }
-
 ```
 
-```
+```java
 [root@9683817ada51 oom]# ../jdk1.6.0_45/bin/java -XX:PermSize=2m -XX:MaxPermSize=2m MethodAreaOom
 Error occurred during initialization of VM
 java.lang.OutOfMemoryError: PermGen space
@@ -268,26 +213,23 @@ java.lang.OutOfMemoryError: PermGen space
     at sun.misc.Launcher.<clinit>(Launcher.java:43)
     at java.lang.ClassLoader.initSystemClassLoader(ClassLoader.java:1337)
     at java.lang.ClassLoader.getSystemClassLoader(ClassLoader.java:1319)
-
 ```
 
 在 jdk1.8 上运行上面的代码将不会出现异常，因为 jdk1.8 已结去掉了永久代，当然 -XX:PermSize=2m -XX:MaxPermSize=2m 也将被忽略，如下
 
-```
+```java
 [root@9683817ada51 oom]# java -XX:PermSize=2m -XX:MaxPermSize=2m MethodAreaOom
 Java HotSpot(TM) 64-Bit Server VM warning: ignoring option PermSize=2m; support was removed in 8.0
 Java HotSpot(TM) 64-Bit Server VM warning: ignoring option MaxPermSize=2m; support was removed in 8.0
-
 ```
 
 jdk1.8 使用元空间（ Metaspace ）替代了永久代（ PermSize ），因此我们可以在 1.8 中指定 Metaspace 的大小模拟上述情况
 
-```
+```java
 [root@9683817ada51 oom]# java -XX:MetaspaceSize=2m -XX:MaxMetaspaceSize=2m RuntimeConstantPoolOom
 Error occurred during initialization of VM
 java.lang.OutOfMemoryError: Metaspace
     <<no stack trace available>>
-
 ```
 
 在JDK8的环境下将报出异常:
@@ -333,16 +275,14 @@ Java使用有向图的方式进行内存管理，可以消除引用循环的问�
 
 下面给出了一个简单的内存泄露的例子。在这个例子中，我们循环申请Object对象，并将所申请的对象放入一个Vector中，如果我们仅仅释放引用本身，那么Vector仍然引用该对象，所以这个对象对GC来说是不可回收的。因此，如果对象加入到Vector后，还必须从Vector中删除，最简单的方法就是将Vector对象设置为null。
 
-```
+```java
 Vector v=new Vector(10);
-for (int i=1;i<100; i++)
-{
+for (int i=1;i<100; i++){
     Object o=new Object();
     v.add(o);
     o=null;
 }
 //此时，所有的Object对象都没有被释放，因为变量v引用这些对象
-
 ```
 
 ### 其他常见内存泄漏
@@ -352,7 +292,7 @@ for (int i=1;i<100; i++)
 像HashMap、Vector等的使用最容易出现内存泄露，这些静态变量的生命周期和应用程序一致，他们所引用的所有的对象Object也不能被释放，因为他们也将一直被Vector等引用着。
 例:
 
-```
+```java
 Static Vector v = new Vector(10); 
 for (int i = 1; i<100; i++) { 
 	Object o = new Object(); 
@@ -360,14 +300,13 @@ for (int i = 1; i<100; i++) {
 	o = null; 
 }// 
 在这个例子中，循环申请Object 对象，并将所申请的对象放入一个Vector 中，如果仅仅释放引用本身（o=null），那么Vector 仍然引用该对象，所以这个对象对GC 来说是不可回收的。因此，如果对象加入到Vector 后，还必须从Vector 中删除，最简单的方法就是将Vector对象设置为null。
-
 ```
 
 #### 2、当集合里面的对象属性被修改后，再调用remove（）方法时不起作用。
 
 例：
 
-```
+```java
 public static void main(String[] args) { 
 	Set<Person> set = new HashSet<Person>(); 
 	Person p1 = new Person("唐僧","pwd1",25); 
@@ -386,7 +325,6 @@ public static void main(String[] args) {
 		System.out.println(person); 
 	} 
 }
-
 ```
 
 #### 3、监听器
@@ -407,7 +345,7 @@ public void registerMsg(Object b);
 
 不正确使用单例模式是引起内存泄露的一个常见问题，单例对象在被初始化后将在JVM的整个生命周期中存在（以静态变量的方式），如果单例对象持有外部对象的引用，那么这个外部对象将不能被jvm正常回收，导致内存泄露，考虑下面的例子：
 
-```
+```java
 class A{ 
 	public A(){ 
 		B.getInstance().setA(this); 
@@ -427,7 +365,6 @@ class B{
 	} 
 	//getter... 
 } 
-
 ```
 
 **显然B采用singleton模式，它持有一个A对象的引用，而这个A类的对象将不能被回收。想象下如果A是个比较复杂的对象或者集合类型会发生什么情况。**
@@ -443,12 +380,6 @@ Optimizeit Profiler版本4.11支持Application，Applet，Servlet和Romote Appli
 当设置好所有的参数了，我们就可以在OptimizeIt环境下运行被测程序，在程序运行过程中，Optimizeit可以监视内存的使用曲线(如下图)，包括JVM申请的堆(heap)的大小，和实际使用的内存大小。另外，在运行过程中，我们可以随时暂停程序的运行，甚至强行调用GC，让GC进行内存回收。通过内存使用曲线，我们可以整体了解程序使用内存的情况。这种监测对于长期运行的应用程序非常有必要，也很容易发现内存泄露。
 
 
-
-
-
-
-
-
 ## 参考文章
 
 <https://segmentfault.com/a/1190000009707894>
@@ -460,21 +391,3 @@ Optimizeit Profiler版本4.11支持Application，Applet，Servlet和Romote Appli
 <https://www.runoob.com/>
 
 https://blog.csdn.net/android_hl/article/details/53228348
-
-## 微信公众号
-
-### Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的公众号【Java技术江湖】一位阿里 Java 工程师的技术小站，作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-**Java工程师必备学习资源:** 一些Java工程师常用学习资源，关注公众号后，后台回复关键字 **“Java”** 即可免费无套路获取。
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
-
-### 个人公众号：黄小斜
-
-作者是 985 硕士，蚂蚁金服 JAVA 工程师，专注于 JAVA 后端技术栈：SpringBoot、MySQL、分布式、中间件、微服务，同时也懂点投资理财，偶尔讲点算法和计算机理论基础，坚持学习和写作，相信终身学习的力量！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取。	
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
