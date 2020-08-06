@@ -1,44 +1,3 @@
-# Table of Contents
-
-  * [目录](#目录)
-  * [调优准备](#调优准备)
-  * [性能分析](#性能分析)
-    * [CPU分析](#cpu分析)
-    * [内存分析](#内存分析)
-    * [IO分析](#io分析)
-    * [其他分析工具](#其他分析工具)
-  * [性能调优](#性能调优)
-    * [CPU调优](#cpu调优)
-    * [内存调优](#内存调优)
-    * [IO调优](#io调优)
-  * [其他优化建议](#其他优化建议)
-  * [JVM参数进阶](#jvm参数进阶)
-  * [参考资料](#参考资料)
-  * [参考文章](#参考文章)
-  * [微信公众号](#微信公众号)
-    * [Java技术江湖](#java技术江湖)
-    * [个人公众号：黄小斜](#个人公众号：黄小斜)
-
-
-本文转自：https://www.rowkey.me/blog/2016/11/02/java-profile/?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章将同步到我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《深入理解JVM虚拟机》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何从入门到进阶，一步步地学习JVM基础知识，并上手进行JVM调优实战，JVM是每一个Java工程师必须要学习和理解的知识点，你必须要掌握其实现原理，才能更完整地了解整个Java技术体系，形成自己的知识框架。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供每个知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-<!-- more -->
 ## 目录
 
 *   [调优准备](https://www.rowkey.me/blog/2016/11/02/java-profile/?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io#%E8%B0%83%E4%BC%98%E5%87%86%E5%A4%87)
@@ -168,18 +127,16 @@ Java调优也不外乎这三步。
 
     查看网络io状况，一般使用的是netstat工具。可以查看所有连接的状况、数目、端口信息等。例如：当time_wait或者close_wait连接过多时，会影响应用的相应速度。
 
-    ```
-     netstat -anp
-
-    ```
-
-    ![](https://www.rowkey.me/images/blog_images/profile/netstat.png)
-
-    此外，还可以使用tcpdump来具体分析网络io的数据。当然，tcpdump出的文件直接打开是一堆二进制的数据，可以使用wireshark阅读具体的连接以及其中数据的内容。
-
-    ```
-     tcpdump -i eth0 -w tmp.cap -tnn dst port 8080 #监听8080端口的网络请求并打印日志到tmp.cap中
-
+    ```java
+    netstat -anp
+```
+    
+![](https://www.rowkey.me/images/blog_images/profile/netstat.png)
+    
+此外，还可以使用tcpdump来具体分析网络io的数据。当然，tcpdump出的文件直接打开是一堆二进制的数据，可以使用wireshark阅读具体的连接以及其中数据的内容。
+    
+```java
+    tcpdump -i eth0 -w tmp.cap -tnn dst port 8080 #监听8080端口的网络请求并打印日志到tmp.cap中
     ```
 
     还可以通过查看/proc/interrupts来获取当前系统使用的中断的情况。
@@ -188,12 +145,11 @@ Java调优也不外乎这三步。
 
     各个列依次是：
 
+    ```java
+irq的序号， 在各自cpu上发生中断的次数，可编程中断控制器，设备名称（request_irq的dev_name字段）
     ```
-     irq的序号， 在各自cpu上发生中断的次数，可编程中断控制器，设备名称（request_irq的dev_name字段）
-
-    ```
-
-    通过查看网卡设备的终端情况可以判断网络io的状况。
+    
+通过查看网卡设备的终端情况可以判断网络io的状况。
 
 ### 其他分析工具
 
@@ -274,12 +230,11 @@ Java调优也不外乎这三步。
 *   谨慎热部署/加载的使用，尤其是动态加载类等
 *   不要用Log4j输出文件名、行号，因为Log4j通过打印线程堆栈实现，生成大量String。此外，使用log4j时，建议此种经典用法，先判断对应级别的日志是否打开，再做操作，否则也会生成大量String。
 
-    ```
-      if (logger.isInfoEnabled()) {
-          logger.info(msg);
-      }
-
-    ```
+    ```java
+    if (logger.isInfoEnabled()) {
+    	logger.info(msg);
+    }
+```
 
 ### IO调优
 
@@ -339,31 +294,28 @@ jvm的参数设置一直是比较理不清的地方，很多时候都搞不清�
 
     当Java应用启动后，定位到了是GC造成的性能问题，但是你启动的时候并没有加入打印gc的参数，很多时候的做法就是重新加参数然后重启应用。但这样会造成一定时间的服务不可用。最佳的做法是能够在不重启应用的情况下，动态设置参数。使用jinfo可以做到这一点(本质上还是基于jmx的)。
 
-    ```
-     jinfo -flag [+/-][flagName] [pid] #启用/禁止某个参数
-     jinfo -flag [flagName=value] [pid] #设置某个参数
-
-    ```
-
-    对于上述的gc的情况，就可以使用以下命令打开heap dump并设置dump路径。
-
-    ```
-     jinfo -flag +HeapDumpBeforeFullGC [pid] 
-     jinfo -flag +HeapDumpAfterFullGC [pid]
-     jinfo -flag HeapDumpPath=/home/dump/dir [pid]
-
+    ```java
+    jinfo -flag [+/-][flagName] [pid] #启用/禁止某个参数
+    jinfo -flag [flagName=value] [pid] #设置某个参数
+```
+    
+对于上述的gc的情况，就可以使用以下命令打开heap dump并设置dump路径。
+    
+```java
+    jinfo -flag +HeapDumpBeforeFullGC [pid] 
+    jinfo -flag +HeapDumpAfterFullGC [pid]
+    jinfo -flag HeapDumpPath=/home/dump/dir [pid]
     ```
 
     同样的也可以动态关闭。
 
+    ```java
+jinfo -flag -HeapDumpBeforeFullGC [pid] 
+    jinfo -flag -HeapDumpAfterFullGC [pid]
     ```
-     jinfo -flag -HeapDumpBeforeFullGC [pid] 
-     jinfo -flag -HeapDumpAfterFullGC [pid]
-
-    ```
-
-    其他的参数设置类似。
-
+    
+其他的参数设置类似。
+    
 3.  -verbose:gc 与 -XX:+PrintGCDetails
 
     很多gc推荐设置都同时设置了这两个参数，其实，只要打开了-XX:+PrintGCDetails，前面的选项也会同时打开，无须重复设置。
@@ -412,21 +364,3 @@ jvm的参数设置一直是比较理不清的地方，很多时候都搞不清�
 <https://www.runoob.com/>
 
 https://blog.csdn.net/android_hl/article/details/53228348
-
-## 微信公众号
-
-### Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的公众号【Java技术江湖】一位阿里 Java 工程师的技术小站，作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-**Java工程师必备学习资源:** 一些Java工程师常用学习资源，关注公众号后，后台回复关键字 **“Java”** 即可免费无套路获取。
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
-
-### 个人公众号：黄小斜
-
-作者是 985 硕士，蚂蚁金服 JAVA 工程师，专注于 JAVA 后端技术栈：SpringBoot、MySQL、分布式、中间件、微服务，同时也懂点投资理财，偶尔讲点算法和计算机理论基础，坚持学习和写作，相信终身学习的力量！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取。	
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
