@@ -1,44 +1,3 @@
-# Table of Contents
-
-  * [一、jvm常见监控工具&指令](#一、jvm常见监控工具指令)
-    * [1、 jps:jvm进程状况工具](#1、-jpsjvm进程状况工具)
-    * [2、jstat: jvm统计信息监控工具](#2、jstat-jvm统计信息监控工具)
-    * [3、jinfo： java配置信息](#3、jinfo：-java配置信息)
-    * [4、jmap: java 内存映射工具](#4、jmap-java-内存映射工具)
-    * [5、jhat:jvm堆快照分析工具](#5、jhatjvm堆快照分析工具)
-    * [6、jstack:java堆栈跟踪工具](#6、jstackjava堆栈跟踪工具)
-  * [二、可视化工具](#二、可视化工具)
-  * [三、应用](#三、应用)
-    * [1、cpu飙升](#1、cpu飙升)
-    * [2、线程死锁](#2、线程死锁)
-    * [2.查看java进程的线程快照信息](#2查看java进程的线程快照信息)
-    * [3、OOM内存泄露](#3、oom内存泄露)
-  * [参考文章](#参考文章)
-  * [微信公众号](#微信公众号)
-    * [Java技术江湖](#java技术江湖)
-    * [个人公众号：黄小斜](#个人公众号：黄小斜)
-
-
-本文转自：https://juejin.im/post/59e6c1f26fb9a0451c397a8c
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章将同步到我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《深入理解JVM虚拟机》其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何从入门到进阶，一步步地学习JVM基础知识，并上手进行JVM调优实战，JVM是每一个Java工程师必须要学习和理解的知识点，你必须要掌握其实现原理，才能更完整地了解整个Java技术体系，形成自己的知识框架。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供每个知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-<!-- more -->
-
 在常见的线上问题时候，我们多数会遇到以下问题：
 
 > *   内存泄露
@@ -52,48 +11,40 @@
 
 ## 一、jvm常见监控工具&指令
 
-### 1、 jps:jvm进程状况工具
+### 1、 jps：jvm进程状况工具
 
-
-
+```java
+jps [options] [hostid]
 ```
-jps [options] [hostid]复制代码
-```
-
-
 
 如果不指定hostid就默认为当前主机或服务器。
 
 命令行参数选项说明如下：
 
-
-
-```
+```java
 -q 不输出类名、Jar名和传入main方法的参数
 
-- l 输出main类或Jar的全限名
+-l 输出main类或Jar的全限名
 
 -m 输出传入main方法的参数
 
-- v 输出传入JVM的参数复制代码
+-v 输出传入JVM的参数复制代码
 ```
 
 
 
-### 2、jstat: jvm统计信息监控工具
+### 2、jstat：jvm统计信息监控工具
 
 jstat 是用于见识虚拟机各种运行状态信息的命令行工具。它可以显示本地或者远程虚拟机进程中的类装载、内存、垃圾收集、jit编译等运行数据，它是线上定位jvm性能的首选工具。
 
 命令格式:
 
-
-
-```
+```java
 jstat [ generalOption | outputOptions vmid [interval[s|ms] [count]] ]
 
-generalOption - 单个的常用的命令行选项，如-help, -options, 或 -version。
+generalOption  -单个的常用的命令行选项，如-help, -options, 或 -version。
 
-outputOptions -一个或多个输出选项，由单个的statOption选项组成，可以和-t, -h, and -J等选项配合使用。复制代码
+outputOptions  -一个或多个输出选项，由单个的statOption选项组成，可以和-t, -h, and -J等选项配合使用。复制代码
 ```
 
 参数选项：
@@ -115,35 +66,29 @@ outputOptions -一个或多个输出选项，由单个的statOption选项组成�
 
 **例如**:
 
-查看gc 情况执行:jstat-gcutil 27777
+查看gc 情况执行：jstat -gcutil 27777
 
 ![](data:image/svg+xml;utf8,<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="800" height="600"></svg>)
 
-### 3、jinfo： java配置信息
+### 3、jinfo：java配置信息
 
 命令格式:
 
-
-
+```java
+jinfo [option] pid复制代码
 ```
-jinfo[option] pid复制代码
-```
-
-
 
 比如:获取一些当前进程的jvm运行和启动信息。
 
 ![](data:image/svg+xml;utf8,<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="800" height="600"></svg>)
 
-### 4、jmap: java 内存映射工具
+### 4、jmap：java 内存映射工具
 
 jmap命令用于生产堆转存快照。打印出某个java进程（使用pid）内存内的，所有‘对象’的情况（如：产生那些对象，及其数量）。
 
 命令格式：
 
-
-
-```
+```java
 jmap [ option ] pid
 
 jmap [ option ] executable core
@@ -151,13 +96,9 @@ jmap [ option ] executable core
 jmap [ option ] [server-id@]remote-hostname-or-IP复制代码
 ```
 
-
-
 参数选项：
 
-
-
-```
+```java
 -dump:[live,]format=b,file=<filename> 使用hprof二进制形式,输出jvm的heap内容到文件=. live子选项是可选的，假如指定live选项,那么只输出活的对象到文件. 
 
 -finalizerinfo 打印正等候回收的对象的信息.
@@ -185,9 +126,7 @@ jstack用于生成java虚拟机当前时刻的线程快照。线程快照是当�
 
 命令格式：
 
-
-
-```
+```java
 jstack [ option ] pid
 
 jstack [ option ] executable core
@@ -195,25 +134,19 @@ jstack [ option ] executable core
 jstack [ option ] [server-id@]remote-hostname-or-IP复制代码
 ```
 
-
-
 参数：
 
+```java
+-F 当jstack [-l] pid’没有相应的时候强制打印栈信息
 
+-l 长列表. 打印关于锁的附加信息,例如属于java.util.concurrent的ownable synchronizers列表.
 
-```
--F当’jstack [-l] pid’没有相应的时候强制打印栈信息
-
--l长列表. 打印关于锁的附加信息,例如属于java.util.concurrent的ownable synchronizers列表.
-
--m打印java和native c/c++框架的所有栈信息.
+-m 打印java和native c/c++框架的所有栈信息.
 
 -h | -help打印帮助信息
 
 pid 需要被打印配置信息的java进程id,可以用jps查询.复制代码
 ```
-
-
 
 后续的查找耗费最高cpu例子会用到。
 
@@ -231,43 +164,27 @@ pid 需要被打印配置信息的java进程id,可以用jps查询.复制代码
 
 在线上有时候某个时刻，可能会出现应用某个时刻突然cpu飙升的问题。对此我们应该熟悉一些指令，快速排查对应代码。
 
-**_1.找到最耗CPU的进程_**
+**1.找到最耗CPU的进程**
 
-
-
-```
+```java
 指令:top复制代码
 ```
 
+**2.找到该进程下最耗费cpu的线程**
 
-
-
-**_2.找到该进程下最耗费cpu的线程_**
-
-
-
-```
+```java
 指令:top -Hp pid复制代码
 ```
 
+**3.转换进制**
 
-
-
-
-**_3.转换进制_**
-
-
-
-```
+```java
 printf “%x\n” 15332 // 转换16进制（转换后为0x3be4） 复制代码
 ```
 
+**4.过滤指定线程，打印堆栈信息**
 
-**_4.过滤指定线程，打印堆栈信息_**
-
-
-
-```
+```java
 指令:
 jstack pid |grep 'threadPid'  -C5 --color 
 
@@ -280,20 +197,15 @@ jstack 13525 |grep '0x3be4'  -C5 --color  //  打印进程堆栈 并通过线程
 
 有时候部署场景会有线程死锁的问题发生，但又不常见。此时我们采用jstack查看下一下。比如说我们现在已经有一个线程死锁的程序，导致某些操作waiting中。
 
-**_1.查找java进程id_**
+**1.查找java进程id**
 
-
-
-```
+```java
 指令:top 或者 jps 复制代码
 ```
 
+**2.查看java进程的线程快照信息**
 
-### 2.查看java进程的线程快照信息
-
-
-
-```
+```java
 指令：jstack -l pid复制代码
 ```
 
@@ -315,9 +227,7 @@ OOM的三种情况:
 
 **1.排查申请申请资源问题。**
 
-
-
-```
+```java
 指令:jmap -heap 11869 复制代码
 ```
 
@@ -330,18 +240,13 @@ OOM的三种情况:
 
 特别是fgc情况下，各个分代内存情况。
 
-
-
-```
+```java
 指令:jstat -gcutil 11938 1000 每秒输出一次gc的分代内存分配情况，以及gc时间复制代码
 ```
 
-
 **3.查找最费内存的对象**
 
-
-
-```
+```java
 指令: jmap -histo:live 11869 | more复制代码
 ```
 
@@ -349,9 +254,7 @@ OOM的三种情况:
 
 注意，上述指令:
 
-
-
-```
+```java
 jmap -histo:live 11869 | more
 
 执行之后，会造成jvm强制执行一次fgc，在线上不推荐使用，可以采取dump内存快照，线下采用可视化工具进行分析，更加详尽。
@@ -360,7 +263,6 @@ jmap -dump:format=b,file=/tmp/dump.dat 11869
 
 或者采用线上运维工具，自动化处理，方便快速定位，遗失出错时间。复制代码
 ```
-
 
 **4.确认资源是否耗尽**
 
@@ -377,8 +279,6 @@ jmap -dump:format=b,file=/tmp/dump.dat 11869
 一种工具的应用并非是万能钥匙，包治百病，问题的解决往往是需要多种工具的结合才能更好的定位问题，无论使用何种分析工具，最重要的是熟悉每种工具的优势和劣势。这样才能取长补短，配合使用。
 
 
-
-
 ## 参考文章
 
 <https://segmentfault.com/a/1190000009707894>
@@ -390,21 +290,3 @@ jmap -dump:format=b,file=/tmp/dump.dat 11869
 <https://www.runoob.com/>
 
 https://blog.csdn.net/android_hl/article/details/53228348
-
-## 微信公众号
-
-### Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的公众号【Java技术江湖】一位阿里 Java 工程师的技术小站，作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-**Java工程师必备学习资源:** 一些Java工程师常用学习资源，关注公众号后，后台回复关键字 **“Java”** 即可免费无套路获取。
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
-
-### 个人公众号：黄小斜
-
-作者是 985 硕士，蚂蚁金服 JAVA 工程师，专注于 JAVA 后端技术栈：SpringBoot、MySQL、分布式、中间件、微服务，同时也懂点投资理财，偶尔讲点算法和计算机理论基础，坚持学习和写作，相信终身学习的力量！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取。	
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
