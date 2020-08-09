@@ -1,34 +1,3 @@
-# Table of Contents
-
-  * [前言](#前言)
-  * [总览](#总览)
-  * [Executor 接口](#executor-接口)
-  * [ExecutorService](#executorservice)
-  * [FutureTask](#futuretask)
-  * [AbstractExecutorService](#abstractexecutorservice)
-  * [ThreadPoolExecutor](#threadpoolexecutor)
-  * [Executors](#executors)
-  * [总结](#总结)
-
-
-本文转自：https://www.javadoop.com/
-
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-文章同步发于我的个人博客：
-> www.how2playlife.com
-
-本文是微信公众号【Java技术江湖】的《Java并发指南》其中一篇，本文大部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何全面深入地学习Java并发技术，从Java多线程基础，再到并发编程的基础知识，从Java并发包的入门和实战，再到JUC的源码剖析，一步步地学习Java并发编程，并上手进行实战，以便让你更完整地了解整个Java并发编程知识体系，形成自己的知识框架。
-
-为了更好地总结和检验你的学习成果，本系列文章也会提供一些对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-<!--more -->
 ## 前言
 
 我相信大家都看过很多的关于线程池的文章，基本上也是面试的时候必问的，如果你在看过很多文章以后，还是一知半解的，那希望这篇文章能让你真正的掌握好 Java 线程池。
@@ -59,15 +28,20 @@ ExecutorService 也是接口，在 Executor 接口的基础上添加了很多的
 
 同在并发包中的 Executors 类，类名中带字母 s，我们猜到这个是工具类，里面的方法都是静态方法，如以下我们最常用的用于生成 ThreadPoolExecutor 的实例的一些方法：
 
-```
+```java
 public static ExecutorService newCachedThreadPool() {
-    return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
-                                  60L, TimeUnit.SECONDS,
+    return new ThreadPoolExecutor(0, 
+                                  Integer.MAX_VALUE,
+                                  60L, 
+                                  TimeUnit.SECONDS,
                                   new SynchronousQueue<Runnable>());
 }
+
 public static ExecutorService newFixedThreadPool(int nThreads) {
-    return new ThreadPoolExecutor(nThreads, nThreads,
-                                  0L, TimeUnit.MILLISECONDS,
+    return new ThreadPoolExecutor(nThreads, 
+                                  nThreads,
+                                  0L,
+                                  TimeUnit.MILLISECONDS,
                                   new LinkedBlockingQueue<Runnable>());
 }
 ```
@@ -82,7 +56,7 @@ public static ExecutorService newFixedThreadPool(int nThreads) {
 
 ## Executor 接口
 
-```
+```java
 /* 
  * @since 1.5
  * @author Doug Lea
@@ -96,7 +70,7 @@ public interface Executor {
 
 我们经常这样启动一个线程：
 
-```
+```java
 new Thread(new Runnable(){
   // do something
 }).start();
@@ -104,7 +78,7 @@ new Thread(new Runnable(){
 
 用了线程池 Executor 后就可以像下面这么使用：
 
-```
+```java
 Executor executor = anExecutor;
 executor.execute(new RunnableTask1());
 executor.execute(new RunnableTask2());
@@ -112,7 +86,7 @@ executor.execute(new RunnableTask2());
 
 如果我们希望线程池同步执行每一个任务，我们可以这么实现这个接口：
 
-```
+```java
 class DirectExecutor implements Executor {
     public void execute(Runnable r) {
         r.run();// 这里不是用的new Thread(r).start()，也就是说没有启动任何一个新的线程。
@@ -122,7 +96,7 @@ class DirectExecutor implements Executor {
 
 我们希望每个任务提交进来后，直接启动一个新的线程来执行这个任务，我们可以这么实现：
 
-```
+```java
 class ThreadPerTaskExecutor implements Executor {
     public void execute(Runnable r) {
         new Thread(r).start();  // 每个任务都用一个新的线程来执行
@@ -132,7 +106,7 @@ class ThreadPerTaskExecutor implements Executor {
 
 我们再来看下怎么组合两个 Executor 来使用，下面这个实现是将所有的任务都加到一个 queue 中，然后从 queue 中取任务，交给真正的执行器执行，这里采用 synchronized 进行并发控制：
 
-```
+```java
 class SerialExecutor implements Executor {
     // 任务队列
     final Queue<Runnable> tasks = new ArrayDeque<Runnable>();
@@ -177,7 +151,7 @@ class SerialExecutor implements Executor {
 
 一般我们定义一个线程池的时候，往往都是使用这个接口：
 
-```
+```java
 ExecutorService executor = Executors.newFixedThreadPool(args...);
 ExecutorService executor = Executors.newCachedThreadPool(args...);
 ```
@@ -186,7 +160,7 @@ ExecutorService executor = Executors.newCachedThreadPool(args...);
 
 那么我们简单初略地来看一下这个接口中都有哪些方法：
 
-```
+```java
 public interface ExecutorService extends Executor {
 
     // 关闭线程池，已提交的任务继续执行，不接受继续提交新任务
@@ -246,7 +220,7 @@ public interface ExecutorService extends Executor {
 
 在继续往下层介绍 ExecutorService 的实现类之前，我们先来说说相关的类 FutureTask。
 
-```
+```java
 Future      Runnable
    \           /
     \         /
@@ -262,13 +236,13 @@ FutureTask 通过 RunnableFuture 间接实现了 Runnable 接口，
 
 我们知道，Runnable 的 void run() 方法是没有返回值的，所以，通常，如果我们需要的话，会在 submit 中指定第二个参数作为返回值：
 
-```
+```java
 <T> Future<T> submit(Runnable task, T result);
 ```
 
 其实到时候会通过这两个参数，将其包装成 Callable。它和 Runnable 的区别在于 run() 没有返回值，而 Callable 的 call() 方法有返回值，同时，如果运行出现异常，call() 方法会抛出异常。
 
-```
+```java
 public interface Callable<V> {
 
     V call() throws Exception;
@@ -291,7 +265,7 @@ AbstractExecutorService 抽象类派生自 ExecutorService 接口，然后在其
 
 > Tips: invokeAny 和 invokeAll 方法占了这整个类的绝大多数篇幅，读者可以选择适当跳过，因为它们可能在你的实践中使用的频次比较低，而且它们不带有承前启后的作用，不用担心会漏掉什么导致看不懂后面的代码。
 
-```
+```java
 public abstract class AbstractExecutorService implements ExecutorService {
 
     // RunnableFuture 是用于获取执行结果的，我们常用它的子类 FutureTask
@@ -569,19 +543,21 @@ ThreadPoolExecutor 是 JDK 中的线程池实现，这个类实现了一个线�
 
 我们先回顾下提交任务的几个方法：
 
-```
+```java
 public Future<?> submit(Runnable task) {
     if (task == null) throw new NullPointerException();
     RunnableFuture<Void> ftask = newTaskFor(task, null);
     execute(ftask);
     return ftask;
 }
+
 public <T> Future<T> submit(Runnable task, T result) {
     if (task == null) throw new NullPointerException();
     RunnableFuture<T> ftask = newTaskFor(task, result);
     execute(ftask);
     return ftask;
 }
+
 public <T> Future<T> submit(Callable<T> task) {
     if (task == null) throw new NullPointerException();
     RunnableFuture<T> ftask = newTaskFor(task);
@@ -602,7 +578,7 @@ public <T> Future<T> submit(Callable<T> task) {
 
 我们经常会使用 `Executors` 这个工具类来快速构造一个线程池，对于初学者而言，这种工具类是很有用的，开发者不需要关注太多的细节，只要知道自己需要一个线程池，仅仅提供必需的参数就可以了，其他参数都采用作者提供的默认值。
 
-```
+```java
 public static ExecutorService newFixedThreadPool(int nThreads) {
     return new ThreadPoolExecutor(nThreads, nThreads,
                                   0L, TimeUnit.MILLISECONDS,
@@ -617,30 +593,30 @@ public static ExecutorService newCachedThreadPool() {
 
 这里先不说有什么区别，它们最终都会导向这个构造方法：
 
-```
-    public ThreadPoolExecutor(int corePoolSize,
-                              int maximumPoolSize,
-                              long keepAliveTime,
-                              TimeUnit unit,
-                              BlockingQueue<Runnable> workQueue,
-                              ThreadFactory threadFactory,
-                              RejectedExecutionHandler handler) {
-        if (corePoolSize < 0 ||
-            maximumPoolSize <= 0 ||
-            maximumPoolSize < corePoolSize ||
-            keepAliveTime < 0)
-            throw new IllegalArgumentException();
-        // 这几个参数都是必须要有的
-        if (workQueue == null || threadFactory == null || handler == null)
-            throw new NullPointerException();
+```java
+public ThreadPoolExecutor(int corePoolSize,
+                          int maximumPoolSize,
+                          long keepAliveTime,
+                          TimeUnit unit,
+                          BlockingQueue<Runnable> workQueue,
+                          ThreadFactory threadFactory,
+                          RejectedExecutionHandler handler) {
+    if (corePoolSize < 0 ||
+        maximumPoolSize <= 0 ||
+        maximumPoolSize < corePoolSize ||
+        keepAliveTime < 0)
+        throw new IllegalArgumentException();
+    // 这几个参数都是必须要有的
+    if (workQueue == null || threadFactory == null || handler == null)
+        throw new NullPointerException();
 
-        this.corePoolSize = corePoolSize;
-        this.maximumPoolSize = maximumPoolSize;
-        this.workQueue = workQueue;
-        this.keepAliveTime = unit.toNanos(keepAliveTime);
-        this.threadFactory = threadFactory;
-        this.handler = handler;
-    }
+    this.corePoolSize = corePoolSize;
+    this.maximumPoolSize = maximumPoolSize;
+    this.workQueue = workQueue;
+    this.keepAliveTime = unit.toNanos(keepAliveTime);
+    this.threadFactory = threadFactory;
+    this.handler = handler;
+}
 ```
 
 基本上，上面的构造方法中列出了我们最需要关心的几个属性了，下面逐个介绍下构造方法中出现的这几个属性：
@@ -673,8 +649,7 @@ public static ExecutorService newCachedThreadPool() {
 
 Doug Lea 采用一个 32 位的整数来存放线程池的状态和当前池中的线程数，其中高 3 位用于存放线程池状态，低 29 位表示线程数（即使只有 29 位，也已经不小了，大概 5 亿多，现在还没有哪个机器能起这么多线程的吧）。我们知道，java 语言在整数编码上是统一的，都是采用补码的形式，下面是简单的移位操作和布尔操作，都是挺简单的。
 
-```
-
+```java
 private final AtomicInteger ctl = new AtomicInteger(ctlOf(RUNNING, 0));
 
 // 这里 COUNT_BITS 设置为 29(32-3)，意味着前三位用于存放线程状态，后29位用于存放线程数
@@ -700,6 +675,7 @@ private static final int TERMINATED =  3 << COUNT_BITS;
 
 // 将整数 c 的低 29 位修改为 0，就得到了线程池的状态
 private static int runStateOf(int c)     { return c & ~CAPACITY; }
+
 // 将整数 c 的高 3 为修改为 0，就得到了线程池中的线程数
 private static int workerCountOf(int c)  { return c & CAPACITY; }
 
@@ -709,7 +685,6 @@ private static int ctlOf(int rs, int wc) { return rs | wc; }
  * Bit field accessors that don't require unpacking ctl.
  * These depend on the bit layout and on workerCount being never negative.
  */
-
 private static boolean runStateLessThan(int c, int s) {
     return c < s;
 }
@@ -749,11 +724,8 @@ private static boolean isRunning(int c) {
 
 Worker 这里又用到了抽象类 AbstractQueuedSynchronizer。题外话，AQS 在并发中真的是到处出现，而且非常容易使用，写少量的代码就能实现自己需要的同步方式（对 AQS 源码感兴趣的读者请参看我之前写的几篇文章）。
 
-```
-private final class Worker
-    extends AbstractQueuedSynchronizer
-    implements Runnable
-{
+```java
+private final class Worker extends AbstractQueuedSynchronizer implements Runnable {
     private static final long serialVersionUID = 6138294804551838833L;
 
     // 这个是真正的线程，任务靠你啦
@@ -786,7 +758,7 @@ private final class Worker
 
 前面虽然啰嗦，但是简单。有了上面的这些基础后，我们终于可以看看 ThreadPoolExecutor 的 execute 方法了，前面源码分析的时候也说了，各种方法都最终依赖于 execute 方法：
 
-```
+```java
 public void execute(Runnable command) {
     if (command == null)
         throw new NullPointerException();
@@ -837,11 +809,11 @@ public void execute(Runnable command) {
 
 这个方法非常重要 addWorker(Runnable firstTask, boolean core) 方法，我们看看它是怎么创建新的线程的：
 
-```
+```java
 // 第一个参数是准备提交给这个线程执行的任务，之前说了，可以为 null
 // 第二个参数为 true 代表使用核心线程数 corePoolSize 作为创建线程的界限，也就说创建这个线程的时候，
-//         如果线程池中的线程总数已经达到 corePoolSize，那么不能响应这次创建线程的请求
-//         如果是 false，代表使用最大线程数 maximumPoolSize 作为界限
+// 如果线程池中的线程总数已经达到 corePoolSize，那么不能响应这次创建线程的请求
+// 如果是 false，代表使用最大线程数 maximumPoolSize 作为界限
 private boolean addWorker(Runnable firstTask, boolean core) {
     retry:
     for (;;) {
@@ -947,7 +919,7 @@ private boolean addWorker(Runnable firstTask, boolean core) {
 
 简单看下 addWorkFailed 的处理：
 
-```
+```java
 // workers 中删除掉相应的 worker
 // workCount 减 1
 private void addWorkerFailed(Worker w) {
@@ -967,7 +939,7 @@ private void addWorkerFailed(Worker w) {
 
 回过头来，继续往下走。我们知道，worker 中的线程 start 后，其 run 方法会调用 runWorker 方法：
 
-```
+```java
 // Worker 类的 run() 方法
 public void run() {
     runWorker(this);
@@ -976,7 +948,7 @@ public void run() {
 
 继续往下看 runWorker 方法：
 
-```
+```java
 // 此方法由 worker 线程启动后调用，这里用一个 while 循环来不断地从等待队列中获取任务并执行
 // 前面说了，worker 在初始化的时候，可以指定 firstTask，那么第一个任务也就可以不需要从队列中获取
 final void runWorker(Worker w) {
@@ -1039,7 +1011,7 @@ final void runWorker(Worker w) {
 
 我们看看 getTask() 是怎么获取任务的，这个方法写得真的很好，每一行都很简单，组合起来却所有的情况都想好了：
 
-```
+```java
 // 此方法有三种可能：
 // 1\. 阻塞直到获取到任务返回。我们知道，默认 corePoolSize 之内的线程是不会被回收的，
 //      它们会一直等待任务
@@ -1108,7 +1080,7 @@ private Runnable getTask() {
 
 到这里，基本上也说完了整个流程，读者这个时候应该回到 execute(Runnable command) 方法，看看各个分支，我把代码贴过来一下：
 
-```
+```java
 public void execute(Runnable command) {
     if (command == null)
         throw new NullPointerException();
@@ -1153,7 +1125,7 @@ public void execute(Runnable command) {
 
 上面各个分支中，有两种情况会调用 reject(command) 来处理任务，因为按照正常的流程，线程池此时不能接受这个任务，所以需要执行我们的拒绝策略。接下来，我们说一说 ThreadPoolExecutor 中的拒绝策略。
 
-```
+```java
 final void reject(Runnable command) {
     // 执行拒绝策略
     handler.rejectedExecution(command, this);
@@ -1164,7 +1136,7 @@ final void reject(Runnable command) {
 
 RejectedExecutionHandler 在 ThreadPoolExecutor 中有四个已经定义好的实现类可供我们直接使用，当然，我们也可以实现自己的策略，不过一般也没有必要。
 
-```
+```java
 // 只要线程池没有被关闭，那么由提交任务的线程自己来执行这个任务。
 public static class CallerRunsPolicy implements RejectedExecutionHandler {
     public CallerRunsPolicy() { }
@@ -1210,11 +1182,11 @@ public static class DiscardOldestPolicy implements RejectedExecutionHandler {
 
 ## Executors
 
-这节其实也不是分析 Executors 这个类，因为它仅仅是工具类，它的所有方法都是 static 的。
+这节其实也不是分析 **Executors 这个类，因为它仅仅是工具类，它的所有方法都是 static 的。**
 
 *   生成一个固定大小的线程池：
 
-```
+```java
 public static ExecutorService newFixedThreadPool(int nThreads) {
     return new ThreadPoolExecutor(nThreads, nThreads,
                                   0L, TimeUnit.MILLISECONDS,
@@ -1228,7 +1200,7 @@ public static ExecutorService newFixedThreadPool(int nThreads) {
 
 *   生成只有**一个线程**的固定线程池，这个更简单，和上面的一样，只要设置线程数为 1 就可以了：
 
-```
+```java
 public static ExecutorService newSingleThreadExecutor() {
     return new FinalizableDelegatedExecutorService
         (new ThreadPoolExecutor(1, 1,
@@ -1239,7 +1211,7 @@ public static ExecutorService newSingleThreadExecutor() {
 
 *   生成一个需要的时候就创建新的线程，同时可以复用之前创建的线程（如果这个线程当前没有任务）的线程池：
 
-```
+```java
 public static ExecutorService newCachedThreadPool() {
     return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                                   60L, TimeUnit.SECONDS,
@@ -1253,7 +1225,7 @@ public static ExecutorService newCachedThreadPool() {
 
 过程分析：我把 execute 方法的主体黏贴过来，让大家看得明白些。鉴于 corePoolSize 是 0，那么提交任务的时候，直接将任务提交到队列中，由于采用了 SynchronousQueue，所以如果是第一个任务提交的时候，offer 方法肯定会返回 false，因为此时没有任何 worker 对这个任务进行接收，那么将进入到最后一个分支来创建第一个 worker。之后再提交任务的话，取决于是否有空闲下来的线程对任务进行接收，如果有，会进入到第二个 if 语句块中，否则就是和第一个任务一样，进到最后的 else if 分支创建新线程。
 
-```
+```java
 int c = ctl.get();
 // corePoolSize 为 0，所以不会进到这个 if 分支
 if (workerCountOf(c) < corePoolSize) {
@@ -1313,7 +1285,3 @@ else if (!addWorker(command, false))
     > 2.  workers 的数量大于等于 corePoolSize，将任务加入到任务队列，可是队列满了，任务入队失败，那么准备开启新的线程，可是线程数已经达到 maximumPoolSize，那么执行拒绝策略。
 
 因为本文实在太长了，所以我没有说执行结果是怎么获取的，也没有说关闭线程池相关的部分，这个就留给读者吧。
-
-本文篇幅是有点长，如果读者发现什么不对的地方，或者有需要补充的地方，请不吝提出，谢谢。
-
-（全文完）
