@@ -21,13 +21,144 @@ Google 一下 AbstractQueuedSynchronizer，我们可以找到很多关于 AQS �
 申明以下几点：
 
 1.  本文有点长，但还是挺简单，主要面向读者对象为并发编程的初学者，或者想要阅读 Java 并发包源码的开发者。对于新手来说，可能需要花好几个小时才能完全看懂，但是这时间肯定是值得的。
-2.  源码环境 JDK1.7（1.8没啥变化），看到不懂或有疑惑的部分，最好能自己打开源码看看。Doug Lea 大神的代码写得真心不错。
-3.  本文不分析共享模式，这样可以给读者减少很多负担，[第三篇文章](https://www.javadoop.com/post/AbstractQueuedSynchronizer-3)对共享模式进行了分析。而且也不分析 condition 部分，所以应该说很容易就可以看懂了。
-4.  本文大量使用我们平时用得最多的 ReentrantLock 的概念，本质上来说是不正确的，读者应该清楚，AQS 不仅仅用来实现可重入锁，只是希望读者可以用锁来联想 AQS 的使用场景，降低阅读压力。
-5.  ReentrantLock 的公平锁和非公平锁只有一点点区别，[第二篇文章](https://www.javadoop.com/post/AbstractQueuedSynchronizer-2)做了介绍。
-6.  评论区有读者反馈本文直接用代码说不友好，应该多配点流程图，这篇文章确实有这个问题。但是作为过来人，我想告诉大家，对于 AQS 来说，形式真的不重要，重要的是把细节说清楚。
+2.  建议在电脑上阅读，如果你想好好地理解所有的细节，而且你从来没看过相关的分析，你可能至少需要 20 分钟仔细看所有的描述，本文后面的 1/3 以上很简单，前面的 1/4 更简单，中间的部分要好好看。
+3.  如果你不知道为什么要看这个，我想告诉你，即使你看懂了所有的细节，你可能也不能把你的业务代码写得更好。
+4.  源码环境 JDK1.7（1.8没啥变化），看到不懂或有疑惑的部分，最好能自己打开源码看看。Doug Lea 大神的代码写得真心不错。
+5.  有很多英文注释我没有删除，这样读者可以参考着英文说的来，万一被我忽悠了呢。
+6.  本文不分析共享模式，这样可以给读者减少很多负担，[第三篇文章](https://www.javadoop.com/post/AbstractQueuedSynchronizer-3)对共享模式进行了分析。只要把独占模式看懂，共享模式读者应该就可以顺着代码看懂了。而且也不分析 condition 部分，所以应该说很容易就可以看懂了。
+7.  本文大量使用我们平时用得最多的 ReentrantLock 的概念，本质上来说是不正确的，读者应该清楚，AQS 不仅仅用来实现可重入锁，只是希望读者可以用锁来联想 AQS 的使用场景，降低阅读压力。
+8.  ReentrantLock 的公平锁和非公平锁只有一点点区别，没有任何阅读压力，[第二篇文章](https://www.javadoop.com/post/AbstractQueuedSynchronizer-2)做了介绍。
+9.  你需要提前知道什么是 CAS(CompareAndSet)。
+10.  评论区有读者反馈本文直接用代码说不友好，应该多配点流程图，这篇文章确实有这个问题。但是作为过来人，我想告诉大家，对于 AQS 来说，形式真的不重要，重要的是把细节说清楚。
 
 ## AQS 结构
+
+AQS简介中提到了AQS内部维护着一个FIFO队列，该队列就是CLH同步队列。
+
+CLH同步队列是一个FIFO双向队列，AQS依赖它来完成同步状态的管理，当前线程如果获取同步状态失败时，AQS则会将当前线程已经等待状态等信息构造成一个节点（Node）并将其加入到CLH同步队列，同时会阻塞当前线程，当同步状态释放时，会把首节点唤醒（公平锁），使其再次尝试获取同步状态。
+
+在CLH同步队列中，一个节点表示一个线程，它保存着线程的引用（thread）、状态（waitStatus）、前驱节点（prev）、后继节点（next），其定义如下：
+
+```java
+static final class Node {
+    /**
+     * 共享
+     */
+    static final Node SHARED = new Node();
+    /**
+     * 独占
+     */
+    static final Node EXCLUSIVE = null;
+    /**
+     * 因为超时或者中断，节点会被设置为取消状态，被取消的节点时不会参与到竞争中的，他会一直保持取消状态不会转变为其他状态；
+     */
+    static final int CANCELLED = 1;
+    /**
+     * 后继节点的线程处于等待状态，而当前节点的线程如果释放了同步状态或者被取消，将会通知后继节点，使后继节点的线程得以运行
+     */
+    static final int SIGNAL = -1;
+    /**
+     * 节点在等待队列中，节点线程等待在Condition上，当其他线程对Condition调用了signal()后，改节点将会从等待队列中转移到同步队列中，加入到同步状态的获取中
+     */
+    static final int CONDITION = -2;
+    /**
+     * 表示下一次共享式同步状态获取将会无条件地传播下去
+     */
+    static final int PROPAGATE = -3;
+    /**
+     * 等待状态
+     */
+    volatile int waitStatus;
+    /**
+     * 前驱节点
+     */
+    volatile Node prev;
+    /**
+     * 后继节点
+     */
+    volatile Node next;
+    /**
+     * 获取同步状态的线程
+     */
+    volatile Thread thread;
+    Node nextWaiter;
+
+    final boolean isShared() {
+        return nextWaiter == SHARED;
+    }
+
+    final Node predecessor() throws NullPointerException {
+        Node p = prev;
+        if (p == null) throw new NullPointerException();
+        else return p;
+    }
+
+    Node() {
+    }
+
+    Node(Thread thread, Node mode) {
+        this.nextWaiter = mode;
+        this.thread = thread;
+    }
+
+    Node(Thread thread, int waitStatus) {
+        this.waitStatus = waitStatus;
+        this.thread = thread;
+    }
+}
+```
+
+CLH同步队列结构图如下：入列
+
+学了数据结构的我们，CLH队列入列是再简单不过了，无非就是tail指向新节点、新节点的prev指向当前最后的节点，当前最后一个节点的next指向当前节点。代码我们可以看看addWaiter(Node node)方法：
+
+```java
+private  Node addWaiter(Node mode){
+    //新建Node
+    Node node = new Node(Thread.currentThread(),mode);
+    //快速尝试添加尾节点  
+    Node pred = tail;
+    if(pred != null){
+        node.prev=pred;
+         // CAS设置尾节点  
+         if(compareAndSetTail(pred,node)){
+             pred.next=node;return node;
+         }
+    }
+    //多次尝试 enq(node); 
+    return node;
+}
+```
+
+addWaiter(Node node)先通过快速尝试设置尾节点，如果失败，则调用enq(Node node)方法设置尾节点
+
+```java
+private  Node enq(final  Node node)  {  
+    //多次尝试，直到成功为止 
+    for  (;;)  { 
+        Node t = tail;  
+        // tail不存在，设置为首节点  
+        if  (t ==  null)  {  
+            if(compareAndSetHead(new Node())) tail = head; 
+        }else{  
+            //设置为尾节点 node.prev = t; 
+            if(compareAndSetTail(t, node))  {
+                t.next  = node;  return t; 
+            }  
+        } 
+    } 
+}
+```
+
+在上面代码中，两个方法都是通过一个CAS方法compareAndSetTail(Node expect, Node update)来设置尾节点，该方法可以确保节点是线程安全添加的。在enq(Node node)方法中，AQS通过“死循环”的方式来保证节点可以正确添加，只有成功添加后，当前线程才会从该方法返回，否则会一直执行下去。
+
+过程图如下：
+
+![1485225206860201701240002](https://mmbiz.qpic.cn/mmbiz_png/yrbzLUhDJu2icPfXqCtUiaNvcZ5KIwSpj8k0miaZHxvHWxVxZJamUncE0FfB3Vc52zHhgFq0gImn0jv6CHU9iaOSDg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+
+## 出列
+
+CLH同步队列遵循FIFO，首节点的线程释放同步状态后，将会唤醒它的后继节点（next），而后继节点将会在获取同步状态成功时将自己设置为首节点，这个过程非常简单，head执行该节点并断开原首节点的next和当前节点的prev即可，注意在这个过程是不需要使用CAS来保证的，因为只有一个线程能够成功获取到同步状态。过程图如下：AQS 结构
 
 先来看看 AQS 有哪些属性，搞清楚这些基本就知道 AQS 是什么套路了，毕竟可以猜嘛！
 
@@ -91,7 +222,6 @@ static final class Node {
     volatile Node next;
     // 这个就是线程本尊
     volatile Thread thread;
-
 }
 ```
 
