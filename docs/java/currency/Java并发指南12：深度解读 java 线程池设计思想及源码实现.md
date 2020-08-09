@@ -244,7 +244,6 @@ FutureTask 通过 RunnableFuture 间接实现了 Runnable 接口，
 
 ```java
 public interface Callable<V> {
-
     V call() throws Exception;
 }
 ```
