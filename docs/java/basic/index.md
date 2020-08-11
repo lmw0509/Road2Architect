@@ -3,5 +3,11 @@
 - [x] 面向对象基础
 - [x] Java基本数据类型
 - [x] string和包装类
-- [ ] final关键字
+- [x] final关键字
+- [x] Java类和包
+- [x] 抽象类和接口
+- [ ] 代码块和代码执行顺序
+- [ ] Java自动拆箱装箱里隐藏的秘密
+- [x] Java中的Class类和Object类
+- [ ] Java异常
 

@@ -1,5 +1,5 @@
 
-final关键字在java中使用非常广泛，可以声明成员变量、方法、类、本地变量。一旦将引用声明为final，将无法再改变这个引用。final关键字还能保证内存同步，本博客将会从final关键字的特性到从java内存层面保证同步讲解。这个内容在面试中也有可能会出现。
+final关键字在java中使用非常广泛，可以声明成员变量、方法、类、本地变量。一旦将引用声明为final，将无法再改变这个引用。final关键字还能保证内存同步，本文将会从final关键字的特性到从java内存层面保证同步讲解。这个内容在面试中也有可能会出现。
 
 ## final使用
 
@@ -19,10 +19,9 @@ public class Main {
 }
 ```
 
-就如上所说的，对于类常量，JVM会缓存在常量池中，在读取该变量时不会加载这个类。
+就如上所说的，**对于类常量，JVM会缓存在常量池中，在读取该变量时不会加载这个类。**
 
 ```java
-
 public class Main {
     public static final int i = 2;
     Main() {
@@ -51,7 +50,7 @@ public void final修饰基本类型变量和引用() {
 }
 ```
 
-final方法表示该方法不能被子类的方法重写，将方法声明为final，在编译的时候就已经静态绑定了，不需要在运行时动态绑定。final方法调用时使用的是invokespecial指令。
+final方法表示该方法不能被子类的方法重写，**将方法声明为final，在编译的时候就已经静态绑定了，不需要在运行时动态绑定。final方法调用时使用的是invokespecial指令。**
 
 ```java
 class PersonalLoan{
@@ -63,7 +62,7 @@ class PersonalLoan{
 class CheapPersonalLoan extends PersonalLoan{
     @Override
     public final String getName(){
-        return"cheap personal loan";//编译错误，无法被重载
+        return"cheap personal loan";//编译错误，无法被重写
     }
 
     public String test() {
@@ -75,7 +74,7 @@ class CheapPersonalLoan extends PersonalLoan{
 
 ### final类
 
-final类不能被继承，final类中的方法默认也会是final类型的，java中的String类和Integer类都是final类型的。
+final类不能被继承，**final类中的方法默认也会是final类型的**，java中的String类和Integer类都是final类型的。
 
 ```java
 class Si{
@@ -138,25 +137,26 @@ public void final修饰类() {
 ### final关键字的知识点
 
 1.  final成员变量必须在声明的时候初始化或者在构造器中初始化，否则就会报编译错误。final变量一旦被初始化后不能再次赋值。
-2.  本地变量必须在声明时赋值。 因为没有初始化的过程
-3.  在匿名类中所有变量都必须是final变量。
+2.  **本地变量必须在声明时赋值。 因为没有初始化的过程**
+3.  **在匿名类中所有变量都必须是final变量。**
 4.  final方法不能被重写, final类不能被继承
-5.  接口中声明的所有变量本身是final的。类似于匿名类
+5.  **接口中声明的所有变量本身是final的。类似于匿名类**
 6.  final和abstract这两个关键字是反相关的，final类就不可能是abstract的。
-7.  final方法在编译阶段绑定，称为静态绑定(static binding)。
+7.  **final方法在编译阶段绑定，称为静态绑定(static binding)。**
 8.  将类、方法、变量声明为final能够提高性能，这样JVM就有机会进行估计，然后优化。
 
-final方法的好处:
+> final方法的好处:
+>
+> 1.  **提高了性能，JVM在常量池中会缓存final变量**
+> 2.  **final变量在多线程中并发安全，无需额外的同步开销（重排序的规则保证）**
+> 3.  **final方法是静态编译的，提高了调用速度**
+> 4.  **final类创建的对象是只可读的，在多线程可以安全共享**
 
-1.  提高了性能，JVM在常量池中会缓存final变量
-2.  final变量在多线程中并发安全，无需额外的同步开销
-3.  final方法是静态编译的，提高了调用速度
-4.  **final类创建的对象是只可读的，在多线程可以安全共享**
 ## final关键字的最佳实践
 
 ### final的用法 
-1、final 对于常量来说，意味着值不能改变，例如 final int i=100。这个i的值永远都是100。 
-但是对于变量来说又不一样，只是标识这个引用不可被改变，例如 final File f=new File(&quot;c:\\test.txt&quot;);
+1、final 对于基本类型来说，意味着值不能改变，例如 final int i=100。这个i的值永远都是100。 
+但是对于引用类型来说又不一样，只是标识这个引用不可被改变，例如 final File f=new File(&quot;c:\\test.txt&quot;);
 
 那么这个f一定是不能被改变的，如果f本身有方法修改其中的成员变量，例如是否可读，是允许修改的。有个形象的比喻：一个女子定义了一个final的老公，这个老公的职业和收入都是允许改变的，只是这个女人不会换老公而已。 
 
@@ -185,7 +185,7 @@ public class FinalTest {
 
 ### final内存分配 
 刚提到了内嵌机制，现在详细展开。 
-要知道调用一个函数除了函数本身的执行时间之外，还需要额外的时间去寻找这个函数（类内部有一个函数签名和函数地址的映射表）。所以减少函数调用次数就等于降低了性能消耗。 
+**要知道调用一个函数除了函数本身的执行时间之外，还需要额外的时间去寻找这个函数（类内部有一个函数签名和函数地址的映射表）。所以减少函数调用次数就等于降低了性能消耗。** 
 
 final修饰的函数会被编译器优化，优化的结果是减少了函数调用的次数。如何实现的，举个例子给你看：
 
@@ -195,8 +195,8 @@ public class Test{
         System.out.println("g");
     } 
 	public void main(String[] args){ 
-	for(int j=0;j<1000;j++)   
-	func(); 
+		for(int j=0;j<1000;j++)   
+		func(); 
 	}
 } 
 
@@ -207,8 +207,7 @@ public class Test{
     }
 	
     public void main(String[] args){ 
-		for(int j=0;j<1000;j++)  
-		{
+		for(int j=0;j<1000;j++){
             System.out.println("g");
         } 
 	}
@@ -316,10 +315,9 @@ class Color{
     red blue yellow white 
     看！，黑色变成了白色。 
 
+在使用findbugs插件时，就会提示public static String[] color = { "red", "blue", "yellow", "black" };这行代码不安全，但加上final修饰，这行代码仍然是不安全的，因为final没有做到保证变量的值不会被修改！
 
-​    在使用findbugs插件时，就会提示public static String[] color = { "red", "blue", "yellow", "black" };这行代码不安全，但加上final修饰，这行代码仍然是不安全的，因为final没有做到保证变量的值不会被修改！
-​    
-​    原因是：final关键字只能保证变量本身不能被赋与新值，而不能保证变量的内部结构不被修改。例如在main方法有如下代码Color.color = new String[]{""};就会报错了。
+原因是：final关键字只能保证变量本身不能被赋与新值，而不能保证变量的内部结构不被修改。例如在main方法有如下代码Color.color = new String[]{""};就会报错了。
 
 ### 如何保证数组内部不被修改
 
@@ -402,135 +400,6 @@ class Sub extends PrivateFinalMethodTest{
 	public void test(){}
 }
 ```
-
-
-## final 和 jvm的关系
-
-与前面介绍的锁和 volatile 相比较，对 final 域的读和写更像是普通的变量访问。对于 final 域，编译器和处理器要遵守两个重排序规则：
-
-1.  在构造函数内对一个 final 域的写入，与随后把这个被构造对象的引用赋值给一个引用变量，这两个操作之间不能重排序。
-2.  初次读一个包含 final 域的对象的引用，与随后初次读这个 final 域，这两个操作之间不能重排序。
-
-下面，我们通过一些示例性的代码来分别说明这两个规则：
-
-
-```java
-public class FinalExample {
-    int i;                            // 普通变量 
-    final int j;                      //final 变量 
-    static FinalExample obj;
-    
-    public void FinalExample () {     // 构造函数 
-        i = 1;                        // 写普通域 
-        j = 2;                        // 写 final 域 
-    }
-
-    public static void writer () {    // 写线程 A 执行 
-        obj = new FinalExample ();
-    }
-
-    public static void reader () {       // 读线程 B 执行 
-        FinalExample object = obj;       // 读对象引用 
-        int a = object.i;                // 读普通域 
-        int b = object.j;                // 读 final 域 
-    }
-}
-```
-这里假设一个线程 A 执行 writer () 方法，随后另一个线程 B 执行 reader () 方法。下面我们通过这两个线程的交互来说明这两个规则。
-
-### 写 final 域的重排序规则
-
-写 final 域的重排序规则禁止把 final 域的写重排序到构造函数之外。这个规则的实现包含下面 2 个方面：
-
-*   JMM 禁止编译器把 final 域的写重排序到构造函数之外。
-*   编译器会在 final 域的写之后，构造函数 return 之前，插入一个 StoreStore 屏障。这个屏障禁止处理器把 final 域的写重排序到构造函数之外。
-
-现在让我们分析 writer () 方法。writer () 方法只包含一行代码：finalExample = new FinalExample ()。这行代码包含两个步骤：
-
-1.  构造一个 FinalExample 类型的对象；
-2.  把这个对象的引用赋值给引用变量 obj。
-
-假设线程 B 读对象引用与读对象的成员域之间没有重排序（马上会说明为什么需要这个假设），下图是一种可能的执行时序：
-
-![](https://static001.infoq.cn/resource/image/66/3a/6628576a54f0ba625c8c3af4586cef3a.jpg)
-
-在上图中，写普通域的操作被编译器重排序到了构造函数之外，读线程 B 错误的读取了普通变量 i 初始化之前的值。而写 final 域的操作，被写 final 域的重排序规则“限定”在了构造函数之内，读线程 B 正确的读取了 final 变量初始化之后的值。
-
-写 final 域的重排序规则可以确保：在对象引用为任意线程可见之前，对象的 final 域已经被正确初始化过了，而普通域不具有这个保障。以上图为例，在读线程 B“看到”对象引用 obj 时，很可能 obj 对象还没有构造完成（对普通域 i 的写操作被重排序到构造函数外，此时初始值 2 还没有写入普通域 i）。
-
-### 读 final 域的重排序规则
-
-读 final 域的重排序规则如下：
-
-*   在一个线程中，初次读对象引用与初次读该对象包含的 final 域，JMM 禁止处理器重排序这两个操作（注意，这个规则仅仅针对处理器）。编译器会在读 final 域操作的前面插入一个 LoadLoad 屏障。
-
-初次读对象引用与初次读该对象包含的 final 域，这两个操作之间存在间接依赖关系。由于编译器遵守间接依赖关系，因此编译器不会重排序这两个操作。大多数处理器也会遵守间接依赖，大多数处理器也不会重排序这两个操作。但有少数处理器允许对存在间接依赖关系的操作做重排序（比如 alpha 处理器），这个规则就是专门用来针对这种处理器。
-
-reader() 方法包含三个操作：
-
-1.  初次读引用变量 obj;
-2.  初次读引用变量 obj 指向对象的普通域 j。
-3.  初次读引用变量 obj 指向对象的 final 域 i。
-
-现在我们假设写线程 A 没有发生任何重排序，同时程序在不遵守间接依赖的处理器上执行，下面是一种可能的执行时序：
-
-![](https://static001.infoq.cn/resource/image/a0/36/a0a9b023bc56ab97bbda8812cdca7236.png)
-
-在上图中，读对象的普通域的操作被处理器重排序到读对象引用之前。读普通域时，该域还没有被写线程 A 写入，这是一个错误的读取操作。而读 final 域的重排序规则会把读对象 final 域的操作“限定”在读对象引用之后，此时该 final 域已经被 A 线程初始化过了，这是一个正确的读取操作。
-
-读 final 域的重排序规则可以确保：在读一个对象的 final 域之前，一定会先读包含这个 final 域的对象的引用。在这个示例程序中，如果该引用不为 null，那么引用对象的 final 域一定已经被 A 线程初始化过了。
-
-### 如果 final 域是引用类型
-
-上面我们看到的 final 域是基础数据类型，下面让我们看看如果 final 域是引用类型，将会有什么效果？
-
-请看下列示例代码：
-
-```java
-public class FinalReferenceExample {
-	final int[] intArray;                     //final 是引用类型 
-	static FinalReferenceExample obj;
-   
-    public FinalReferenceExample () {        // 构造函数 
-        intArray = new int[1];              //1
-        intArray[0] = 1;                   //2
-    }
-
-    public static void writerOne () {          // 写线程 A 执行 
-        obj = new FinalReferenceExample ();  //3
-    }
-
-    public static void writerTwo () {          // 写线程 B 执行 
-        obj.intArray[0] = 2;                 //4
-    }
-
-    public static void reader () {              // 读线程 C 执行 
-        if (obj != null) {                    //5
-            int temp1 = obj.intArray[0];       //6
-        }
-    }
-}
-
-
-
-
-```
-
-
-
-这里 final 域为一个引用类型，它引用一个 int 型的数组对象。对于引用类型，写 final 域的重排序规则对编译器和处理器增加了如下约束：
-
-1.  在构造函数内对一个 final 引用的对象的成员域的写入，与随后在构造函数外把这个被构造对象的引用赋值给一个引用变量，这两个操作之间不能重排序。
-
-对上面的示例程序，我们假设首先线程 A 执行 writerOne() 方法，执行完后线程 B 执行 writerTwo() 方法，执行完后线程 C 执行 reader () 方法。下面是一种可能的线程执行时序：
-
-![](https://static001.infoq.cn/resource/image/29/db/29b097c36fd531028991826bb7c835db.png)
-
-在上图中，1 是对 final 域的写入，2 是对这个 final 域引用的对象的成员域的写入，3 是把被构造的对象的引用赋值给某个引用变量。这里除了前面提到的 1 不能和 3 重排序外，2 和 3 也不能重排序。
-
-JMM 可以确保读线程 C 至少能看到写线程 A 在构造函数中对 final 引用对象的成员域的写入。即 C 至少能看到数组下标 0 的值为 1。而写线程 B 对数组元素的写入，读线程 C 可能看的到，也可能看不到。JMM 不保证线程 B 的写入对读线程 C 可见，因为写线程 B 和读线程 C 之间存在数据竞争，此时的执行结果不可预知。
-
-如果想要确保读线程 C 看到写线程 B 对数组元素的写入，写线程 B 和读线程 C 之间需要使用同步原语（lock 或 volatile）来确保内存可见性。
 
 ## 参考文章
 

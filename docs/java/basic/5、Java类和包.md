@@ -72,8 +72,7 @@ public  class  Something{
 
 中文翻译过来就是：dt.jar是BeanInfo文件的DesignTime归档，BeanInfo文件用来告诉集成开发环境（IDE）如何显示Java组件还有如何让开发人员根据应用程序自定义它们。这段文字中提到了几个关键字：DesignTime,BeanInfo,IDE，Java components。其实dt.jar就是DesignTime Archive的缩写。那么何为DesignTime。
 
-何为DesignTime?翻译过来就是设计时。其实了解JavaBean的人都知道design time和runtime（运行时）这两个术语的含义。设计时（DesignTIme）是指在开发环境中通过添加控件，设置控件或窗体属性等方法，建立应用程序的时间。
-与此相对应的运行时（RunTIme）是指可以象用户那样与应用程序交互作用的时间。那么现在再理解一下上面的翻译，其实dt.jar包含了swing控件中的BeanInfo，而IDE的GUI Designer需要这些信息。那让我们看一下dt.jar中到底有什么？下面是一张dt.jar下面的内容截图：
+何为DesignTime?翻译过来就是设计时。其实了解JavaBean的人都知道design time和runtime（运行时）这两个术语的含义。**设计时（DesignTIme）是指在开发环境中通过添加控件，设置控件或窗体属性等方法，建立应用程序的时间。与此相对应的运行时（RunTIme）是指可以象用户那样与应用程序交互作用的时间。**那么现在再理解一下上面的翻译，其实dt.jar包含了swing控件中的BeanInfo，而IDE的GUI Designer需要这些信息。那让我们看一下dt.jar中到底有什么？下面是一张dt.jar下面的内容截图：
 
 ![image](http://www.blogjava.net/images/blogjava_net/landon/dt-jar.jpg)从上面的截图可以看出，dt.jar中全部是Swing组件的BeanInfo。那么到底
 
@@ -88,7 +87,7 @@ BeanInfo与JavaBean之间的对应关系，通过两者之间规范的命名确�
 dt.jar里面主要是swing组件的BeanInfo。IDE根据这些BeanInfo显示这些组件以及开发人员如何定制他们。
 
 ### rt.jar
-rt.jar是runtime的归档。Java基础类库，也就是Java doc里面看到的所有的类的class文件。
+rt.jar是runtime的归档。**Java基础类库，也就是Java doc里面看到的所有的类的class文件。**
 
 ![image](https://img-blog.csdnimg.cn/20181115130130739.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2Z1aGFuZ2hhbmc=,size_16,color_FFFFFF,t_70)
 
@@ -166,9 +165,7 @@ rt.jar 默认就在Root Classloader的加载路径里面的，而在Claspath配�
 
 > （String[] args）：函数的参数，参数类型是一个数组，该数组中的元素师字符串，字符串数组。main(String[] args) 字符串数组的 此时空数组的长度是0，但也可以在 运行的时候向其中传入参数。
 
-主函数时固定格式的，JVM识别
-
-主函数可以被重载，但是JVM只识别main（String[] args），其他都是作为一般函数。这里面的args知识数组变量可以更改，其他都不能更改。
+主函数是固定格式的，主函数可以被重载，但是JVM只识别main（String[] args），其他都是作为一般函数。这里面的args知识数组变量可以更改，其他都不能更改。
 
 一个java文件中可以包含很多个类，每个类中有且仅有一个主函数，但是每个java文件中可以包含多个主函数，在运行时，需要指定JVM入口是哪个。例如一个类的主函数可以调用另一个类的主函数。不一定会使用public类的主函数。
 
@@ -204,15 +201,15 @@ class A{
 
 ### Java包的命名规则
 
-> 以 java.* 开头的是Java的核心包，所有程序都会使用这些包中的类；
+> **以 java.* 开头的是Java的核心包**，所有程序都会使用这些包中的类；
 
-> 以 javax.* 开头的是扩展包，x 是 extension 的意思，也就是扩展。虽然 javax.* 是对 java.* 的优化和扩展，但是由于 javax.* 使用的越来越多，很多程序都依赖于 javax.*，所以 javax.* 也是核心的一部分了，也随JDK一起发布。
+> **以 javax.* 开头的是扩展包**，x 是 extension 的意思，也就是扩展。虽然 javax.* 是对 java.* 的优化和扩展，但是由于 javax.* 使用的越来越多，很多程序都依赖于 javax.*，所以 javax.* 也是核心的一部分了，也随JDK一起发布。
 
-> 以 org.* 开头的是各个机构或组织发布的包，因为这些组织很有影响力，它们的代码质量很高，所以也将它们开发的部分常用的类随JDK一起发布。
+> **以 org.* 开头的是各个机构或组织发布的包，因为这些组织很有影响力，它们的代码质量很高，所以也将它们开发的部分常用的类随JDK一起发布。**
 
 > 在包的命名方面，为了防止重名，有一个惯例：大家都以自己域名的倒写形式作为开头来为自己开发的包命名，例如百度发布的包会以 com.baidu.* 开头，w3c组织发布的包会以 org.w3c.* 开头，微学苑发布的包会以 net.weixueyuan.* 开头……
 
-> 组织机构的域名后缀一般为 org，公司的域名后缀一般为 com，可以认为 org.* 开头的包为非盈利组织机构发布的包，它们一般是开源的，可以免费使用在自己的产品中，不用考虑侵权问题，而以 com.* 开头的包往往由盈利性的公司发布，可能会有版权问题，使用时要注意。
+> **组织机构的域名后缀一般为 org，公司的域名后缀一般为 com**，可以认为 org.* 开头的包为非盈利组织机构发布的包，它们一般是开源的，可以免费使用在自己的产品中，不用考虑侵权问题，而以 com.* 开头的包往往由盈利性的公司发布，可能会有版权问题，使用时要注意。
 
 
 
