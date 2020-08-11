@@ -54,7 +54,7 @@ public class StringDemo3 {
 
 ### ==运算符和equals之间的区别
 
-引用指向的地址和引用指向的内容
+**引用指向的地址和引用指向的内容**
 
 ![](https://img2018.cnblogs.com/blog/710412/201902/710412-20190214223341972-1204335921.png)
 
@@ -79,18 +79,20 @@ public class StringDemo5 {
 
 ### 字符串的不可变性
 
-String的对象一旦被创建，则不能修改，是不可变的
-所谓的修改其实是创建了新的对象，所指向的内存空间不变
+String的对象一旦被创建，则不能修改，是不可变的。**所谓的修改其实是创建了新的对象，所指向的内存空间不变。**
 
 ![](https://img2018.cnblogs.com/blog/710412/201902/710412-20190214224055939-746946317.png)
 
 上图中，s1不再指向imooc所在的内存空间，而是指向了hello,imooc
 ### String的连接
 
+表达式只有常量时，编译期完成计算。
+表达式有变量时，运行期才计算，所以地址不一样。
+
 ```java
 @Test
 public void contact () {
-    //1连接方式
+    //连接方式
     String s1 = "a";
     String s2 = "a";
     String s3 = "a" + s2;
@@ -105,21 +107,19 @@ public void contact () {
 }
 ```
 ### String、String builder和String buffer的区别
-String是Java中基础且重要的类，并且String也是Immutable类的典型实现，被声明为final class，除了hash这个属性其它属性都声明为final,因为它的不可变性，所以例如拼接字符串时候会产生很多无用的中间对象，如果频繁的进行这样的操作对性能有所影响。
+String是Java中基础且重要的类，并且String也是Immutable类的典型实现，被声明为final class，除了hash这个属性其它属性都声明为final，**因为它的不可变性，所以例如拼接字符串时候会产生很多无用的中间对象，如果频繁的进行这样的操作对性能有所影响。**
 
 **StringBuffer就是为了解决大量拼接字符串时产生很多中间对象问题而提供的一个类**，提供append和add方法，可以将字符串添加到已有序列的末尾或指定位置，它的本质是一个线程安全的可修改的字符序列，把所有修改数据的方法都加上了synchronized。但是保证了线程安全是需要性能的代价的。
 
 在很多情况下我们的字符串拼接操作不需要线程安全，这时候StringBuilder登场了，StringBuilder是JDK1.5发布的，它和StringBuffer本质上没什么区别，就是去掉了保证线程安全的那部分，减少了开销。
 
-StringBuffer 和 StringBuilder 二者都继承了 AbstractStringBuilder ，**底层都是利用可修改的char数组(JDK 9 以后是 byte数组)。**
-
-所以如果我们有大量的字符串拼接，如果能预知大小的话最好在new StringBuffer 或者StringBuilder 的时候设置好capacity，避免多次扩容的开销。扩容要抛弃原有数组，还要进行数组拷贝创建新的数组。
+StringBuffer 和 StringBuilder 二者都继承了 AbstractStringBuilder ，**底层都是利用可修改的char数组(JDK 9 以后是 byte数组)。所以如果我们有大量的字符串拼接，如果能预知大小的话最好在new StringBuffer 或者StringBuilder 的时候设置好capacity，避免多次扩容的开销。扩容要抛弃原有数组，还要进行数组拷贝创建新的数组。**
 
 我们平日开发通常情况下少量的字符串拼接其实没太必要担心，例如
 
 String str = "aa"+"bb"+"cc";
 
-**像这种没有变量的字符串，编译阶段就直接合成"aabbcc"了**，然后看字符串常量池（下面会说到常量池）里有没有，有也直接引用，没有就在常量池中生成，返回引用。
+**像这种没有变量的字符串，编译阶段就直接合成"aabbcc"了**，**然后看字符串常量池（下面会说到常量池）里有没有，有直接引用，没有就在常量池中生成，返回引用。**
 
 如果是带变量的，其实影响也不大，JVM会帮我们优化了。
 
@@ -132,6 +132,8 @@ String str = "aa"+"bb"+"cc";
 ## 源码分析
 
 ### String类型的intern
+
+调用intern时,如果字符不在常量池，则加入常量池并返回常量的引用。
 
 ```java
 //string的intern使用
@@ -242,7 +244,7 @@ private void ensureCapacityInternal(int minimumCapacity) {
 ```
 
 如果新字符串长度大于value数组长度则进行扩容
-扩容后的长度一般为原来的两倍 + 2；
+**扩容后的长度一般为原来的两倍 + 2；**
 假如扩容后的长度超过了jvm支持的最大数组长度MAX_ARRAY_SIZE。
 考虑两种情况
 如果新的字符串长度超过int最大值，则抛出异常，否则直接使用数组最大长度作为新数组的长度。
@@ -302,7 +304,7 @@ public AbstractStringBuilder delete(int start, int end) {
 
 Java栈（线程私有数据区）：
 
->  每个Java虚拟机线程都有自己的Java虚拟机栈，Java虚拟机栈用来存放栈帧，每个方法被执行的时候都会同时创建一个栈帧（Stack Frame）用于存储局部变量表、操作栈、动态链接、方法出口等信息。每一个方法被调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中从入栈到出栈的过程。
+>  每个Java虚拟机线程都有自己的Java虚拟机栈，Java虚拟机栈用来存放栈帧，每个方法被执行的时候都会同时创建一个栈帧（Stack Frame）用于存储局部变量表、操作栈、动态链接、对象引用、方法出口等信息。每一个方法被调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中从入栈到出栈的过程。
 >
 
 
@@ -331,12 +333,12 @@ Java堆（线程共享数据区）：
 
 字符串常量池：
 
-> 字符串常量池存在运行时常量池之中（在JDK7之前存在运行时常量池之中，在JDK7已经将其转移到堆中）。
+> 字符串常量池存在运行时常量池之中（**在JDK7之前存在运行时常量池之中，在JDK7已经将其转移到堆中**）。
 > 字符串常量池的存在使JVM提高了性能和减少了内存开销。
 >
-> 使用字符串常量池，每当我们使用字面量（String s=”1”;）创建字符串常量时，JVM会首先检查字符串常量池，如果该字符串已经存在常量池中，那么就将此字符串对象的地址赋值给引用s（引用s在Java栈中）。如果字符串不存在常量池中，就会实例化该字符串并且将其放到常量池中，并将此字符串对象的地址赋值给引用s（引用s在Java栈中）。
+> 使用字符串常量池，每当我们**使用字面量（String s=”1”;）创建字符串常量时**，JVM会首先检查字符串常量池，如果该字符串已经存在常量池中，那么就将此字符串对象的地址赋值给引用s（引用s在Java栈中）。如果字符串不存在常量池中，就会实例化该字符串并且将其放到常量池中，并将此字符串对象的地址赋值给引用s（引用s在Java栈中）。
 >
-> 使用字符串常量池，每当我们使用关键字new（String s=new String(”1”);）创建字符串常量时，JVM会首先检查字符串常量池，**如果该字符串已经存在常量池中，那么不再在字符串常量池创建该字符串对象，而直接堆中复制该对象的副本，然后将堆中对象的地址赋值给引用s，如果字符串不存在常量池中，就会实例化该字符串并且将其放到常量池中，然后在堆中复制该对象的副本，然后将堆中对象的地址赋值给引用s。**
+> 使用字符串常量池，每当我们**使用关键字new（String s=new String(”1”);）创建字符串常量时**，JVM会首先检查字符串常量池，**如果该字符串已经存在常量池中，那么不再在字符串常量池创建该字符串对象，而直接堆中复制该对象的副本，然后将堆中对象的地址赋值给引用s，如果字符串不存在常量池中，就会实例化该字符串并且将其放到常量池中，然后在堆中复制该对象的副本，然后将堆中对象的地址赋值给引用s。（<u>多个一步在堆中复制副本的操作</u>）**
 
 ## 什么是不可变？
 
@@ -427,12 +429,13 @@ public void final修饰类() {
 问题描述
 很多时候我们需要对字符串进行很多固定的操作,而这些操作在JDK/JRE中又没有预置,于是我们想到了apache-commons组件,但是它也不能完全覆盖我们的业务需求,所以很多时候还是要自己写点代码的,下面就是基于apache-commons组件写的部分常用方法:
 
-    MAVEN依赖
-    <dependency>
-    	<groupId>org.apache.commons</groupId>
-    	<artifactId>commons-lang3</artifactId>
-    	<version>${commons-lang3.version}</version>
-     </dependency>
+```xml
+<dependency>
+	<groupId>org.apache.commons</groupId>
+	<artifactId>commons-lang3</artifactId>
+	<version>${commons-lang3.version}</version>
+</dependency>
+```
 
 ## 参考文章
 [https://blog.csdn.net/qq_34490018/article/details/82110578](https://blog.csdn.net/qq_34490018/article/details/82110578)

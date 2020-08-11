@@ -134,7 +134,7 @@ Java语言提供了八种基本类型。六种数字类型（四个整数型，�
 ### 引用类型
 
 - 在Java中，引用类型的变量非常类似于C/C++的指针。引用类型指向一个对象，指向对象的变量是引用变量。这些变量在声明时被指定为一个特定的类型，比如 Employee、Puppy 等。变量一旦声明后，类型就不能被改变了。
-- 对象、数组都是引用数据类型。
+- **对象、数组都是引用数据类型。**
 - 所有引用类型的默认值都是null。
 - 一个引用变量可以用来引用任何与之兼容的类型。
 - 例子：Site site = new Site("Runoob")。
@@ -173,7 +173,7 @@ Integer value = Integer.valueOf(10);
 //Integer value = 10;`
 ```
 
-在Java 5中，可以直接将整型赋给Integer对象，由编译器来完成从int型到Integer类型的转换，这就叫自动装箱。
+在Java 5中，可以直接将整型赋给Integer对象，**由编译器来完成从int型到Integer类型的转换（编译期特性）**，这就叫自动装箱。
 
 ```java
 //在Java 5中，直接赋值是合法的，由编译器来完成转换
@@ -194,9 +194,7 @@ int i = value;
 
 - 实例方法xxxValue()：将具体的包装类型对象转换成基本类型；
 
-  
-
-  下面我们以int和Integer为例，说明Java中自动装箱与自动拆箱的实现机制。看如下代码：
+下面我们以int和Integer为例，说明Java中自动装箱与自动拆箱的实现机制。看如下代码：
 
 ```java
 //code1
@@ -227,12 +225,8 @@ public class Auto {
 }
 ```
 
-
-​    
-
-
-我们可以看到经过javac编译之后，code1的代码被转换成了code2，实际运行时，虚拟机运行的就是code2的代码。也就是说，**虚拟机根本不知道有自动拆箱和自动装箱这回事；**在将Java源文件编译为class文件的过程中，javac编译器在自动装箱的时候，调用了Integer.valueOf()方法，在自动拆箱时，又调用了intValue()方法。我们可以看到，double和Double也是如此。
-**实现总结：**其实自动装箱和自动封箱是编译器为我们提供的一颗语法糖。在自动装箱时，编译器调用包装类型的valueOf()方法；在自动拆箱时，编译器调用了相应的xxxValue()方法。
+我们可以看到经过javac编译之后，code1的代码被转换成了code2，实际运行时，虚拟机运行的就是code2的代码。也就是说，**虚拟机根本不知道有自动拆箱和自动装箱这回事；在将Java源文件编译为class文件的过程中，javac编译器在自动装箱的时候，调用了Integer.valueOf()方法，在自动拆箱时，又调用了intValue()方法。我们可以看到，double和Double也是如此。**
+**实现总结：**<u>其实自动装箱和自动封箱是编译器为我们提供的一颗语法糖。在自动装箱时，编译器调用包装类型的valueOf()方法；在自动拆箱时，编译器调用了相应的xxxValue()方法。</u>
 
 ### 自动装箱与拆箱中的“坑”
 
@@ -251,6 +245,8 @@ public final class Integer extends Number implements Comparable<Integer> {
     }
 
     /*equals()方法判断的是:所代表的int型的值是否相等*/
+    // 先判断类型
+    // 再判断值
     public boolean equals(Object obj) {
         if (obj instanceof Integer) {
             return value == ((Integer) obj).intValue();
@@ -342,7 +338,7 @@ System.out.println(a1 == a3);
 ### 了解基本类型缓存（常量池）的最佳实践
 
 ```java
-//基本数据类型的常量池是-128到127之间。
+// 基本数据类型的常量池是-128到127之间。
 // 在这个范围中的基本数据类的包装类可以自动拆箱，比较时直接比较数值大小。
 public static void main(String[]args){
         //int的自动拆箱和装箱只在-128到127范围中进行，超过该范围的两个integer的 == 判断是会返回false的。
@@ -406,9 +402,9 @@ public static void main(String[]args){
 
 （1）当需要一个对象的时候会自动装箱，比如Integer a = 10;equals(Object o)方法的参数是Object对象，所以需要装箱。
 
-（2）当需要一个基本类型时会自动拆箱，比如int a = new Integer(10);算术运算是在基本类型间进行的，所以当遇到算术运算时会自动拆箱，比如代码中的 c == (a + b);
+（2）当需要一个基本类型时会自动拆箱，比如int a = new Integer(10);**算术运算是在基本类型间进行的，所以当遇到算术运算时会自动拆箱**，比如代码中的 c == (a + b);
 
-（3） 包装类型 == 基本类型时，包装类型自动拆箱；
+（3） **包装类型 == 基本类型时，包装类型自动拆箱；**
 
 需要注意的是：“==”在没遇到算术运算时，不会自动拆箱；基本类型只会自动装箱为对应的包装类型，代码中最后一条说明的内容。
 
@@ -426,9 +422,9 @@ public static void main(String[]args){
 
 （5）Character复用了[0,127],Charater不能表示负数;
 
-Double和Float是连续不可数的，所以没法复用对象，也就不存在自动装箱复用陷阱。
+**Double和Float是连续不可数的，所以没法复用对象，也就不存在自动装箱复用陷阱。**
 
-Boolean没有自动装箱与拆箱，它也复用了Boolean.TRUE和Boolean.FALSE，通过Boolean.valueOf(boolean b)返回的Blooean对象要么是TRUE，要么是FALSE，这点也要注意。
+**Boolean没有自动装箱与拆箱，它也复用了Boolean.TRUE和Boolean.FALSE，通过Boolean.valueOf(boolean b)返回的Blooean对象要么是TRUE，要么是FALSE，这点也要注意。**
 
 本文介绍了“真实的”自动装箱与拆箱，为了避免写出错误的代码，又从包装类型的源码入手，指出了各种包装类型在自动装箱和拆箱时存在的陷阱，同时指出了自动装箱与拆箱发生的时机。
 
@@ -510,14 +506,13 @@ private static class IntegerCache {
 }
 ```
 
-所以基本数据类型的包装类型可以在常量池查找对应值的对象，找不到就会自动在常量池创建该值的对象。
+**所以基本数据类型的包装类型可以在常量池查找对应值的对象，找不到就会自动在常量池创建该值的对象。**
 
-而String类型可以通过intern来完成这个操作。
+**而String类型可以通过intern来完成这个操作。**
 
-JDK1.7后，常量池被放入到堆空间中，这导致intern()函数的功能不同，具体怎么个不同法，且看看下面代码，这个例子是网上流传较广的一个例子，分析图也是直接粘贴过来的，这里我会用自己的理解去解释这个例子：
+**JDK1.7后，常量池被放入到堆空间中，这导致intern()函数的功能不同，**具体怎么个不同法，且看看下面代码，这个例子是网上流传较广的一个例子，分析图也是直接粘贴过来的，这里我会用自己的理解去解释这个例子：
 
 ```java
-[java] view plain copy
 String s = new String("1");  
 s.intern();  
 String s2 = "1";  
@@ -527,9 +522,8 @@ String s3 = new String("1") + new String("1");
 s3.intern();  
 String s4 = "11";  
 System.out.println(s3 == s4);  
-输出结果为：
 
-[java] view plain copy
+输出结果为：
 JDK1.6以及以下：false false  
 JDK1.7以及以上：false true
 ```
@@ -539,7 +533,7 @@ JDK1.7以及以上：false true
 ​                          ![image](https://img-blog.csdn.net/20180422231929413?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2E3MjQ4ODg=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
 JDK1.6查找到常量池存在相同值的对象时会直接返回该对象的地址。
 
-JDK 1.7后，intern方法还是会先去查询常量池中是否有已经存在，如果存在，则返回常量池中的引用，这一点与之前没有区别，区别在于，如果在常量池找不到对应的字符串，则不会再将字符串拷贝到常量池，而只是在常量池中生成一个对原字符串的引用。
+JDK 1.7后，intern方法还是会先去查询常量池中是否有已经存在，如果存在，则返回常量池中的引用，这一点与之前没有区别，**区别在于，如果在常量池找不到对应的字符串，则不会再将字符串拷贝到常量池，而只是在常量池中生成一个对原字符串的引用。**
 
 那么其他字符串在常量池找值时就会返回另一个堆中对象的地址。
 
