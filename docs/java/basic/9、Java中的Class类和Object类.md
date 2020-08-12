@@ -1,7 +1,7 @@
 ## Java中Class类及用法
 Java程序在运行时，Java运行时系统一直对所有的对象进行所谓的运行时类型标识，即所谓的RTTI。
 
-> 这项信息纪录了每个对象所属的类。虚拟机通常使用运行时类型信息选择正确方法去执行，用来保存这些类型信息的类是Class类。Class类封装一个对象和接口运行时的状态，当装载类时，Class类型的对象自动创建。
+> 这项信息记录了每个对象所属的类。虚拟机通常使用运行时类型信息选择正确方法去执行，用来保存这些类型信息的类是Class类。Class类封装一个对象和接口运行时的状态，当装载类时，Class类型的对象自动创建。
 
 说白了就是：
 
@@ -280,7 +280,7 @@ static {
 protected native Object clone() throwsCloneNotSupportedException;
 ```
 
-看，clode()方法又是一个被声明为native的方法，因此，我们知道了clone()方法并不是Java的原生方法，具体的实现是有C/C++完成的。clone英文翻译为"克隆"，其目的是创建并返回此对象的一个副本。
+clone()方法也是一个被声明为native的方法，因此，我们知道了clone()方法并不是Java的原生方法，具体的实现是有C/C++完成的。clone英文翻译为"克隆"，其目的是创建并返回此对象的一个副本。
 
 形象点理解，这有一辆科鲁兹，你看着不错，想要个一模一样的。你调用此方法即可像变魔术一样变出一辆一模一样的科鲁兹出来。配置一样，长相一样。但从此刻起，原来的那辆科鲁兹如果进行了新的装饰，与你克隆出来的这辆科鲁兹没有任何关系了。
 
@@ -349,33 +349,33 @@ public class clone方法 {
 
 ```java
 public class User implements Cloneable{
-public int id;
-public String name;
-public UserInfo userInfo;
+    public int id;
+    public String name;
+    public UserInfo userInfo;
 
-public static void main(String[] args) {
-    User user = new User();
-    UserInfo userInfo = new UserInfo();
-    user.userInfo = userInfo;
-   
-    System.out.println(user);
-    System.out.println(user.userInfo);
-    
-    try {
-        User copy = (User) user.clone();
-        System.out.println(copy);
-        System.out.println(copy.userInfo);
-    } catch (CloneNotSupportedException e) {
-        e.printStackTrace();
+    public static void main(String[] args) {
+        User user = new User();
+        UserInfo userInfo = new UserInfo();
+        user.userInfo = userInfo;
+
+        System.out.println(user);
+        System.out.println(user.userInfo);
+
+        try {
+            User copy = (User) user.clone();
+            System.out.println(copy);
+            System.out.println(copy.userInfo);
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
     }
-}
-//拷贝的User实例与原来不一样，是两个对象。
-//com.javase.Class和Object.Object方法.用到的类.User@4dc63996
-//com.javase.Class和Object.Object方法.用到的类.UserInfo@d716361
+    //拷贝的User实例与原来不一样，是两个对象。
+    //com.javase.Class和Object.Object方法.用到的类.User@4dc63996
+    //com.javase.Class和Object.Object方法.用到的类.UserInfo@d716361
 
-//而拷贝后对象的userinfo引用对象是同一个。所以这是浅拷贝
-//com.javase.Class和Object.Object方法.用到的类.User@6ff3c5b5
-//com.javase.Class和Object.Object方法.用到的类.UserInfo@d716361
+    //而拷贝后对象的userinfo引用对象是同一个。所以这是浅拷贝
+    //com.javase.Class和Object.Object方法.用到的类.User@6ff3c5b5
+    //com.javase.Class和Object.Object方法.用到的类.UserInfo@d716361
 }
 ```
 
@@ -397,7 +397,7 @@ public static void main(String[] args) {
 > 
 > 分配完内存之后，再调用构造函数，填充对象的各个域，这一步叫做对象的初始化，构造方法返回后，一个对象创建完毕，可以把他的引用（地址）发布到外部，在外部就可以使用这个引用操纵这个对象。
 > 
-> 而clone在第一步是和new相似的， 都是分配内存，调用clone方法时，分配的内存和源对象（即调用clone方法的对象）相同，然后再使用原对象中对应的各个域，填充新对象的域，
+> 而clone在第一步是和new相似的， 都是分配内存，调用clone方法时，分配的内存和源对象（即调用clone方法的对象）相同，然后再使用源对象中对应的各个域，填充新对象的域，
 > 
 > 填充完成之后，clone方法返回，一个新的相同的对象被创建，同样可以把这个新对象的引用发布到外部。
 
@@ -416,7 +416,7 @@ public final native Class<?> getClass();
 > 
 > 作为概念层次的类，其本身也具有某些共同的特性，如都具有类名称、由类加载器去加载，都具有包，具有父类，属性和方法等。
 > 
-> 于是，Java中有专门定义了一个类，Class，去描述其他类所具有的这些特性，因此，从此角度去看，类本身也都是属于Class类的对象。为与经常意义上的对象相区分，在此称之为"类对象"。
+> 于是，Java中有专门定义了一个类Class，去描述其他类所具有的这些特性，因此，从此角度去看，类本身也都是属于Class类的对象。为与经常意义上的对象相区分，在此称之为"类对象"。
 
 ```java
 public class getClass方法 {
@@ -457,7 +457,7 @@ public boolean equals(Object obj);
 >  
 > 与equals在Java中经常被使用，大家也都知道与equals的区别：
 >  
-> ==表示的是变量值完成相同（对于基础类型，地址中存储的是值，引用类型则存储指向实际对象的地址）；
+> ==表示的是变量地址完全相同（对于基础类型，地址中存储的是值，引用类型则存储指向实际对象的地址）；
 >  
 > equals表示的是对象的内容完全相同，此处的内容多指对象的特征/属性。
 
@@ -560,7 +560,7 @@ notifyAll(...)
 >  
 > wait()：调用此方法所在的当前线程等待，直到在其他线程上调用此方法的主调（某一对象）的notify()/notifyAll()方法。
 >  
-> wait(long timeout)/wait(long timeout, int nanos)：调用此方法所在的当前线程等待，直到在其他线程上调用此方法的主调（某一对象）的notisfy()/notisfyAll()方法，或超过指定的超时时间量。
+> wait(long timeout)/wait(long timeout, int nanos)：调用此方法所在的当前线程等待，直到在其他线程上调用此方法的主调（某一对象）的notify()/notifyAll()方法，或超过指定的超时时间量。
 >  
 > notify()/notifyAll()：唤醒在此对象监视器上等待的单个线程/所有线程。
 >  
@@ -641,7 +641,7 @@ public class wait和notify {
 
 >  从上述例子的输出结果中可以得出如下结论：
 >  
-> 1、wait(...)方法调用后当前线程将立即阻塞，且适当其所持有的同步代码块中的锁，直到被唤醒或超时或打断后且重新获取到锁后才能继续执行；
+> 1、wait(...)方法调用后当前线程将立即阻塞，且释放其所持有的同步代码块中的锁，直到被唤醒或超时或打断后且重新获取到锁后才能继续执行；
 >  
 > 2、notify()/notifyAll()方法调用后，其所在线程不会立即释放所持有的锁，直到其所在同步代码块中的代码执行完毕，此时释放锁，因此，如果其同步代码块后还有代码，其执行则依赖于JVM的线程调度。
 
@@ -659,7 +659,6 @@ public final void wait() throws InterruptedException {
 
 notify()/notifyAll()方法也都是native方法。
 
-Java中线程具有较多的知识点，是一块比较大且重要的知识点。后期会有博文专门针对Java多线程作出详细总结。此处不再细述。
 
 ### finalize()方法
 
@@ -677,7 +676,7 @@ protected void finalize() throws Throwable { }
 
 > 我们发现Object类中finalize方法被定义成一个空方法，为什么要如此定义呢？finalize方法的调用时机是怎么样的呢？
 >  
-> 首先，Object中定义finalize方法表明Java中每一个对象都将具有finalize这种行为，其具体调用时机在：JVM准备对此对形象所占用的内存空间进行垃圾回收前，将被调用。由此可以看出，此方法并不是由我们主动去调用的（虽然可以主动去调用，此时与其他自定义方法无异）。
+> 首先，Object中定义finalize方法表明Java中每一个对象都将具有finalize这种行为，其具体调用时机在：**JVM准备对此对形象所占用的内存空间进行垃圾回收前将被调用。** 由此可以看出，此方法并不是由我们主动去调用的（虽然可以主动去调用，此时与其他自定义方法无异）。
 
 ## CLass类和Object类的关系
 
@@ -704,7 +703,7 @@ https://www.zhihu.com/question/30301819
 > 
 > 事实是：这些相互依赖的核心类型完全可以在“混沌”中一口气都初始化好，然后对象系统的状态才叫做完成了“bootstrap”，后面就可以按照Java对象系统的一般规则去运行。JVM、JavaScript、Python、Ruby等的运行时都有这样的bootstrap过程。
 > 
-> 在“混沌”（boostrap过程）里，JVM可以为对象系统中最重要的一些核心类型先分配好内存空间，让它们进入[已分配空间]但[尚未完全初始化]状态。此时这些对象虽然已经分配了空间，但因为状态还不完整所以尚不可使用。
+> 在“混沌”（bootstrap过程）里，JVM可以为对象系统中最重要的一些核心类型先分配好内存空间，让它们进入[已分配空间]但[尚未完全初始化]状态。此时这些对象虽然已经分配了空间，但因为状态还不完整所以尚不可使用。
 > 
 > 然后，通过这些分配好的空间把这些核心类型之间的引用关系串好。到此为止所有动作都由JVM完成，尚未执行任何Java字节码。然后这些核心类型就进入了[完全初始化]状态，对象系统就可以开始自我运行下去，也就是可以开始执行Java字节码来进一步完成Java系统的初始化了。
 
@@ -715,6 +714,3 @@ https://www.jb51.net/article/125936.htm
 https://blog.csdn.net/dufufd/article/details/80537638
 https://blog.csdn.net/farsight1/article/details/80664104
 https://blog.csdn.net/xiaomingdetianxia/article/details/77429180
-
-
-
