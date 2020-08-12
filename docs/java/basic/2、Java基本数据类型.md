@@ -547,4 +547,8 @@ JDK 1.7后，intern方法还是会先去查询常量池中是否有已经存在�
 
 [https://blog.csdn.net/yuhongye111/article/details/31850779](https://blog.csdn.net/yuhongye111/article/details/31850779)
 
+[https://blog.csdn.net/a724888/article/details/80042298](https://blog.csdn.net/a724888/article/details/80042298)
+
+[https://blog.csdn.net/a724888/article/details/80033043](https://blog.csdn.net/a724888/article/details/80033043)
+
 
