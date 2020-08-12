@@ -7,7 +7,6 @@
 - [x] Java类和包
 - [x] 抽象类和接口
 - [x] 代码块和代码执行顺序
-- [ ] Java自动拆箱装箱里隐藏的秘密
 - [x] Java中的Class类和Object类
 - [ ] Java异常
 
