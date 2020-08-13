@@ -17,7 +17,7 @@
 > 
 > 但是这种方式，由于方法a()不等待方法b()的执行完成，在方法a()需要方法b()执行结果的情况下（视具体业务而定，有些业务比如启异步线程发个微信通知、刷新一个缓存这种就没必要），必须通过一定的方式对方法b()的执行结果进行监听。
 > 
-> 在Java中，可以使用Future+Callable的方式做到这一点，具体做法可以参见文章**Java多线程21：多线程下其他组件之CyclicBarrier、Callable、Future和FutureTask。**
+> 在Java中，可以使用Future+Callable的方式做到这一点。
 
 （3）回调
 
@@ -84,11 +84,9 @@ public class 多线程中的回调 {
 
 ## Java回调机制实战
 
-曾经自己偶尔听说过回调机制，隐隐约约能够懂一些意思，但是当让自己写一个简单的示例程序时，自己就傻眼了。随着工作经验的增加，自己经常听到这儿使用了回调，那儿使用了回调，自己是时候好好研究一下Java回调机制了。网上关于Java回调的文章一抓一大把，但是看完总是云里雾里，不知所云，特别是看到抓取别人的代码走两步时，总是现眼。于是自己决定写一篇关于Java机制的文章，以方便大家和自己更深入的学习Java回调机制。
+曾经自己偶尔听说过回调机制，隐隐约约能够懂一些意思，但是当让自己写一个简单的示例程序时，自己就傻眼了。随着工作经验的增加，自己经常听到这儿使用了回调，那儿使用了回调，自己是时候好好研究一下Java回调机制了。
 
-首先，什么是回调函数，引用百度百科的解释：回调函数就是一个通过函数指针调用的函数。如果你把函数的指针（地址）作为参数传递给另一个函数，当这个指针被用来调用其所指向的函数时，我们就说这是回调函数。回调函数不是由该函数的实现方直接调用，而是在特定的事件或条件发生时由另外的一方调用的，用于对该事件或条件进行响应[2].
-
-不好意思，上述解释我看了好几遍，也没理解其中深刻奥秘，相信一些读者你也一样。光说不练假把式，咱们还是以实战理解脉络。
+首先，什么是回调函数，引用百度百科的解释：回调函数就是一个通过函数指针调用的函数。如果你把函数的指针（地址）作为参数传递给另一个函数，当这个指针被用来调用其所指向的函数时，我们就说这是回调函数。回调函数不是由该函数的实现方直接调用，而是在特定的事件或条件发生时由另外的一方调用的，用于对该事件或条件进行响应.
 
 ### 实例一 ： 同步调用
 
@@ -121,7 +119,8 @@ package synchronization.demo;
 
 public class BottomService {
     public String bottom(String param) {
-    	try { //  模拟底层处理耗时，上层服务需要等待
+    	try { 
+            // 模拟底层处理耗时，上层服务需要等待
     		Thread.sleep(3000);
     	} catch (InterruptedException e) {
     		e.printStackTrace();
@@ -147,7 +146,6 @@ public interface UpperService {
 
 ```java
 package synchronization.demo;
-
 
 public class UpperServiceImpl implements UpperService {
 	private BottomService bottomService;
@@ -183,12 +181,12 @@ public class Test {
     	System.out.println("=============== callBottomService start ==================:" + new Date());
         
     	String result = upperService.callBottomService("callBottomService start --> ");
-    	//upperTaskAfterCallBottomService执行必须等待callBottomService()调用						//BottomService.bottom()方法返回后才能够执行
+    	//upperTaskAfterCallBottomService执行必须等待callBottomService()调用						
+        //BottomService.bottom()方法返回后才能够执行
     	upperService.upperTaskAfterCallBottomService(result);
     	System.out.println("=============== callBottomService end ====================:" + new Date());
     }
 }
-
 ```
 
 **1.1.5 输出结果:**
@@ -260,7 +258,7 @@ public class XiaoLi{//小李
 
 这样子就可以实现washFace()同时也能实现eat()。小李洗漱完后，再通知小明一起去吃饭，这就是回调。
 
-二、Java的回调-中
+**二、Java的回调-中**
 可是细心的伙伴可能会发现，小李的代码完全写死了，这样子的场合可能适用和小明一起去吃饭，可是假如小李洗漱完不吃饭了，想和小王上网去，这样子就不适用了。其实上面是伪代码，仅仅是帮助大家理解的，真正情况下是需要利用接口来设置回调的。现在我们继续用小明和小李去吃饭的例子来讲讲接口是如何使用的。
 
 小明和小李相约一起去吃早饭，但是小李起的有点晚要先洗漱，等小李洗漱完成后，通知小明再一起去吃饭。小明就是类A，小李就是类B。不同的是我们新建一个吃饭的接口EatRice，接口中有个抽象方法eat()。在小明中调用这个接口，并实现eat()；小李声明这个接口对象，并且调用这个接口的抽象方法。这里可能有点绕口，不过没关系，看看例子就很清楚了。
