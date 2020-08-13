@@ -1,20 +1,20 @@
 ## 为什么要使用异常
 
->   首先我们可以明确一点就是异常的处理机制可以确保我们程序的健壮性，提高系统可用率。虽然我们不是特别喜欢看到它，但是我们不能不承认它的地位，作用。
+>   首先我们可以明确一点就是异常的处理机制可以确保我们程序的健壮性，提高系统可用性。虽然我们不是特别喜欢看到它，但是我们不能不承认它的地位，作用。
 
 在没有异常机制的时候我们是这样处理的：通过函数的返回值来判断是否发生了异常（这个返回值通常是已经约定好了的），调用该函数的程序负责检查并且分析返回值。虽然可以解决异常问题，但是这样做存在几个缺陷：
-> 1、 容易混淆。如果约定返回值为-11111时表示出现异常，那么当程序最后的计算结果真的为-1111呢？
->   
-> 2、 代码可读性差。将异常处理代码和程序代码混淆在一起将会降低代码的可读性。
->   
-> 3、 由调用函数来分析异常，这要求程序员对库函数有很深的了解。
->   
 
- 在OO中提供的异常处理机制是提供代码健壮的强有力的方式。使用异常机制它能够降低错误处理代码的复杂度，如果不使用异常，那么就必须检查特定的错误，并在程序中的许多地方去处理它。
+> 1、 容易混淆。如果约定返回值为-11111时表示出现异常，那么当程序最后的计算结果真的为-11111呢？
+>
+> 2、 代码可读性差。将异常处理代码和程序代码混淆在一起将会降低代码的可读性。
+>
+> 3、 由调用函数来分析异常，这要求程序员对库函数有很深的了解。
+
+在OO中提供的异常处理机制是提供代码健壮的强有力的方式。使用异常机制它能够降低错误处理代码的复杂度，如果不使用异常，那么就必须检查特定的错误，并在程序中的许多地方去处理它。
 
 而如果使用异常，那就不必在方法调用处进行检查，因为异常机制将保证能够捕获这个错误，并且，只需在一个地方处理错误，即所谓的异常处理程序中。
 
-这种方式不仅节约代码，而且把“概述在正常执行过程中做什么事”的代码和“出了问题怎么办”的代码相分离。总之，与以前的错误处理方法相比，异常机制使代码的阅读、编写和调试工作更加井井有条。（摘自《Think in java 》）。
+这种方式不仅节约代码，而且把“概述在正常执行过程中做什么事”的代码和“出了问题怎么办”的代码相分离。总之，与以前的错误处理方法相比，异常机制使代码的阅读、编写和调试工作更加井井有条。（摘自《Think in java》）。
 
 该部分内容选自http://www.cnblogs.com/chenssy/p/3438130.html
 
@@ -34,26 +34,21 @@
 
 从上面这幅图可以看出，Throwable是java语言中所有错误和异常的超类（万物即可抛）。它有两个子类：Error、Exception。
 
-
-Java标准库内建了一些通用的异常，这些类以Throwable为顶层父类。
-
-Throwable又派生出Error类和Exception类。
-
 错误：Error类以及他的子类的实例，代表了JVM本身的错误。错误不能被程序员通过代码处理，Error很少出现。因此，程序员应该关注Exception为父类的分支下的各种异常类。
 
 异常：Exception以及他的子类，代表程序运行时发送的各种不期望发生的事件。可以被Java异常处理机制使用，是异常处理的核心。
 
 总体上我们根据Javac对异常的处理要求，将异常类分为2类。
 
-> 非检查异常（unckecked exception）：Error 和 RuntimeException 以及他们的子类。javac在编译时，不会提示和发现这样的异常，不要求在程序处理这些异常。所以如果愿意，我们可以编写代码处理（使用try…catch…finally）这样的异常，也可以不处理。
-
+> **非检查异常（unckecked exception）：Error 和 RuntimeException 以及他们的子类。**javac在编译时，不会提示和发现这样的异常，不要求在程序处理这些异常。所以如果愿意，我们可以编写代码处理（使用try…catch…finally）这样的异常，也可以不处理。
+>
 > 对于这些异常，我们应该修正代码，而不是去通过异常处理器处理 。这样的异常发生的原因多半是代码写的有问题。如除0错误ArithmeticException，错误的强制类型转换错误ClassCastException，数组索引越界ArrayIndexOutOfBoundsException，使用了空对象NullPointerException等等。
 
-> 检查异常（checked exception）：除了Error 和 RuntimeException的其它异常。javac强制要求程序员为这样的异常做预备处理工作（使用try…catch…finally或者throws）。在方法中要么用try-catch语句捕获它并处理，要么用throws子句声明抛出它，否则编译不会通过。
-
+> **检查异常（checked exception）：除了Error 和 RuntimeException的其它异常。**javac强制要求程序员为这样的异常做预备处理工作（使用try…catch…finally或者throws）。在方法中要么用try-catch语句捕获它并处理，要么用throws子句声明抛出它，否则编译不会通过。
+>
 > 这样的异常一般是由程序的运行环境导致的。因为程序可能被运行在各种未知的环境下，而程序员无法干预用户如何使用他编写的程序，于是程序员就应该为这样的异常时刻准备着。如SQLException , IOException,ClassNotFoundException 等。
 
-需要明确的是：检查和非检查是对于javac来说的，这样就很好理解和区分了。
+**需要明确的是：检查和非检查是对于javac来说的，这样就很好理解和区分了。**
 
 这部分内容摘自http://www.importnew.com/26613.html
 
@@ -65,13 +60,11 @@ Throwable又派生出Error类和Exception类。
 
 ```java
 public class 异常 {
-    public static void main (String [] args )
-    {
+    public static void main (String [] args ){
         System . out. println( "----欢迎使用命令行除法计算器----" ) ;
         CMDCalculate ();
     }
-    public static void CMDCalculate ()
-    {
+    public static void CMDCalculate (){
         Scanner scan = new Scanner ( System. in );
         int num1 = scan .nextInt () ;
         int num2 = scan .nextInt () ;
@@ -79,6 +72,7 @@ public class 异常 {
         System . out. println( "result:" + result) ;
         scan .close () ;
     }
+    
     public static int devide (int num1, int num2 ){
         return num1 / num2 ;
     }
@@ -104,7 +98,7 @@ public class 异常 {
 
 从上面的例子可以看出，当devide函数发生除0异常时，devide函数将抛出ArithmeticException异常，因此调用他的CMDCalculate函数也无法正常完成，因此也发送异常，而CMDCalculate的caller——main 因为CMDCalculate抛出异常，也发生了异常，这样一直向调用栈的栈底回溯。
 
-这种行为叫做异常的冒泡，异常的冒泡是为了在当前发生异常的函数或者这个函数的caller中找到最近的异常处理程序。由于这个例子中没有使用任何异常处理机制，因此异常最终由main函数抛给JRE，导致程序终止。
+这种行为叫做异常的冒泡，**异常的冒泡**是为了在当前发生异常的函数或者这个函数的caller中找到最近的异常处理程序。由于这个例子中没有使用任何异常处理机制，因此异常最终由main函数抛给JRE，导致程序终止。
 
 > 上面的代码不使用异常处理机制，也可以顺利编译，因为2个异常都是非检查异常。但是下面的例子就必须使用异常处理机制，因为异常是检查异常。
 
@@ -113,6 +107,7 @@ public class 异常 {
 ## 异常和错误
 
 下面看一个例子
+
 ```java
 //错误即error一般指jvm无法处理的错误
 //异常是Java定义的用于简化错误处理流程和定位错误的一种工具。
@@ -123,7 +118,7 @@ public class 错误和错误 {
         throw new Error();
     }
 
-    //下面这四个异常或者错误有着不同的处理方法
+
     //编译期要求必须处理，因为这个异常是最顶层异常，包括了检查异常，必须要处理
     public void error1 (){
         try {
@@ -151,8 +146,9 @@ public class 错误和错误 {
     public void error4 (){
         throw new RuntimeException();
     }
-   //Exception in thread "main" java.lang.Error
-   //at com.javase.异常.错误.main(错误.java:11)
+    
+    //Exception in thread "main" java.lang.Error
+    //at com.javase.异常.错误.main(错误.java:11)
 
 }
 ```
@@ -225,14 +221,13 @@ public void main() {
     }
 ```
 
-一个try至少要跟一个catch或者finally
+**一个try至少要跟一个catch或者finally**
 
 ```java
-    try {
-        int i = 1;
-    }finally {
-        //一个try至少要有一个catch块，否则， 至少要有1个finally块。但是finally不是用来处理异常的，finally不会捕获异常。
-    }
+try {
+    int i = 1;
+}finally{
+    //一个try至少要有一个catch块，否则， 至少要有1个finally块。但是finally不是用来处理异常的，finally不会捕获异常。
 }
 ```
 
@@ -274,9 +269,9 @@ public void throwE (){
 
 其实有的语言在遇到异常后仍然可以继续运行
 
-> 有的编程语言当异常被处理后，控制流会恢复到异常抛出点接着执行，这种策略叫做：resumption model of exception handling（恢复式异常处理模式 ）
-> 
-> 而Java则是让执行流恢复到处理了异常的catch块后接着执行，这种策略叫做：termination model of exception handling（终结式异常处理模式）
+> **有的语言当异常被处理后，控制流会恢复到异常抛出点接着执行，这种策略叫做：resumption model of exception handling（恢复式异常处理模式 ）**
+>
+> **而Java则是让执行流恢复到处理了异常的catch块后接着执行，这种策略叫做：termination model of exception handling（终结式异常处理模式）**
 
 ## "不负责任"的throws
 
@@ -312,7 +307,8 @@ public class finally使用 {
             throw new IllegalAccessException();
         }catch (IllegalAccessException e) {
             // throw new Throwable();
-            //此时如果再抛异常，finally无法执行，只能报错。
+            // 此时如果再抛异常，finally无法执行，只能报错。
+           
             //finally无论何时都会执行
             //除非我显示调用。此时finally才不会执行
             System.exit(0);
@@ -335,8 +331,7 @@ throw 语句必须写在函数中，执行throw 语句的地方就是一个异�
 public void save(User user){
       if(user  == null) 
           throw new IllegalArgumentException("User对象为空");
-      //......
- 
+      //...... 
 }
 ```
 
@@ -346,11 +341,7 @@ public void save(User user){
 
 ## 异常调用链
 
-异常的链化
-
-在一些大型的，模块化的软件开发中，一旦一个地方发生异常，则如骨牌效应一样，将导致一连串的异常。假设B模块完成自己的逻辑需要调用A模块的方法，如果A模块发生异常，则B也将不能完成而发生异常。
-
-但是B在抛出异常时，会将A的异常信息掩盖掉，这将使得异常的根源信息丢失。异常的链化可以将多个模块的异常串联起来，使得异常信息不会丢失。
+在一些大型的，模块化的软件开发中，一旦一个地方发生异常，则如骨牌效应一样，将导致一连串的异常。假设B模块完成自己的逻辑需要调用A模块的方法，如果A模块发生异常，则B也将不能完成而发生异常。但是B在抛出异常时，会将A的异常信息掩盖掉，这将使得异常的根源信息丢失。异常的链化可以将多个模块的异常串联起来，使得异常信息不会丢失。
 
 > 异常链化:以一个异常对象为参数构造新的异常对象。新的异对象将包含先前异常的信息。这项技术主要是异常类的一个带Throwable参数的函数来实现的。这个当做参数的异常，我们叫他根源异常（cause）。
 
@@ -365,7 +356,8 @@ public class Throwable implements Serializable {
         detailMessage = message;
         this.cause = cause;
     }
-     public Throwable(Throwable cause) {
+    
+    public Throwable(Throwable cause) {
         fillInStackTrace();
         detailMessage = (cause==null ? null : cause.toString());
         this.cause = cause;
@@ -384,6 +376,7 @@ public class 异常链 {
     public void test() {
         C();
     }
+    
     public void A () throws Exception {
         try {
             int i = 1;
@@ -408,6 +401,7 @@ public class 异常链 {
         }
 
     }
+    
     public void B () throws Exception,Error {
         try {
             //接收到A的异常，
@@ -445,36 +439,32 @@ public class 异常链 {
 
 如果要自定义异常类，则扩展Exception类即可，因此这样的自定义异常都属于检查异常（checked exception）。如果要自定义非检查异常，则扩展自RuntimeException。
 
-按照国际惯例，自定义的异常应该总是包含如下的构造函数：
+> 按照国际惯例，自定义的异常应该总是包含如下的构造函数：
+>
+> - 一个无参构造函数
+> - 一个带有String参数的构造函数，并传递给父类的构造函数。
+> - 一个带有String参数和Throwable参数，并都传递给父类构造函数
+> - 一个带有Throwable 参数的构造函数，并传递给父类的构造函数。
 
-一个无参构造函数
-一个带有String参数的构造函数，并传递给父类的构造函数。
-一个带有String参数和Throwable参数，并都传递给父类构造函数
-一个带有Throwable 参数的构造函数，并传递给父类的构造函数。
 下面是IOException类的完整源代码，可以借鉴。
 
 ```java
-public class IOException extends Exception
-{
+public class IOException extends Exception{
     static final long serialVersionUID = 7818375828146090155L;
  
-    public IOException()
-    {
+    public IOException(){
         super();
     }
  
-    public IOException(String message)
-    {
+    public IOException(String message){
         super(message);
     }
  
-    public IOException(String message, Throwable cause)
-    {
+    public IOException(String message, Throwable cause){
         super(message, cause);
     }
  
-    public IOException(Throwable cause)
-    {
+    public IOException(Throwable cause){
         super(cause);
     }
 }
@@ -485,7 +475,7 @@ public class IOException extends Exception
 异常的注意事项
 
 > 当子类重写父类的带有 throws声明的函数时，其throws声明的异常必须在父类异常的可控范围内——用于处理父类的throws方法的异常处理器，必须也适用于子类的这个带throws方法 。这是为了支持多态。
-> 
+>
 > 例如，父类方法throws 的是2个异常，子类就不能throws 3个及以上的异常。父类throws IOException，子类就必须throws IOException或者IOException的子类。
 
 至于为什么？我想，也许下面的例子可以说明。
@@ -503,6 +493,7 @@ class Son extends Father{
     }
 }
 ```
+
 **假设上面的代码是允许的（实质是错误的）**
 
 ```java
@@ -529,7 +520,7 @@ class Test{
 Java的异常执行流程是线程独立的，线程之间没有影响
 
 > Java程序可以是多线程的。每一个线程都是一个独立的执行流，独立的函数调用栈。如果程序只有一个线程，那么没有被任何代码处理的异常 会导致程序终止。如果是多线程的，那么没有被任何代码处理的异常仅仅会导致异常所在的线程结束。
-> 
+>
 > 也就是说，Java中的异常是线程独立的，线程的问题应该由线程自己来解决，而不要委托到外部，也不会直接影响到其它线程的执行。
 
 下面看一个例子
@@ -540,6 +531,7 @@ public class 多线程的异常 {
     public void test() {
         go();
     }
+    
     public void go () {
         ExecutorService executorService = Executors.newFixedThreadPool(3);
         for (int i = 0;i <= 2;i ++) {
@@ -579,7 +571,7 @@ public class 多线程的异常 {
 
 首先一个不容易理解的事实：
 
-在 try块中即便有return，break，continue等改变执行流的语句，finally也会执行。
+**在 try块中即便有return，break，continue等改变执行流的语句，finally也会执行。**
 
 ```java
 public static void main(String[] args){
@@ -597,12 +589,12 @@ private static int bar() {
 finally
 */
 ```
+
 很多人面对这个问题时，总是在归纳执行的顺序和规律，不过我觉得还是很难理解。我自己总结了一个方法。用如下GIF图说明。
 
-也就是说：try…catch…finally中的return 只要能执行，就都执行了，他们共同向同一个内存地址（假设地址是0×80）写入返回值，后执行的将覆盖先执行的数据，而真正被调用者取的返回值就是最后一次写入的。那么，按照这个思想，下面的这个例子也就不难理解了。
+**也就是说：try…catch…finally中的return 只要能执行，就都执行了，他们共同向同一个内存地址（假设地址是0×80）写入返回值，后执行的将覆盖先执行的数据，而真正被调用者取的返回值就是最后一次写入的。**那么，按照这个思想，下面的这个例子也就不难理解了。
 
-
-finally中的return 会覆盖 try 或者catch中的返回值。
+**finally中的 return会覆盖 try 或者 catch 中的返回值。**
 
 ```java
 public static void main(String[] args){
@@ -637,12 +629,11 @@ public static int bar(){
 }
 ```
 
-finally中的return会抑制（消灭）前面try或者catch块中的异常
+**finally中的return会抑制（消灭）前面try或者catch块中的异常**
 
 ```java
 class TestException{
-    public static void main(String[] args)
-    {
+    public static void main(String[] args){
         int result;
         try{
             result = foo();
@@ -661,8 +652,7 @@ class TestException{
  
     //catch中的异常被抑制
     @SuppressWarnings("finally")
-    public static int foo() throws Exception
-    {
+    public static int foo() throws Exception{
         try {
             int a = 5/0;
             return 1;
@@ -675,8 +665,7 @@ class TestException{
  
     //try中的异常被抑制
     @SuppressWarnings("finally")
-    public static int bar() throws Exception
-    {
+    public static int bar() throws Exception{
         try {
             int a = 5/0;
             return 1;
@@ -686,7 +675,8 @@ class TestException{
     }
 }
 ```
-finally中的异常会覆盖（消灭）前面try或者catch中的异常
+
+**finally中的异常会覆盖（消灭）前面try或者catch中的异常**
 
 ```java
 class TestException{
@@ -707,8 +697,7 @@ class TestException{
  
     //catch中的异常被抑制
     @SuppressWarnings("finally")
-    public static int foo() throws Exception
-    {
+    public static int foo() throws Exception{
         try {
             int a = 5/0;
             return 1;
@@ -721,12 +710,11 @@ class TestException{
  
     //try中的异常被抑制
     @SuppressWarnings("finally")
-    public static int bar() throws Exception
-    {
+    public static int bar() throws Exception{
         try {
             int a = 5/0;
             return 1;
-        }finally {
+        }finally{
             throw new Exception("我是finaly中的Exception");
         }
  
@@ -734,55 +722,48 @@ class TestException{
 }
 ```
 
-上面的3个例子都异于常人的编码思维，因此我建议：
-
-> 不要在fianlly中使用return。
-
-> 不要在finally中抛出异常。
-
-> 减轻finally的任务，不要在finally中做一些其它的事情，finally块仅仅用来释放资源是最合适的。
-
-> 将尽量将所有的return写在函数的最后面，而不是try … catch … finally中。
+> 上面的3个例子都异于常人的编码思维，因此我建议：
+>
+> - 不要在fianlly中使用return。
+>
+> - 不要在finally中抛出异常。
+>
+> - 减轻finally的任务，不要在finally中做一些其它的事情，finally块仅仅用来释放资源是最合适的。
+>
+> - 将尽量将所有的return写在函数的最后面，而不是try … catch … finally中。
 
 ## JAVA异常常见面试题
 
-​	   下面是我个人总结的在Java和J2EE开发者在面试中经常被问到的有关Exception和Error的知识。在分享我的回答的时候，我也给这些问题作了快速修订，并且提供源码以便深入理解。我总结了各种难度的问题，适合新手码农和高级Java码农。如果你遇到了我列表中没有的问题，并且这个问题非常好，请在下面评论中分享出来。你也可以在评论中分享你面试时答错的情况。
+下面是我个人总结的在Java和J2EE开发者在面试中经常被问到的有关Exception和Error的知识。在分享我的回答的时候，我也给这些问题作了快速修订，并且提供源码以便深入理解。我总结了各种难度的问题，适合新手码农和高级Java码农。如果你遇到了我列表中没有的问题，并且这个问题非常好，请在下面评论中分享出来。你也可以在评论中分享你面试时答错的情况。
 
 **1) Java中什么是Exception?**
-　　这个问题经常在第一次问有关异常的时候或者是面试菜鸟的时候问。我从来没见过面高级或者资深工程师的时候有人问这玩意，但是对于菜鸟，是很愿意问这个的。简单来说，异常是Java传达给你的系统和程序错误的方式。在java中，异常功能是通过实现比如Throwable，Exception，RuntimeException之类的类，然后还有一些处理异常时候的关键字，比如throw，throws，try，catch，finally之类的。 所有的异常都是通过Throwable衍生出来的。Throwable把错误进一步划分为 java.lang.Exception
-和 java.lang.Error.  java.lang.Error 用来处理系统错误，例如java.lang.StackOverFlowError 之类的。然后 Exception用来处理程序错误，请求的资源不可用等等。
+这个问题经常在第一次问有关异常的时候或者是面试菜鸟的时候问。我从来没见过面高级或者资深工程师的时候有人问这玩意，但是对于菜鸟，是很愿意问这个的。简单来说，异常是Java传达给你的系统和程序错误的方式。在java中，异常功能是通过实现比如Throwable，Exception，RuntimeException之类的类，然后还有一些处理异常时候的关键字，比如throw，throws，try，catch，finally之类的。 所有的异常都是通过Throwable衍生出来的。Throwable把错误进一步划分为 java.lang.Exception和 java.lang.Error.  java.lang.Error 用来处理系统错误，例如java.lang.StackOverFlowError 之类的。然后 Exception用来处理程序错误，请求的资源不可用等等。
 
 **2) Java中的检查型异常和非检查型异常有什么区别？**
 
-　　这又是一个非常流行的Java异常面试题，会出现在各种层次的Java面试中。检查型异常和非检查型异常的主要区别在于其处理方式。检查型异常需要使用try, catch和finally关键字在编译期进行处理，否则会出现编译器会报错。对于非检查型异常则不需要这样做。Java中所有继承自java.lang.Exception类的异常都是检查型异常，所有继承自RuntimeException的异常都被称为非检查型异常。
+这又是一个非常流行的Java异常面试题，会出现在各种层次的Java面试中。检查型异常和非检查型异常的主要区别在于其处理方式。检查型异常需要使用try, catch和finally关键字在编译期进行处理，否则会出现编译器会报错。对于非检查型异常则不需要这样做。**Java中所有继承自java.lang.Exception类的异常都是检查型异常，所有继承自RuntimeException的异常都被称为非检查型异常。**
 
 **3) Java中的NullPointerException和ArrayIndexOutOfBoundException之间有什么相同之处？**
 
-　　在Java异常面试中这并不是一个很流行的问题，但会出现在不同层次的初学者面试中，用来测试应聘者对检查型异常和非检查型异常的概念是否熟悉。顺便说一下，该题的答案是，这两个异常都是非检查型异常，都继承自RuntimeException。该问题可能会引出另一个问题，即Java和C的数组有什么不同之处，因为C里面的数组是没有大小限制的，绝对不会抛出ArrayIndexOutOfBoundException。
+在Java异常面试中这并不是一个很流行的问题，但会出现在不同层次的初学者面试中，用来测试应聘者对检查型异常和非检查型异常的概念是否熟悉。顺便说一下，该题的答案是，这两个异常都是非检查型异常，都继承自RuntimeException。该问题可能会引出另一个问题，**即Java和C的数组有什么不同之处，因为C里面的数组是没有大小限制的，绝对不会抛出ArrayIndexOutOfBoundException。**
 
 **4)在Java异常处理的过程中，你遵循的那些最好的实践是什么？**
 
-　　这个问题在面试技术经理是非常常见的一个问题。因为异常处理在项目设计中是非常关键的，所以精通异常处理是十分必要的。异常处理有很多最佳实践，下面列举集中，它们提高你代码的健壮性和灵活性：
+这个问题在面试技术经理是非常常见的一个问题。因为异常处理在项目设计中是非常关键的，所以精通异常处理是十分必要的。异常处理有很多最佳实践，下面列举集中，它们提高你代码的健壮性和灵活性：
 
-　　1) 调用方法的时候返回布尔值来代替返回null，这样可以 NullPointerException。由于空指针是java异常里最恶心的异常
-
-　　2) catch块里别不写代码。空catch块是异常处理里的错误事件，因为它只是捕获了异常，却没有任何处理或者提示。通常你起码要打印出异常信息，当然你最好根据需求对异常信息进行处理。
-
-　　3)能抛受控异常（checked Exception）就尽量不抛受非控异常(checked Exception)。通过去掉重复的异常处理代码，可以提高代码的可读性。
-
-　　4) 绝对不要让你的数据库相关异常显示到客户端。由于绝大多数数据库和SQLException异常都是受控异常，在Java中，你应该在DAO层把异常信息处理，然后返回处理过的能让用户看懂并根据异常提示信息改正操作的异常信息。
-
-　　5) 在Java中，一定要在数据库连接，数据库查询，流处理后，在finally块中调用close()方法。
+> - 调用方法的时候返回布尔值来代替返回null，这样可以 NullPointerException。由于空指针是java异常里最恶心的异常
+> - catch块里别不写代码。空catch块是异常处理里的错误事件，因为它只是捕获了异常，却没有任何处理或者提示。通常你起码要打印出异常信息，当然你最好根据需求对异常信息进行处理。
+> - 能抛受检异常（checked Exception）就尽量不抛受检异常(unchecked Exception)。通过去掉重复的异常处理代码，可以提高代码的可读性。
+> - 绝对不要让你的数据库相关异常显示到客户端。由于绝大多数数据库和SQLException异常都是受检异常，在Java中，你应该在DAO层把异常信息处理，然后返回处理过的能让用户看懂并根据异常提示信息改正操作的异常信息。
+> - 在Java中，一定要在数据库连接，数据库查询，流处理后，在finally块中调用close()方法。
 
 **5) 既然我们可以用RuntimeException来处理错误，那么你认为为什么Java中还存在检查型异常?**
 
-　　这是一个有争议的问题，在回答该问题时你应当小心。虽然他们肯定愿意听到你的观点，但其实他们最感兴趣的还是有说服力的理由。我认为其中一个理由是，存在检查型异常是一个设计上的决定，受到了诸如C++等比Java更早编程语言设计经验的影响。绝大多数检查型异常位于java.io包内，这是合乎情理的，因为在你请求了不存在的系统资源的时候，一段强壮的程序必须能够优雅的处理这种情况。通过把IOException声明为检查型异常，Java 确保了你能够优雅的对异常进行处理。另一个可能的理由是，可以使用catch或finally来确保数量受限的系统资源（比如文件描述符）在你使用后尽早得到释放。 Joshua
-Bloch编写的 [Effective Java 一书](http://www.amazon.com/dp/0321356683/?tag=javamysqlanta-20) 中多处涉及到了该话题，值得一读。
+这是一个有争议的问题，在回答该问题时你应当小心。虽然他们肯定愿意听到你的观点，但其实他们最感兴趣的还是有说服力的理由。我认为其中一个理由是，存在检查型异常是一个设计上的决定，受到了诸如C++等比Java更早编程语言设计经验的影响。**绝大多数检查型异常位于java.io包内**，这是合乎情理的，因为在你请求了不存在的系统资源的时候，一段强壮的程序必须能够优雅的处理这种情况。通过把IOException声明为检查型异常，Java 确保了你能够优雅的对异常进行处理。另一个可能的理由是，可以使用catch或finally来确保数量受限的系统资源（比如文件描述符）在你使用后尽早得到释放。 Joshua Bloch编写的 《Effective Java》 一书中多处涉及到了该话题，值得一读。
 
 **6)  throw 和 throws这两个关键字在java中有什么不同?**
 
-　　一个java初学者应该掌握的面试问题。 throw 和 throws乍看起来是很相似的尤其是在你还是一个java初学者的时候。尽管他们看起来相似，都是在处理异常时候使用到的。但在代码里的使用方法和用到的地方是不同的。throws总是出现在一个函数头中，用来标明该成员函数可能抛出的各种异常, 你也可以申明未检查的异常，但这不是编译器强制的。如果方法抛出了异常那么调用这个方法的时候就需要将这个异常处理。另一个关键字  throw 是用来抛出任意异常的，按照语法你可以抛出任意 Throwable (i.e. Throwable
-或任何Throwable的衍生类) , throw可以中断程序运行，因此可以用来代替return . 最常见的例子是用 throw 在一个空方法中需要return的地方抛出 UnSupportedOperationException 代码如下 :
+一个java初学者应该掌握的面试问题。 throw 和 throws乍看起来是很相似的尤其是在你还是一个java初学者的时候。尽管他们看起来相似，都是在处理异常时候使用到的。但在代码里的使用方法和用到的地方是不同的。throws总是出现在一个函数头中，用来标明该成员函数可能抛出的各种异常, 你也可以申明未检查的异常，但这不是编译器强制的。如果方法抛出了异常那么调用这个方法的时候就需要将这个异常处理。另一个关键字  throw 是用来抛出任意异常的，按照语法你可以抛出任意 Throwable (i.e. Throwable或任何Throwable的衍生类) , **throw可以中断程序运行，因此可以用来代替return . 最常见的例子是用 throw 在一个空方法中需要return的地方抛出 UnSupportedOperationException** 代码如下 :
 
 ```java
 private static void show() {
@@ -790,31 +771,31 @@ private static void show() {
 }
 ```
 
-　　可以看下这篇 [文章](http://javarevisited.blogspot.com/2012/02/difference-between-throw-and-throws-in.html)查看这两个关键字在java中更多的差异 。
+可以看下这篇 [文章](http://javarevisited.blogspot.com/2012/02/difference-between-throw-and-throws-in.html)查看这两个关键字在java中更多的差异 。
 
 **7) 什么是“异常链”?**
 
-　　“异常链”是Java中非常流行的异常处理概念，是指在进行一个异常处理时抛出了另外一个异常，由此产生了一个异常链条。该技术大多用于将“ 受检查异常” （ checked exception）封装成为“非受检查异常”（unchecked exception)或者RuntimeException。顺便说一下，如果因为因为异常你决定抛出一个新的异常，你一定要包含原有的异常，这样，处理程序才可以通过getCause()和initCause()方法来访问异常最终的根源。
+“异常链”是Java中非常流行的异常处理概念，是指在进行一个异常处理时抛出了另外一个异常，由此产生了一个异常链条。该技术大多用于将“ 受检查异常” （ checked exception）封装成为“非受检查异常”（unchecked exception)或者RuntimeException。顺便说一下，如果因为异常你决定抛出一个新的异常，你一定要包含原有的异常，这样，处理程序才可以通过getCause()和initCause()方法来访问异常最终的根源。
 
-**) 你曾经自定义实现过异常吗？怎么写的?**
+**8) 你曾经自定义实现过异常吗？怎么写的?**
 
-　　很显然，我们绝大多数都写过自定义或者业务异常，像AccountNotFoundException。在面试过程中询问这个Java异常问题的主要原因是去发现你如何使用这个特性的。这可以更准确和精致的去处理异常，当然这也跟你选择checked 还是unchecked exception息息相关。通过为每一个特定的情况创建一个特定的异常，你就为调用者更好的处理异常提供了更好的选择。相比通用异常（general exception)，我更倾向更为精确的异常。大量的创建自定义异常会增加项目class的个数，因此，在自定义异常和通用异常之间维持一个平衡是成功的关键。
+很显然，我们绝大多数都写过自定义或者业务异常，像AccountNotFoundException。在面试过程中询问这个Java异常问题的主要原因是去发现你如何使用这个特性的。这可以更准确和精致的去处理异常，当然这也跟你选择checked 还是unchecked exception息息相关。通过为每一个特定的情况创建一个特定的异常，你就为调用者更好的处理异常提供了更好的选择。相比通用异常（general exception)，我更倾向更为精确的异常。大量的创建自定义异常会增加项目class的个数，因此，在自定义异常和通用异常之间维持一个平衡是成功的关键。
 
 **9) JDK7中对异常处理做了什么改变？**
 
-　　这是最近新出的Java异常处理的面试题。JDK7中对错误(Error)和异常(Exception)处理主要新增加了2个特性，一是在一个catch块中可以出来多个异常，就像原来用多个catch块一样。另一个是自动化资源管理(ARM), 也称为try-with-resource块。这2个特性都可以在处理异常时减少代码量，同时提高代码的可读性。对于这些特性了解，不仅帮助开发者写出更好的异常处理的代码，也让你在面试中显的更突出。我推荐大家读一下Java 7攻略，这样可以更深入的了解这2个非常有用的特性。
+这是最近新出的Java异常处理的面试题。**JDK7中对错误(Error)和异常(Exception)处理主要新增加了2个特性，一是在一个catch块中可以出来多个异常，就像原来用多个catch块一样。另一个是自动化资源管理(ARM), 也称为try-with-resource块。**这2个特性都可以在处理异常时减少代码量，同时提高代码的可读性。对于这些特性了解，不仅帮助开发者写出更好的异常处理的代码，也让你在面试中显的更突出。我推荐大家读一下Java 7攻略，这样可以更深入的了解这2个非常有用的特性。
 
 **10) 你遇到过 OutOfMemoryError 错误嘛？你是怎么搞定的？**
 
-　　这个面试题会在面试高级程序员的时候用，面试官想知道你是怎么处理这个危险的OutOfMemoryError错误的。必须承认的是，不管你做什么项目，你都会碰到这个问题。所以你要是说没遇到过，面试官肯定不会买账。要是你对这个问题不熟悉，甚至就是没碰到过，而你又有3、4年的Java经验了，那么准备好处理这个问题吧。在回答这个问题的同时，你也可以借机向面试秀一下你处理内存泄露、调优和调试方面的牛逼技能。我发现掌握这些技术的人都能给面试官留下深刻的印象。
+这个面试题会在面试高级程序员的时候问，面试官想知道你是怎么处理这个危险的OutOfMemoryError错误的。必须承认的是，不管你做什么项目，你都会碰到这个问题。所以你要是说没遇到过，面试官肯定不会买账。要是你对这个问题不熟悉，甚至就是没碰到过，而你又有3、4年的Java经验了，那么准备好处理这个问题吧。在回答这个问题的同时，你也可以借机向面试秀一下你处理内存泄露、调优和调试方面的牛逼技能。我发现掌握这些技术的人都能给面试官留下深刻的印象。
 
 **11) 如果执行finally代码块之前方法返回了结果，或者JVM退出了，finally块中的代码还会执行吗？**
 
-　　这个问题也可以换个方式问：“如果在try或者finally的代码块中调用了System.exit()，结果会是怎样”。了解finally块是怎么执行的，即使是try里面已经使用了return返回结果的情况，对了解Java的异常处理都非常有价值。只有在try里面是有System.exit(0)来退出JVM的情况下finally块中的代码才不会执行。
+这个问题也可以换个方式问：“如果在try或者finally的代码块中调用了System.exit()，结果会是怎样”。了解finally块是怎么执行的，即使是try里面已经使用了return返回结果的情况，对了解Java的异常处理都非常有价值。**只有在try里面是有System.exit(0)来退出JVM的情况下finally块中的代码才不会执行。**
 
 **12)Java中final,finalize,finally关键字的区别**
 
-　　这是一个经典的Java面试题了。我的一个朋友为Morgan Stanley招电信方面的核心Java开发人员的时候就问过这个问题。final和finally是Java的关键字，而finalize则是方法。final关键字在创建不可变的类的时候非常有用，只是声明这个类是final的。而finalize()方法则是垃圾回收器在回收一个对象前调用，但也Java规范里面没有保证这个方法一定会被调用。finally关键字是唯一一个和这篇文章讨论到的异常处理相关的关键字。在你的产品代码中，在关闭连接和资源文件的是时候都必须要用到finally块。
+这是一个经典的Java面试题了。我的一个朋友为Morgan Stanley招电信方面的核心Java开发人员的时候就问过这个问题。final和finally是Java的关键字，而finalize则是方法。final关键字在创建不可变的类的时候非常有用，只是声明这个类是final的。**而finalize()方法则是垃圾回收器在回收一个对象前调用**，但也Java规范里面没有保证这个方法一定会被调用。finally关键字是唯一一个和这篇文章讨论到的异常处理相关的关键字。在你的产品代码中，在关闭连接和资源文件的是时候都必须要用到finally块。
 
 ## 参考文章
 
@@ -823,4 +804,3 @@ https://www.jianshu.com/p/49d2c3975c56
 http://c.biancheng.net/view/1038.html
 https://blog.csdn.net/Lisiluan/article/details/88745820
 https://blog.csdn.net/michaelgo/article/details/82790253
-
