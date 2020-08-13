@@ -8,5 +8,5 @@
 - [x] 抽象类和接口
 - [x] 代码块和代码执行顺序
 - [x] Java中的Class类和Object类
-- [ ] Java异常
+- [x] Java异常
 
