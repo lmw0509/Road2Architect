@@ -50,7 +50,7 @@ Stream<String> stream = strings.stream();
 
 ### 2、通过Stream创建流
 
-可以使用Stream类提供的方法，直接返回一个由指定元素组成的流。
+可以使用Stream类提供的静态方法，直接返回一个由指定元素组成的流。
 
 ```java
 Stream<String> stream = Stream.of("Hollis", "HollisChuang", "hollis", "Hello", "HelloWorld", "Hollis");

@@ -79,9 +79,7 @@ Arrays.asList( "a", "b", "d" ).sort( ( e1, e2 ) -> {
 } );
 ```
 
-语言设计者投入了大量精力来思考如何使现有的函数友好地支持lambda。
-
-最终采取的方法是：增加函数式接口的概念。函数式接口就是一个具有一个方法的普通接口。像这样的接口，可以被隐式转换为lambda表达式。
+**语言设计者投入了大量精力来思考如何使现有的函数友好地支持lambda。最终采取的方法是：增加函数式接口的概念。函数式接口就是一个具有一个方法的普通接口。像这样的接口，可以被隐式转换为lambda表达式。**
 
 java.lang.Runnable与java.util.concurrent.Callable是函数式接口最典型的两个例子。
 
@@ -97,7 +95,7 @@ public interface Functional {
 ```
 
 
-需要记住的一件事是：默认方法与静态方法并不影响函数式接口的契约，可以任意使用：
+需要记住的一件事是：**默认方法与静态方法并不影响函数式接口的契约，可以任意使用**
 
 ```java
 @FunctionalInterface
@@ -233,9 +231,7 @@ Code:
 从上面的结果我们发现 Lambda 表达式被封装成了主类的一个私有方法，并通过 invokedynamic 指令进行调用。
 
 因此，我们可以得出结论：
-**Lambda 表达式是通过 invokedynamic 指令实现的，并且书写 Lambda 表达式不会产生新的类。**
-
-**既然 Lambda 表达式不会创建匿名内部类，那么在 Lambda 表达式中使用 this 关键字时，其指向的是外部类的引用。**
+**Lambda 表达式是通过 invokedynamic 指令实现的，并且书写 Lambda 表达式不会产生新的类。既然 Lambda 表达式不会创建匿名内部类，那么在 Lambda 表达式中使用 this 关键字时，其指向的是外部类的引用。**
 
 ### 函数式接口
 
@@ -247,7 +243,6 @@ lambda表达式是如何符合 Java 类型系统的？每个lambda对应于一�
 我们可以使用任意的接口作为lambda表达式，只要这个接口只包含一个抽象方法。为了保证你的接口满足需求，你需要增加@FunctionalInterface注解。编译器知道这个注解，一旦你试图给这个接口增加第二个抽象方法声明时，它将抛出一个编译器错误。
 
 下面举几个例子
-    
 ```java
 public class 函数式接口使用 {
     
@@ -258,17 +253,18 @@ public class 函数式接口使用 {
 
         }
     }
+    
     @Test
     public void test1() {
         A a = () -> System.out.println("hello");
         a.say();
     }
 
-
     @FunctionalInterface
     interface B {
         void say(String i);
     }
+    
     public void test2() {
         //下面两个是等价的，都是通过B接口来引用一个方法，而方法可以直接使用::来作为方法引用
         B b = System.out::println;
@@ -369,7 +365,6 @@ SomeClass s1 = c1.apply(100);
 ```
 
 //等价于
-     
 ```java
 Function<Integer, SomeClass> c1 = i -> new SomeClass(i);
 SomeClass s1 = c1.apply(100);
@@ -408,7 +403,7 @@ public class 接口的默认方法 {
 }
 ```
 
-默认方法出现的原因是为了对原有接口的扩展，有了默认方法之后就不怕因改动原有的接口而对已经使用这些接口的程序造成的代码不兼容的影响。 在Java8中也对一些接口增加了一些默认方法，比如Map接口等等。一般来说，使用默认方法的场景有两个：可选方法和行为的多继承。
+**默认方法出现的原因是为了对原有接口的扩展，有了默认方法之后就不怕因改动原有的接口而对已经使用这些接口的程序造成的代码不兼容的影响。 在Java8中也对一些接口增加了一些默认方法，比如Map接口等等。一般来说，使用默认方法的场景有两个：可选方法和行为的多继承。**
 
 默认方法的使用相对来说比较简单，唯一要注意的点是如何处理**默认方法的冲突**。关于如何处理默认方法的冲突可以参考以下三条规则：
 
@@ -901,8 +896,11 @@ PermGen空间被移除了，取而代之的是Metaspace（JEP 122）。JVM选项
 ## 参考文章
 
 https://blog.csdn.net/shuaicihai/article/details/72615495
-https://blog.csdn.net/qq_34908167/article/details/79286697
-https://www.jianshu.com/p/4df02599aeb2
-https://www.cnblogs.com/yangzhilong/p/10973006.html
-https://www.cnblogs.com/JackpotHan/p/9701147.html
 
+https://blog.csdn.net/qq_34908167/article/details/79286697
+
+https://www.jianshu.com/p/4df02599aeb2
+
+https://www.cnblogs.com/yangzhilong/p/10973006.html
+
+https://www.cnblogs.com/JackpotHan/p/9701147.html
