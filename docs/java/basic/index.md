@@ -21,7 +21,7 @@
 - [ ] javac和javap
 - [ ] Java8新特性终极指南
 - [x] 继承、封装、多态的实现原理
-- [ ] static关键字特性
+- [x] static关键字特性
 - [x] Java 8中处理集合的Stream
 - [x] 多态的实现机制
 
