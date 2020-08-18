@@ -1,62 +1,8 @@
-## Java注解简介
-
-Annotation 中文译过来就是注解、标释的意思，在 Java 中注解是一个很重要的知识点，但经常还是有点让新手不容易理解。
-
-**我个人认为，比较糟糕的技术文档主要特征之一就是：用专业名词来介绍专业名词。**
-比如：
-
-> Java 注解用于为 Java 代码提供元数据。作为元数据，注解不直接影响你的代码执行，但也有一些类型的注解实际上可以用于这一目的。Java 注解是从 Java5 开始添加到 Java 的。
-> 这是大多数网站上对于 Java 注解，解释确实正确，但是说实在话，我第一次学习的时候，头脑一片空白。这什么跟什么啊？听了像没有听一样。因为概念太过于抽象，所以初学者实在是比较吃力才能够理解，然后随着自己开发过程中不断地强化练习，才会慢慢对它形成正确的认识。
-
-我在写这篇文章的时候，我就在思考。如何让自己或者让读者能够比较直观地认识注解这个概念？是要去官方文档上翻译说明吗？我马上否定了这个答案。
-
-后来，我想到了一样东西————墨水，墨水可以挥发、可以有不同的颜色，用来解释注解正好。
-
-不过，我继续发散思维后，想到了一样东西能够更好地代替墨水，那就是印章。印章可以沾上不同的墨水或者印泥，可以定制印章的文字或者图案，如果愿意它也可以被戳到你任何想戳的物体表面。
-
-但是，我再继续发散思维后，又想到一样东西能够更好地代替印章，那就是标签。标签是一张便利纸，标签上的内容可以自由定义。常见的如货架上的商品价格标签、图书馆中的书本编码标签、实验室中化学材料的名称类别标签等等。
-
-并且，往抽象地说，标签并不一定是一张纸，它可以是对人和事物的属性评价。也就是说，标签具备对于抽象事物的解释。
-
-![](https://img-blog.csdn.net/20170627213419176?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvYnJpYmx1ZQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
-
-
-
-所以，基于如此，我完成了自我的知识认知升级，我决定用标签来解释注解。
-
-### 注解如同标签
-
-之前某新闻客户端的评论有盖楼的习惯，于是 “乔布斯重新定义了手机、罗永浩重新定义了傻X” 就经常极为工整地出现在了评论楼层中，并且广大网友在相当长的一段时间内对于这种行为乐此不疲。这其实就是等同于贴标签的行为。
-在某些网友眼中，罗永浩就成了傻X的代名词。
-
-广大网友给罗永浩贴了一个名为“傻x”的标签，他们并不真正了解罗永浩，不知道他当教师、砸冰箱、办博客的壮举，但是因为“傻x”这样的标签存在，这有助于他们直接快速地对罗永浩这个人做出评价，然后基于此，罗永浩就可以成为茶余饭后的谈资，这就是标签的力量。
-
-而在网络的另一边，老罗靠他的人格魅力自然收获一大批忠实的拥泵，他们对于老罗贴的又是另一种标签。 
-
-![](https://img-blog.csdn.net/20170627213530055?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvYnJpYmx1ZQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
-
-
-老罗还是老罗，但是由于人们对于它贴上的标签不同，所以造成对于他的看法大相径庭，不喜欢他的人整天在网络上评论抨击嘲讽，而崇拜欣赏他的人则会愿意挣钱购买锤子手机的发布会门票。
-
-我无意于评价这两种行为，我再引个例子。
-
-《奇葩说》是近年网络上非常火热的辩论节目，其中辩手陈铭被另外一个辩手马薇薇攻击说是————“站在宇宙中心呼唤爱”，然后贴上了一个大大的标签————“鸡汤男”，自此以后，观众再看到陈铭的时候，首先映入脑海中便是“鸡汤男”三个大字，其实本身而言陈铭非常优秀，为人师表、作风正派、谈吐举止得体，但是在网络中，因为娱乐至上的环境所致，人们更愿意以娱乐的心态来认知一切，于是“鸡汤男”就如陈铭自己所说成了一个撕不了的标签。
-
-**我们可以抽象概括一下，标签是对事物行为的某些角度的评价与解释。**
-
-到这里，终于可以引出本文的主角注解了。
-
-**初学者可以这样理解注解：想像代码具有生命，注解就是对于代码中某些鲜活个体的贴上去的一张标签。简化来讲，注解如同一张标签。**
-
-在未开始学习任何注解具体语法而言，你可以把注解看成一张标签。这有助于你快速地理解它的大致作用。如果初学者在学习过程有大脑放空的时候，请不要慌张，对自己说：
-
-注解，标签。注解，标签。
-
-## Java 注解概述
+## 注解概述
 ### 什么是注解？
 
 
->   对于很多初次接触的开发者来说应该都有这个疑问？Annontation是Java5开始引入的新特征，中文名称叫注解。它提供了一种安全的类似注释的机制，用来将任何的信息或元数据（metadata）与程序元素（类、方法、成员变量等）进行关联。为程序的元素（类、方法、成员变量）加上更直观更明了的说明，这些说明信息是与程序的业务逻辑无关，并且供指定的工具或框架使用。Annontation像一种修饰符一样，应用于包、类型、构造方法、方法、成员变量、参数及本地变量的声明语句中。
+>   对于很多初次接触的开发者来说应该都有这个疑问？Annotation是Java5开始引入的新特征，中文名称叫注解。它提供了一种安全的类似注释的机制，用来将任何的信息或元数据（metadata）与程序元素（类、方法、成员变量等）进行关联。为程序的元素（类、方法、成员变量）加上更直观更明了的说明，这些说明信息是与程序的业务逻辑无关，并且供指定的工具或框架使用。Annotation像一种修饰符一样，应用于包、类型、构造方法、方法、成员变量、参数及本地变量的声明语句中。
 
 
 Java注解是附加在代码中的一些元信息，用于一些工具在编译、运行时进行解析和使用，起到说明、配置的功能。注解不会也不能影响代码的实际逻辑，仅仅起到辅助性的作用。包含在 java.lang.annotation 包中。
@@ -68,24 +14,25 @@ Java注解是附加在代码中的一些元信息，用于一些工具在编译�
   3、在编译时进行格式检查。如@override 放在方法前，如果你这个方法并不是覆盖了超类方法，则编译时就能检查出。
 
 ### 注解的原理
-注解本质是一个继承了Annotation的特殊接口，其具体实现类是Java运行时生成的动态代理类。而我们通过反射获取注解时，返回的是Java运行时生成的动态代理对象$Proxy1。通过代理对象调用自定义注解（接口）的方法，会最终调用AnnotationInvocationHandler的invoke方法。该方法会从memberValues这个Map中索引出对应的值。而memberValues的来源是Java常量池。
+> 注解本质是一个继承了Annotation的特殊接口，**其具体实现类是Java运行时生成的动态代理类。** 而我们通过反射获取注解时，返回的是Java运行时生成的动态代理对象$Proxy1。通过代理对象调用自定义注解（接口）的方法，会最终调用AnnotationInvocationHandler的invoke方法。该方法会从memberValues这个Map中索引出对应的值。而memberValues的来源是Java常量池。
+>
 
 ### 元注解
 java.lang.annotation提供了四种元注解，专门注解其他的注解（在自定义注解的时候，需要使用到元注解）：
    @Documented –注解是否将包含在JavaDoc中
    @Retention –什么时候使用该注解
    @Target –注解用于什么地方
-   @Inherited – 是否允许子类继承该注解
+   @Inherited –是否允许子类继承该注解
 
-  1.）@Retention– 定义该注解的生命周期
+  1）@Retention –定义该注解的生命周期
 
       ●   RetentionPolicy.SOURCE : 在编译阶段丢弃。这些注解在编译结束之后就不再有任何意义，所以它们不会写入字节码。@Override, @SuppressWarnings都属于这类注解。
       
-      ●   RetentionPolicy.CLASS : 在类加载的时候丢弃。在字节码文件的处理中有用。注解默认使用这种方式
+      ●   RetentionPolicy.CLASS : 在类加载的时候丢弃。在字节码文件的处理中有用。注解默认使用这种方式。
       
       ●   RetentionPolicy.RUNTIME : 始终不会丢弃，运行期也保留该注解，因此可以使用反射机制读取该注解的信息。我们自定义的注解通常使用这种方式。
 
-  2.）@Target – 表示该注解用于什么地方。默认值为任何元素，表示该注解用于什么地方。可用的ElementType参数包括
+  2）@Target –表示该注解用于什么地方。默认值为任何元素，表示该注解用于什么地方。可用的ElementType参数包括
 
       ● ElementType.CONSTRUCTOR:用于描述构造器
       ● ElementType.FIELD:成员变量、对象、属性（包括enum实例）
@@ -95,14 +42,13 @@ java.lang.annotation提供了四种元注解，专门注解其他的注解（在
       ● ElementType.PARAMETER:用于描述参数
       ● ElementType.TYPE:用于描述类、接口(包括注解类型) 或enum声明
 
- 3.)@Documented–一个简单的Annotations标记注解，表示是否将注解信息添加在java文档中。
+ 3）@Documented –一个简单的Annotations标记注解，表示是否将注解信息添加在java文档中。
 
- 4.)@Inherited – 定义该注释和子类的关系。@Inherited 元注解是一个标记注解，@Inherited阐述了某个被标注的类型是被继承的。如果一个使用了   @Inherited修饰的annotation类型被用于一个class，则这个annotation将被用于该class的子类。
+ 4）@Inherited –定义该注释和子类的关系。@Inherited 元注解是一个标记注解，@Inherited阐述了某个被标注的类型是被继承的。如果一个使用了   @Inherited修饰的annotation类型被用于一个class，则这个annotation将被用于该class的子类。
 
 
 ### JDK里的注解
-JDK 内置注解
-先来看几个 Java 内置的注解，让大家热热身。
+JDK 内置注解，先来看几个 Java 内置的注解，让大家热热身。
 
 @Override 演示
 
@@ -122,6 +68,7 @@ class Son extends Parent {
     }
 }
 ```
+
 @Deprecated 演示
 
 ```java
@@ -143,6 +90,7 @@ public class JDKAnnotationDemo {
     }
 }
 ```
+
 @SuppressWarnings 演示
 
 ```java
@@ -158,86 +106,16 @@ class Parent {
 
 ```java
 /**
-  * 此注解是 Java8 提出的函数式接口，接口中只允许有一个抽象方法
-  * 加上这个注解之后，类中多一个抽象方法或者少一个抽象方法都会报错
-  */
-  @FunctionalInterface
-  interface Func {
-  	void run();
-  }
-```
-
-
-## 注解处理器实战
-
-注解处理器才是使用注解整个流程中最重要的一步了。所有在代码中出现的注解，它到底起了什么作用，都是在注解处理器中定义好的。
-概念：注解本身并不会对程序的编译方式产生影响，而是注解处理器起的作用；注解处理器能够通过在运行时使用反射获取在程序代码中的使用的注解信息，从而实现一些额外功能。前提是我们自定义的注解使用的是 RetentionPolicy.RUNTIME 修饰的。这也是我们在开发中使用频率很高的一种方式。
-
-我们先来了解下如何通过在运行时使用反射获取在程序中的使用的注解信息。如下类注解和方法注解。
-
-```java
-类注解
-Class aClass = ApiController.class;
-Annotation[] annotations = aClass.getAnnotations();
-for(Annotation annotation : annotations) {
-    if(annotation instanceof ApiAuthAnnotation) {
-        ApiAuthAnnotation apiAuthAnnotation = (ApiAuthAnnotation) annotation;
-        System.out.println("name: " + apiAuthAnnotation.name());
-        System.out.println("age: " + apiAuthAnnotation.age());
-    }
-}
-方法注解
-Method method = ... //通过反射获取方法对象
-Annotation[] annotations = method.getDeclaredAnnotations();
-for(Annotation annotation : annotations) {
-    if(annotation instanceof ApiAuthAnnotation) {
-        ApiAuthAnnotation apiAuthAnnotation = (ApiAuthAnnotation) annotation;
-        System.out.println("name: " + apiAuthAnnotation.name());
-        System.out.println("age: " + apiAuthAnnotation.age());
-    }
-}   
-```
-此部分内容可参考: 通过反射获取注解信息
-
-注解处理器实战
-接下来我通过在公司中的一个实战改编来演示一下注解处理器的真实使用场景。
-需求: 网站后台接口只能是年龄大于 18 岁的才能访问，否则不能访问
-前置准备: 定义注解（这里使用上文的完整注解），使用注解（这里使用上文中使用注解的例子）
-接下来要做的事情: 写一个切面，拦截浏览器访问带注解的接口，取出注解信息，判断年龄来确定是否可以继续访问。
-
-在 dispatcher-servlet.xml 文件中定义 aop 切面
-
-```xml
-<aop:config>
-    <!--定义切点，切的是我们自定义的注解-->
-    <aop:pointcut id="apiAuthAnnotation" expression="@annotation(cn.caijiajia.devops.aspect.ApiAuthAnnotation)"/>
-    <!--定义切面，切点是 apiAuthAnnotation，切面类即注解处理器是 apiAuthAspect，主处理逻辑在方法名为 auth 的方法中-->
-    <aop:aspect ref="apiAuthAspect">
-        <aop:around method="auth" pointcut-ref="apiAuthAnnotation"/>
-    </aop:aspect>
-</aop:config>
-```
-切面类处理逻辑即注解处理器代码如
-
-```java
-@Component("apiAuthAspect")
-public class ApiAuthAspect {
-    public Object auth(ProceedingJoinPoint pjp) throws Throwable {
-        Method method = ((MethodSignature) pjp.getSignature()).getMethod();
-        ApiAuthAnnotation apiAuthAnnotation = method.getAnnotation(ApiAuthAnnotation.class);
-        Integer age = apiAuthAnnotation.age();
-        if (age > 18) {
-            return pjp.proceed();
-        } else {
-            throw new RuntimeException("你未满18岁，禁止访问");
-        }
-    }
+* 此注解是 Java8 提出的函数式接口，接口中只允许有一个抽象方法
+* 加上这个注解之后，类中多一个抽象方法或者少一个抽象方法都会报错
+*/
+@FunctionalInterface
+interface Func {
+	void run();
 }
 ```
 
-
-
-## 不同类型的注解
+## 注解的类型
 
 ### 类注解
 
@@ -383,6 +261,76 @@ if(annotation instanceof MyAnnotation){
 }
 ```
 
+## 注解处理器实战
+
+注解处理器才是使用注解整个流程中最重要的一步了。所有在代码中出现的注解，它到底起了什么作用，都是在注解处理器中定义好的。
+概念：注解本身并不会对程序的编译方式产生影响，而是注解处理器起的作用；注解处理器能够通过在运行时使用反射获取在程序代码中的使用的注解信息，从而实现一些额外功能。**前提是我们自定义的注解使用的是 RetentionPolicy.RUNTIME 修饰的。** 这也是我们在开发中使用频率很高的一种方式。
+
+我们先来了解下如何通过在运行时使用反射获取在程序中的使用的注解信息。如下类注解和方法注解。
+
+```java
+//类注解
+Class aClass = ApiController.class;
+Annotation[] annotations = aClass.getAnnotations();
+for(Annotation annotation : annotations) {
+    if(annotation instanceof ApiAuthAnnotation) {
+        ApiAuthAnnotation apiAuthAnnotation = (ApiAuthAnnotation) annotation;
+        System.out.println("name: " + apiAuthAnnotation.name());
+        System.out.println("age: " + apiAuthAnnotation.age());
+    }
+}
+
+//方法注解
+Method method = ... //通过反射获取方法对象
+Annotation[] annotations = method.getDeclaredAnnotations();
+for(Annotation annotation : annotations) {
+    if(annotation instanceof ApiAuthAnnotation) {
+        ApiAuthAnnotation apiAuthAnnotation = (ApiAuthAnnotation) annotation;
+        System.out.println("name: " + apiAuthAnnotation.name());
+        System.out.println("age: " + apiAuthAnnotation.age());
+    }
+}   
+```
+
+接下来我通过在公司中的一个实战改编来演示一下注解处理器的真实使用场景。
+需求: 网站后台接口只能是年龄大于 18 岁的才能访问，否则不能访问
+前置准备: 定义注解（这里使用上文的完整注解），使用注解（这里使用上文中使用注解的例子）
+接下来要做的事情: 写一个切面，拦截浏览器访问带注解的接口，取出注解信息，判断年龄来确定是否可以继续访问。
+
+在 dispatcher-servlet.xml 文件中定义 aop 切面
+
+```xml
+<aop:config>
+    <!--定义切点，切的是我们自定义的注解-->
+    <aop:pointcut id="apiAuthAnnotation" expression="@annotation(cn.caijiajia.devops.aspect.ApiAuthAnnotation)"/>
+    <!--定义切面，切点是 apiAuthAnnotation，切面类即注解处理器是 apiAuthAspect，主处理逻辑在方法名为 auth 的方法中-->
+    <aop:aspect ref="apiAuthAspect">
+        <aop:around method="auth" pointcut-ref="apiAuthAnnotation"/>
+    </aop:aspect>
+</aop:config>
+```
+切面类处理逻辑即注解处理器代码如
+
+```java
+@Component("apiAuthAspect")
+public class ApiAuthAspect {
+    public Object auth(ProceedingJoinPoint pjp) throws Throwable {
+        Method method = ((MethodSignature) pjp.getSignature()).getMethod();
+        ApiAuthAnnotation apiAuthAnnotation = method.getAnnotation(ApiAuthAnnotation.class);
+        Integer age = apiAuthAnnotation.age();
+        if (age > 18) {
+            return pjp.proceed();
+        } else {
+            throw new RuntimeException("你未满18岁，禁止访问");
+        }
+    }
+}
+```
+
+
+
+
+
 ## Java注解相关面试题
 
 ### 什么是注解？他们的典型用例是什么？
@@ -407,7 +355,7 @@ java.lang和java.lang.annotation包中有几个注解，更常见的包括但不
 
 ### 可以从注解方法声明返回哪些对象类型？
 
-返回类型必须是基本类型，String，Class，Enum或数组类型之一。否则，编译器将抛出错误。
+**返回类型必须是基本类型，String，Class，Enum或数组类型之一。否则，编译器将抛出错误。**
 
 这是一个成功遵循此原则的示例代码：
 
@@ -591,7 +539,11 @@ public @interface TestAnnotation {
 ## 参考文章
 
 https://blog.fundodoo.com/2018/04/19/130.html
+
 https://blog.csdn.net/qq_37939251/article/details/83215703
+
 https://blog.51cto.com/4247649/2109129
+
 https://www.jianshu.com/p/2f2460e6f8e7
+
 https://blog.csdn.net/yuzongtao/article/details/83306182
