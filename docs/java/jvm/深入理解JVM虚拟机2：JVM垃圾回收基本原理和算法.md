@@ -22,17 +22,11 @@ HotSpot JVM是目前Oracle SE平台标准核心组件的一部分。在这篇垃
 2.  老年代（Old Generation）实例将从S1提升到Tenured（终身代）
 3.  永久代（Permanent Generation）包含类、方法等细节的元信息
 
-Java 垃圾回收是一项自动化的过程，用来管理程序所使用的运行时内存。通过这一自动化过程，JVM 解除了程序员在程序中分配和释放内存资源的开销。
+Java 垃圾回收是一项自动化的过程，用来管理程序所使用的运行时内存。通过这一自动化过程，JVM 解除了程序员在程序中分配和释放内存资源的开销。作为一个自动的过程，程序员不需要在代码中显示地启动垃圾回收过程。
 
-启动Java垃圾回收
+`System.gc()`和`Runtime.gc()`用来请求JVM启动垃圾回收。虽然这个请求机制提供给程序员一个启动 GC 过程的机会，但是启动由 JVM负责。JVM可以拒绝这个请求，所以并不保证这些调用都将执行垃圾回收。启动时机的选择由JVM决定，并且取决于堆内存中Eden区是否可用。JVM将这个选择留给了Java规范的实现，不同实现具体使用的算法不尽相同。毋庸置疑，我们知道垃圾回收过程是不能被强制执行的。我刚刚发现了一个调用`System.gc()`有意义的场景。通过这篇文章了解一下[适合调用System.gc() ](http://javapapers.com/core-java/system-gc-invocation-a-suitable-scenario/)这种极端情况。
 
-作为一个自动的过程，程序员不需要在代码中显示地启动垃圾回收过程。`System.gc()`和`Runtime.gc()`用来请求JVM启动垃圾回收。
-
-虽然这个请求机制提供给程序员一个启动 GC 过程的机会，但是启动由 JVM负责。JVM可以拒绝这个请求，所以并不保证这些调用都将执行垃圾回收。启动时机的选择由JVM决定，并且取决于堆内存中Eden区是否可用。JVM将这个选择留给了Java规范的实现，不同实现具体使用的算法不尽相同。
-
-毋庸置疑，我们知道垃圾回收过程是不能被强制执行的。我刚刚发现了一个调用`System.gc()`有意义的场景。通过这篇文章了解一下[适合调用System.gc() ](http://javapapers.com/core-java/system-gc-invocation-a-suitable-scenario/)这种极端情况。
-
-## 各种GC的触发时机(When)
+## 各种GC的触发时机
 
 ### GC类型
 
@@ -46,10 +40,10 @@ Java 垃圾回收是一项自动化的过程，用来管理程序所使用的运
 
 ### 触发时机
 
-上面大家也看到了，GC类型分分类是和收集器有关的，那么当然了，对于不同的收集器，GC触发时机也是不一样的，作者就针对默认的serial GC来说:
+上面大家也看到了，**GC类型分类是和收集器有关的，**那么当然了，对于不同的收集器，GC触发时机也是不一样的，作者就针对默认的serial GC来说:
 
 *   young GC：当young gen中的eden区分配满的时候触发。注意young GC中有部分存活对象会晋升到old gen，所以young GC后old gen的占用量通常会有所升高。
-*   full GC：当准备要触发一次young GC时，如果发现统计数据说之前young GC的平均晋升大小比目前old gen剩余的空间大，则不会触发young GC而是转为触发full GC（因为HotSpot VM的GC里，除了CMS的concurrent collection之外，其它能收集old gen的GC都会同时收集整个GC堆，包括young gen，所以不需要事先触发一次单独的young GC）；或者，如果有perm gen的话，要在perm gen分配空间但已经没有足够空间时，也要触发一次full GC；或者System.gc()、heap dump带GC，默认也是触发full GC。
+*   full GC：当准备要触发一次young GC时，如果发现统计数据之前young GC的平均晋升大小比目前old gen剩余的空间大，则不会触发young GC而是转为触发full GC（因为HotSpot VM的GC里，除了CMS的concurrent collection之外，其它能收集old gen的GC都会同时收集整个GC堆，包括young gen，所以不需要事先触发一次单独的young GC）；或者，如果有perm gen的话，要在perm gen分配空间但已经没有足够空间时，也要触发一次full GC；或者System.gc()、heap dump带GC，默认也是触发full GC。
 
 ### FULL GC触发条件详解
 
