@@ -80,29 +80,29 @@ ResultSet还提供了对结果集进行滚动的方法：
 
 ##### 1. 注册驱动
 
-```
+```java
+//1. 注册驱动
 DriverManager.registerDriver(new com.mysql.jdbc.Driver());
 ```
 
 ##### 2. 建立连接
 
-```
+```java
 //DriverManager.getConnection("jdbc:mysql://localhost/test?user=SIHAI&password=SIHAI");
 //2. 建立连接 参数一： 协议 + 访问的数据库 ， 参数二： 用户名 ， 参数三： 密码。
-
  conn = DriverManager.getConnection("jdbc:mysql://localhost/student", "root", "root");
 ```
 
 ##### 3. 创建statement
 
-```
+```java
 //3. 创建statement ， 跟数据库打交道，一定需要这个对象
 st = conn.createStatement();
 ```
 
 ##### 4. 执行sql ，得到ResultSet
 
-```
+```java
 //4. 执行查询 ， 得到结果集
 String sql = "select * from t_stu";
 rs = st.executeQuery(sql);
@@ -110,146 +110,146 @@ rs = st.executeQuery(sql);
 
 ##### 5. 遍历结果集
 
-```
-        //5. 遍历查询每一条记录
-         while(rs.next()){
-             int id = rs.getInt("id");
-             String name = rs.getString("name");
-             int age = rs.getInt("age");
-             System.out.println("id="+id + "===name="+name+"==age="+age);
+```java
+//5. 遍历查询每一条记录
+while(rs.next()){
+    int id = rs.getInt("id");
+    String name = rs.getString("name");
+    int age = rs.getInt("age");
+    System.out.println("id="+id + "===name="+name+"==age="+age);
 
-         }
+}
 ```
 
 ##### 6. 释放资源
 
-```
-    if (rs != null) {
-       try {
-            rs.close();
-        } catch (SQLException sqlEx) { } // ignore 
-        rs = null;
-    }
+```java
+if (rs != null) {
+    try {
+        rs.close();
+    } catch (SQLException sqlEx) { } // ignore 
+    rs = null;
+}
 ```
 
 ### 六、JDBC 工具类构建
 
-##### 1. 资源释放工作的整合
+##### 1. 资源释放工作的整
 
-```
+```java
 /**
-     * 释放资源
-     * @param conn
-     * @param st
-     * @param rs
-     */
-    public static void release(Connection conn , Statement st , ResultSet rs){
-        closeRs(rs);
-        closeSt(st);
-        closeConn(conn);
-    }
+* 释放资源
+* @param conn
+* @param st
+* @param rs
+*/
+public static void release(Connection conn , Statement st , ResultSet rs){
+    closeRs(rs);
+    closeSt(st);
+    closeConn(conn);
+}
 
 
-    private static void closeRs(ResultSet rs){
-        try {
-            if(rs != null){
-                rs.close();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }finally{
-            rs = null;
+private static void closeRs(ResultSet rs){
+    try {
+        if(rs != null){
+            rs.close();
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }finally{
+        rs = null;
     }
+}
 
-    private static void closeSt(Statement st){
-        try {
-            if(st != null){
-                st.close();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }finally{
-            st = null;
+private static void closeSt(Statement st){
+    try {
+        if(st != null){
+            st.close();
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }finally{
+        st = null;
     }
+}
 
-    private static void closeConn(Connection conn){
-        try {
-            if(conn != null){
-                conn.close();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }finally{
-            conn = null;
+private static void closeConn(Connection conn){
+    try {
+        if(conn != null){
+            conn.close();
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }finally{
+        conn = null;
     }
+}
 ```
 
 ##### 2. 驱动防二次注册
 
-```
+```java
 /**
-     * 获取连接对象
-     * @return
-     */
-    public static Connection getConn(){
-        Connection conn = null;
-        try {
-            Class.forName(driverClass);
-            //静态代码块 ---> 类加载了，就执行。 java.sql.DriverManager.registerDriver(new Driver());
-            //DriverManager.registerDriver(new com.mysql.jdbc.Driver());
-            //DriverManager.getConnection("jdbc:mysql://localhost/test?user=monty&password=greatsqldb");
-            //2. 建立连接 参数一： 协议 + 访问的数据库 ， 参数二： 用户名 ， 参数三： 密码。
-            conn = DriverManager.getConnection(url, name, password);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return conn;
+* 获取连接对象
+* @return
+*/
+public static Connection getConn(){
+    Connection conn = null;
+    try {
+        Class.forName(driverClass);
+        //静态代码块 ---> 类加载了，就执行。 java.sql.DriverManager.registerDriver(new Driver());
+        //DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+        //DriverManager.getConnection("jdbc:mysql://localhost/test?user=monty&password=greatsqldb");
+        //2. 建立连接 参数一： 协议 + 访问的数据库 ， 参数二： 用户名 ， 参数三： 密码。
+        conn = DriverManager.getConnection(url, name, password);
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    return conn;
+}
 ```
 
 ##### 3. 使用properties配置文件
 
 - 在src底下声明一个文件 xxx.properties ，里面的内容吐下：
 
-```
-         driverClass=com.mysql.jdbc.Driver
-          url=jdbc:mysql://localhost/student
-          name=root
-          password=root
+```java
+driverClass=com.mysql.jdbc.Driver
+url=jdbc:mysql://localhost/student
+name=root
+password=root
 ```
 
 - 在工具类里面，使用静态代码块，读取属性
 
-```
+```java
 static{
-            try {
-                //1. 创建一个属性配置对象
-                Properties properties = new Properties();
-                InputStream is = new FileInputStream("jdbc.properties"); //对应文件位于工程根目录
+    try {
+        //1. 创建一个属性配置对象
+        Properties properties = new Properties();
+        InputStream is = new FileInputStream("jdbc.properties"); //对应文件位于工程根目录
 
-                //使用类加载器，去读取src底下的资源文件。 后面在servlet  //对应文件位于src目录底下
-                //InputStream is = JDBCUtil.class.getClassLoader().getResourceAsStream("jdbc.properties");
-                //导入输入流。
-                properties.load(is);
+        //使用类加载器，去读取src底下的资源文件。 后面在servlet  //对应文件位于src目录底下
+        //InputStream is = JDBCUtil.class.getClassLoader().getResourceAsStream("jdbc.properties");
+        //导入输入流。
+        properties.load(is);
 
-                //读取属性
-                driverClass = properties.getProperty("driverClass");
-                url = properties.getProperty("url");
-                name = properties.getProperty("name");
-                password = properties.getProperty("password");
+        //读取属性
+        driverClass = properties.getProperty("driverClass");
+        url = properties.getProperty("url");
+        name = properties.getProperty("name");
+        password = properties.getProperty("password");
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 ```
 
 **源代码如下：**
 
-```
+```java
 public class JDBCUtil {
 
     static String driverClass = null;
@@ -355,7 +355,7 @@ public class JDBCUtil {
 
 - insert操作
 
-```
+```java
 INSERT INTO t_stu (NAME , age) VALUES ('wangqiang',28)
 
 INSERT INTO t_stu VALUES (NULL,'wangqiang2',28)
@@ -378,7 +378,7 @@ if(result >0 ){
 
 - delete操作
 
-```
+```java
 DELETE FROM t_stu WHERE id = 6
 // 1. 获取连接对象
 conn = JDBCUtil.getConn();
@@ -399,29 +399,31 @@ if(result >0 ){
 
 - query操作
 
-```
+```java
 SELECT * FROM t_stu
-    // 1. 获取连接对象
-    conn = JDBCUtil.getConn();
-    // 2. 根据连接对象，得到statement
-    st = conn.createStatement();
 
-    // 3. 执行sql语句，返回ResultSet
-    String sql = "select * from t_stu";
-    rs = st.executeQuery(sql);
+// 1. 获取连接对象
+conn = JDBCUtil.getConn();
 
-    // 4. 遍历结果集
-    while (rs.next()) {
-        String name = rs.getString("name");
-        int age = rs.getInt("age");
+// 2. 根据连接对象，得到statement
+st = conn.createStatement();
 
-        System.out.println(name + "   " + age);
-    }
+// 3. 执行sql语句，返回ResultSet
+String sql = "select * from t_stu";
+rs = st.executeQuery(sql);
+
+// 4. 遍历结果集
+while (rs.next()) {
+    String name = rs.getString("name");
+    int age = rs.getInt("age");
+
+    System.out.println(name + "   " + age);
+}
 ```
 
 - update操作
 
-```
+```java
 UPDATE t_stu SET age = 38 WHERE id = 1;
 // 1. 获取连接对象
 conn = JDBCUtil.getConn();
@@ -452,7 +454,7 @@ if(result >0 ){
 
 ##### 3. 在方法的上面加上注解 ， 其实就是一个标记。
 
-```
+```java
     /**
  * 使用junit执行单元测试
  */
@@ -591,69 +593,67 @@ DAO(Data Access Object) 数据访问对象是一个面向对象的数据库接�
 
 ##### 1. 新建一个dao的接口， 里面声明数据库访问规则
 
-```
-    /**
-    * 定义操作数据库的方法
-     */
-    public interface UserDao {
+```java
+/**
+* 定义操作数据库的方法
+*/
+public interface UserDao {
 
-        /**
-         * 查询所有
-         */
-        void findAll();
-    }
+    /**
+     * 查询所有
+     */ 
+    void findAll();
+}
 ```
 
 ##### 2. 新建一个dao的实现类，具体实现早前定义的规则
 
-```
+```java
 public class UserDaoImpl implements UserDao{
+    @Override
+    public void findAll() {
+        Connection conn = null;
+        Statement st = null;
+        ResultSet rs = null;
+        try {
+            //1. 获取连接对象
+            conn = JDBCUtil.getConn();
+            //2. 创建statement对象
+            st = conn.createStatement();
+            String sql = "select * from t_user";
+            rs = st.executeQuery(sql);
 
-        @Override
-        public void findAll() {
-            Connection conn = null;
-            Statement st = null;
-            ResultSet rs = null;
-            try {
-                //1. 获取连接对象
-                conn = JDBCUtil.getConn();
-                //2. 创建statement对象
-                st = conn.createStatement();
-                String sql = "select * from t_user";
-                rs = st.executeQuery(sql);
+            while(rs.next()){
+                String userName = rs.getString("username");
+                String password = rs.getString("password");
 
-                while(rs.next()){
-                    String userName = rs.getString("username");
-                    String password = rs.getString("password");
-
-                    System.out.println(userName+"="+password);
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }finally {
-                JDBCUtil.release(conn, st, rs);
+                System.out.println(userName+"="+password);
             }
-        }
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            JDBCUtil.release(conn, st, rs);
+        }
     }
+}
 ```
 
 ##### 3. 直接使用实现
 
-```
-    @Test
-       public void testFindAll(){
-           UserDao dao = new UserDaoImpl();
-           dao.findAll();
-       }
+```java
+@Test
+public void testFindAll(){
+    UserDao dao = new UserDaoImpl();
+    dao.findAll();
+}
 ```
 
 ### 十、Statement安全问题
 
 ##### 1. Statement执行 ，其实是拼接sql语句的。  先拼接sql语句，然后在一起执行。
 
-```
+```java
 String sql = "select * from t_user where username='"+ username  +"' and password='"+ password +"'";
 
 UserDao dao = new UserDaoImpl();
@@ -671,13 +671,13 @@ rs = st.executeQuery(sql);
 
 1. 相比较以前的statement， 预先处理给定的sql语句，对其执行语法检查。 在sql语句里面使用 ? 占位符来替代后续要传递进来的变量。 后面进来的变量值，将会被看成是字符串，不会产生任何的关键字。
 
-```
+```java
 String sql = "insert into t_user values(null , ? , ?)";
 ps = conn.prepareStatement(sql);
 
- //给占位符赋值 从左到右数过来，1 代表第一个问号， 永远你是1开始。
- ps.setString(1, userName);
- ps.setString(2, password);
+//给占位符赋值 从左到右数过来，1 代表第一个问号， 永远你是1开始。
+ps.setString(1, userName);
+ps.setString(2, password);
 ```
 
 ### PreparedStatement与Statement比较
@@ -726,19 +726,19 @@ DBServer会对预编译语句提供性能优化。因为预编译语句有可能
 
 为了让多个 SQL 语句作为一个事务执行，需调用 Connection 对象的 setAutoCommit(false); 以取消自动提交事务：
 
-```
+```java
 conn.setAutoCommit(false);
 ```
 
 在所有的 SQL 语句都成功执行后，调用 commit(); 方法提交事务
 
-```
+```java
 conn.commit();
 ```
 
 在出现异常时，调用 rollback(); 方法回滚事务，一般再catch模块中执行回滚操作。
 
-```
+```java
 conn.rollback();
 ```
 
@@ -764,7 +764,7 @@ JDBC的批量处理语句包括下面两个方法：
 
 **2. Statement批量处理**
 
-```
+```java
 Statement sm = conn.createStatement();
 sm.addBatch(sql1);
 sm.addBatch(sql2);
@@ -777,7 +777,7 @@ sm.clearBatch();
 
 **3. PreparedStatement批量传参**
 
-```
+```java
 preparedStatement ps = conn.preparedStatement(sql);
 for(int i=1;i<100000;i++){
     ps.setInt(1, i);
@@ -834,13 +834,13 @@ DatabaseMetaData 类中提供了许多方法用于获得数据源的各种信息
 
 **1. Statement**
 
-```
+```java
 Statement stmt = conn.createStatement(type,concurrency);
 ```
 
 **2. PreparedStatement**
 
-```
+```java
 PreparedStatement stmt = conn.prepareStatement(sql,type,concurrency);
 ```
 
@@ -876,7 +876,7 @@ PreparedStatement stmt = conn.prepareStatement(sql,type,concurrency);
 
 如：
 
-```
+```java
 rs.absolute(80); //将指针移动到ResultSet 对象的第80行记录。
 ```
 

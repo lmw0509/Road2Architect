@@ -1,70 +1,3 @@
-# Table of Contents
-
-  * [Tomcat 总体结构](#tomcat-总体结构)
-    * [以 Service 作为“婚姻”](#以-service-作为婚姻)
-        * [图 2\. Service 接口](#图-2-service-接口)
-        * [图 3\. StandardService 的类结构图](#图-3-standardservice-的类结构图)
-        * [清单 1\. StandardService. SetContainer](#清单-1-standardservice-setcontainer)
-        * [清单 2\. StandardService. addConnector](#清单-2-standardservice-addconnector)
-    * [以 Server 为“居”](#以-server-为居)
-        * [图 4\. Server 的类结构图](#图-4-server-的类结构图)
-        * [清单 3\. StandardServer.addService](#清单-3-standardserveraddservice)
-    * [组件的生命线“Lifecycle”](#组件的生命线lifecycle)
-        * [图 5\. Lifecycle 类结构图](#图-5-lifecycle-类结构图)
-        * [清单 4\. StandardServer.Start](#清单-4-standardserverstart)
-        * [清单 5\. StandardServer.Stop](#清单-5-standardserverstop)
-  * [Connector 组件](#connector-组件)
-        * [图 6\. Connector 处理一次请求顺序图](#图-6-connector-处理一次请求顺序图)
-        * [图 7\. Connector 的主要类图](#图-7-connector-的主要类图)
-        * [清单 6\. HttpConnector.Start](#清单-6-httpconnectorstart)
-        * [清单 7\. HttpProcessor.assign](#清单-7-httpprocessorassign)
-        * [清单 8\. HttpProcessor.Run](#清单-8-httpprocessorrun)
-        * [清单 9\. HttpProcessor.process](#清单-9-httpprocessorprocess)
-  * [Servlet 容器“Container”](#servlet-容器container)
-        * [清单 10\. Server.xml](#清单-10-serverxml)
-    * [容器的总体设计](#容器的总体设计)
-        * [图 8\. 四个容器的关系图](#图-8-四个容器的关系图)
-        * [图 9\. Engine 和 Host 处理请求的时序图](#图-9-engine-和-host-处理请求的时序图)
-        * [清单 11\. Server.xml](#清单-11-serverxml)
-        * [图 10\. Context 和 wrapper 的处理请求时序图](#图-10-context-和-wrapper-的处理请求时序图)
-    * [Engine 容器](#engine-容器)
-        * [图 11\. Engine 接口的类结构](#图-11-engine-接口的类结构)
-        * [清单 12\. StandardEngine. addChild](#清单-12-standardengine-addchild)
-    * [Host 容器](#host-容器)
-        * [图 12\. Host 相关的类图](#图-12-host-相关的类图)
-    * [Context 容器](#context-容器)
-        * [清单 13\. StandardContext.start](#清单-13-standardcontextstart)
-        * [清单 14\. Server.xml](#清单-14-serverxml)
-        * [清单 15\. StandardContext. backgroundProcess](#清单-15-standardcontext-backgroundprocess)
-    * [Wrapper 容器](#wrapper-容器)
-        * [清单 16\. StandardWrapper.loadServlet](#清单-16-standardwrapperloadservlet)
-        * [图 13\. ServletConfig 与 StandardWrapperFacade、StandardWrapper 的关系](#图-13-servletconfig-与-standardwrapperfacade、standardwrapper-的关系)
-  * [Tomcat 中其它组件](#tomcat-中其它组件)
-  * [微信公众号](#微信公众号)
-    * [个人公众号：程序员黄小斜](#个人公众号：程序员黄小斜)
-    * [技术公众号：Java技术江湖](#技术公众号：java技术江湖)
-
-
-
-本文转载自互联网，侵删
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-本系列文章将同步到我的个人博客：
-> www.how2playlife.com
-
-更多Java技术文章将陆续在微信公众号【Java技术江湖】更新，敬请关注。
-
-本文是《走进JavaWeb技术世界》系列博文的其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何从入门到进阶，从servlet到框架，从ssm再到SpringBoot，一步步地学习JavaWeb基础知识，并上手进行实战，接着了解JavaWeb项目中经常要使用的技术和组件，包括日志组件、Maven、Junit，等等内容，以便让你更完整地了解整个JavaWeb技术体系，形成自己的知识框架。为了更好地总结和检验你的学习成果，本系列文章也会提供每个知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-**文末赠送8000G的Java架构师学习资料，需要的朋友可以到文末了解领取方式，资料包括Java基础、进阶、项目和架构师等免费学习资料，更有数据库、分布式、微服务等热门技术学习视频，内容丰富，兼顾原理和实践，另外也将赠送作者原创的Java学习指南、Java程序员面试指南等干货资源）**
-<!-- more -->
 ## Tomcat 总体结构
 
 Tomcat 的结构很复杂，但是 Tomcat 也非常的模块化，找到了 Tomcat 最核心的模块，您就抓住了 Tomcat 的“七寸”。下面是 Tomcat 的总体结构图：
@@ -708,9 +641,10 @@ Context 还可以定义在父容器 Host 中，Host 不是必须的，但是要�
 
 
     <Engine defaultHost="localhost" name="Catalina">
-    
-     
-    
+
+
+​     
+​    
         <Valve className="org.apache.catalina.valves.RequestDumperValve"/>
     
         ………
@@ -718,9 +652,10 @@ Context 还可以定义在父容器 Host 中，Host 不是必须的，但是要�
         <Host appBase="webapps" autoDeploy="true" name="localhost" unpackWARs="true"
     
             xmlNamespaceAware="false" xmlValidation="false">
-    
-     
-    
+
+
+​     
+​    
             <Valve className="org.apache.catalina.valves.FastCommonAccessLogValve"
     
                 directory="logs"  prefix="localhost_access_log." suffix=".txt"
@@ -781,9 +716,10 @@ Engine 容器比较简单，它只定义了一些基本的关联关系，接口�
         super.addChild(child);
     
     }
-    
-     
-    
+
+
+​     
+​    
     public void setParent(Container container) {
     
         throw new IllegalArgumentException
@@ -791,7 +727,7 @@ Engine 容器比较简单，它只定义了一些基本的关联关系，接口�
             (sm.getString("standardEngine.notParent"));
     
     }
-    
+
 
 
 
@@ -845,9 +781,10 @@ Context 准备 Servlet 的运行环境是在 Start 方法开始的，这个方�
             }
     
         }
-    
-         
-    
+
+
+​         
+​    
         ………
     
         lifecycle.fireLifecycleEvent(BEFORE_START_EVENT, null);
@@ -925,9 +862,10 @@ Context 准备 Servlet 的运行环境是在 Start 方法开始的，这个方�
             }
     
         }
-    
-     
-    
+
+
+​     
+​    
         ………
     
         Container children[] = findChildren();
@@ -939,17 +877,19 @@ Context 准备 Servlet 的运行环境是在 Start 方法开始的，这个方�
                 ((Lifecycle) children[i]).start();
     
         }
-    
-         
-    
+
+
+​         
+​    
         if (pipeline instanceof Lifecycle)
     
             ((Lifecycle) pipeline).start();
     
         ………
-    
-     
-    
+
+
+​     
+​    
     }
 
 
@@ -963,9 +903,9 @@ Context 准备 Servlet 的运行环境是在 Start 方法开始的，这个方�
 
 
 
-    
-    
-    
+
+​    
+​    
     <Context
     
         path="/library"
@@ -975,7 +915,7 @@ Context 准备 Servlet 的运行环境是在 Start 方法开始的，这个方�
         reloadable="true"
     
     />
-    
+
 
 
 
@@ -1138,16 +1078,10 @@ Wrapper 的实现类是 StandardWrapper，StandardWrapper 还实现了拥有一�
                 instanceSupport.fireInstanceEvent(InstanceEvent.AFTER_INIT_EVENT,servlet);
     
                 ………
-    
-             
-    
+
         return servlet;
     
     }
-
-
-
-
 
 它基本上描述了对 Servlet 的操作，当装载了 Servlet 后就会调用 Servlet 的 init 方法，同时会传一个 StandardWrapperFacade 对象给 Servlet，这个对象包装了 StandardWrapper，ServletConfig 与它们的关系图如下：
 
@@ -1162,41 +1096,5 @@ Servlet 可以获得的信息都在 StandardWrapperFacade 封装，这些信息�
 ## Tomcat 中其它组件
 
 Tomcat 还有其它重要的组件，如安全组件 security、logger 日志组件、session、mbeans、naming 等其它组件。这些组件共同为 Connector 和 Container 提供必要的服务。
-
-
-
-
-## 微信公众号
-
-### 个人公众号：程序员黄小斜
-
-​
-黄小斜是 985 硕士，阿里巴巴Java工程师，在自学编程、技术求职、Java学习等方面有丰富经验和独到见解，希望帮助到更多想要从事互联网行业的程序员们。
-​
-作者专注于 JAVA 后端技术栈，热衷于分享程序员干货、学习经验、求职心得，以及自学编程和Java技术栈的相关干货。
-​
-黄小斜是一个斜杠青年，坚持学习和写作，相信终身学习的力量，希望和更多的程序员交朋友，一起进步和成长！
-
-**原创电子书:**
-关注微信公众号【程序员黄小斜】后回复【原创电子书】即可领取我原创的电子书《菜鸟程序员修炼手册：从技术小白到阿里巴巴Java工程师》这份电子书总结了我2年的Java学习之路，包括学习方法、技术总结、求职经验和面试技巧等内容，已经帮助很多的程序员拿到了心仪的offer！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取，包括Java、python、C++、大数据、机器学习、前端、移动端等方向的技术资料。
-
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
-
-
-### 技术公众号：Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的微信公众号【Java技术江湖】
-
-这是一位阿里 Java 工程师的技术小站。作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-
-**Java工程师必备学习资源:** 
-关注公众号后回复”Java“即可领取 Java基础、进阶、项目和架构师等免费学习资料，更有数据库、分布式、微服务等热门技术学习视频，内容丰富，兼顾原理和实践，另外也将赠送作者原创的Java学习指南、Java程序员面试指南等干货资源
-
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
 
 ​                     

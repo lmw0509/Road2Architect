@@ -1,37 +1,3 @@
-# Table of Contents
-
-  * [什么是Servlet](#什么是servlet)
-  * [Servlet体系结构](#servlet体系结构)
-  * [Servlet工作原理](#servlet工作原理)
-  * [Servlet生命周期](#servlet生命周期)
-  * [Servlet中的Listener](#servlet中的listener)
-* [Cookie与Session](#cookie与session)
-  * [参考文章](#参考文章)
-  * [微信公众号](#微信公众号)
-    * [个人公众号：程序员黄小斜](#个人公众号：程序员黄小斜)
-    * [技术公众号：Java技术江湖](#技术公众号：java技术江湖)
-
-
-
-本文转载自互联网，侵删
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-本系列文章将同步到我的个人博客：
-> www.how2playlife.com
-
-更多Java技术文章将陆续在微信公众号【Java技术江湖】更新，敬请关注。
-
-本文是《走进JavaWeb技术世界》系列博文的其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何从入门到进阶，从servlet到框架，从ssm再到SpringBoot，一步步地学习JavaWeb基础知识，并上手进行实战，接着了解JavaWeb项目中经常要使用的技术和组件，包括日志组件、Maven、Junit，等等内容，以便让你更完整地了解整个JavaWeb技术体系，形成自己的知识框架。为了更好地总结和检验你的学习成果，本系列文章也会提供每个知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-**文末赠送8000G的Java架构师学习资料，需要的朋友可以到文末了解领取方式，资料包括Java基础、进阶、项目和架构师等免费学习资料，更有数据库、分布式、微服务等热门技术学习视频，内容丰富，兼顾原理和实践，另外也将赠送作者原创的Java学习指南、Java程序员面试指南等干货资源）**
-<!-- more -->
 ## 什么是Servlet
 
 Servlet的作用是**为Java程序提供一个统一的web应用的规范**，方便程序员统一的使用这种规范来编写程序，应用容器可以使用提供的规范来实现自己的特性。比如tomcat的代码和jetty的代码就不一样，但作为程序员你只需要了解servlet规范就可以从request中取值，你可以操作session等等。不用在意应用服务器底层的实现的差别而影响你的开发。
@@ -44,44 +10,27 @@ HTTP 协议只是一个规范，定义服务请求和响应的大致式样。Jav
 
 ## Servlet体系结构
 
-
-
-
-
 ![](https://upload-images.jianshu.io/upload_images/6807865-fde8eafd9ebb9fa7.png?imageMogr2/auto-orient/strip|imageView2/2/w/434/format/webp)
 
 
 
 Servlet顶级类关联图
 
-
-
 **Servlet**
 
 Servlet的框架是由两个Java包组成的：javax.servlet与javax.servlet.http。在javax.servlet包中定义了所有的Servlet类都必须实现或者扩展的通用接口和类。在javax.servlet.http包中定义了采用Http协议通信的HttpServlet类。Servlet的框架的核心是javax.servlet.Servlet接口，所有的Servlet都必须实现这个接口。
 
-
-
-
-
 ![](https://upload-images.jianshu.io/upload_images/6807865-c4f29f8263377807.png?imageMogr2/auto-orient/strip|imageView2/2/w/495/format/webp)
-
-
 
 Servlet接口
 
-
-
-在Servlet接口中定义了5个方法：
-
-```
-1\. init(ServletConfig)方法：负责初始化Servlet对象，在Servlet的生命周期中，该方法执行一次；该方法执行在单线程的环境下，因此开发者不用考虑线程安全的问题；
-2\. service(ServletRequest req,ServletResponse res)方法：负责响应客户的请求；为了提高效率，Servlet规范要求一个Servlet实例必须能够同时服务于多个客户端请求，即service()方法运行在多线程的环境下，Servlet开发者必须保证该方法的线程安全性；
-3\. destroy()方法：当Servlet对象退出生命周期时，负责释放占用的资源；
-4\. getServletInfo：就是字面意思，返回Servlet的描述；
-5\. getServletConfig：这个方法返回由Servlet容器传给init方法的ServletConfig。
-
-```
+> 在Servlet接口中定义了5个方法：
+>
+> 1. init(ServletConfig)方法：负责初始化Servlet对象，在Servlet的生命周期中，该方法执行一次；该方法执行在单线程的环境下，因此开发者不用考虑线程安全的问题；
+> 2. service(ServletRequest req,ServletResponse res)方法：负责响应客户的请求；为了提高效率，Servlet规范要求一个Servlet实例必须能够同时服务于多个客户端请求，即service()方法运行在多线程的环境下，Servlet开发者必须保证该方法的线程安全性；
+> 3. destroy()方法：当Servlet对象退出生命周期时，负责释放占用的资源；
+> 4. getServletInfo：就是字面意思，返回Servlet的描述；
+> 5. getServletConfig：这个方法返回由Servlet容器传给init方法的ServletConfig。
 
 **ServletRequest & ServletResponse**
 
@@ -101,15 +50,16 @@ ServletContext是代表了Servlet应用程序。每个Web应用程序只有一�
 
 将init方法中的ServletConfig赋给一个类级变量，使的可以通过getServletConfig来获取。
 
-```
+```java
 public void init(ServletConfig config) throws ServletException {
         this.config = config;
         this.init();
 }
-
 ```
 
-同时为避免覆盖init方法后在子类中必须调用super.init(servletConfig)，GenericServlet还提供了一个不带参数的init方法，当ServletConfig赋值完成就会被第带参数的init方法调用。这样就可以通过覆盖不带参数的init方法编写初始化代码，而ServletConfig实例依然得以保存
+同时为避免覆盖init方法后在子类中必须调用super.init(servletConfig)，GenericServlet还提供了一个不带参数的init方法，当ServletConfig赋值完成就会被第带参数的init方法调用。
+
+这样就可以通过覆盖不带参数的init方法编写初始化代码，而ServletConfig实例依然得以保存。
 
 为Servlet接口中的所有方法提供默认实现。
 
@@ -125,23 +75,13 @@ public void init(ServletConfig config) throws ServletException {
 
 针对同一个Servlet，Servlet容器会在第一次收到http请求时建立一个Servlet实例，然后启动一个线程。第二次收到http请求时，Servlet容器无须建立相同的Servlet实例，而是启动第二个线程来服务客户端请求。所以多线程方式不但可以提高Web应用程序的执行效率，也可以降低Web服务器的系统负担。
 
-
-
-
-
 ![](https://upload-images.jianshu.io/upload_images/6807865-b62549f0e7ece508.png?imageMogr2/auto-orient/strip|imageView2/2/w/548/format/webp)
 
 
 
 Web服务器工作流程
 
-
-
 接着我们描述一下Tomcat与Servlet是如何工作的，首先看下面的时序图：
-
-
-
-
 
 ![](https://upload-images.jianshu.io/upload_images/6807865-6ba5b5d7a6206830.png?imageMogr2/auto-orient/strip|imageView2/2/w/700/format/webp)
 
@@ -149,28 +89,19 @@ Web服务器工作流程
 
 Servlet工作原理时序图
 
-
-
 > 1.  Web Client 向Servlet容器（Tomcat）发出Http请求；
->     
 >     
 > 2.  Servlet容器接收Web Client的请求；
 >     
->     
 > 3.  Servlet容器创建一个HttpRequest对象，将Web Client请求的信息封装到这个对象中；
->     
 >     
 > 4.  Servlet容器创建一个HttpResponse对象；
 >     
->     
 > 5.  Servlet容器调用HttpServlet对象的service方法，把HttpRequest对象与HttpResponse对象作为参数传给 HttpServlet对象；
->     
 >     
 > 6.  HttpServlet调用HttpRequest对象的有关方法，获取Http请求信息；
 >     
->     
 > 7.  HttpServlet调用HttpResponse对象的有关方法，生成响应数据；
->     
 >     
 > 8.  Servlet容器把HttpServlet的响应结果传给Web Client；
 
@@ -178,12 +109,9 @@ Servlet工作原理时序图
 
 **在Servlet接口中定义了5个方法，其中3个方法代表了Servlet的生命周期：**
 
-```
-1\. init(ServletConfig)方法：负责初始化Servlet对象，在Servlet的生命周期中，该方法执行一次；该方法执行在单线程的环境下，因此开发者不用考虑线程安全的问题；
-2\. service(ServletRequest req,ServletResponse res)方法：负责响应客户的请求；为了提高效率，Servlet规范要求一个Servlet实例必须能够同时服务于多个客户端请求，即service()方法运行在多线程的环境下，Servlet开发者必须保证该方法的线程安全性；
-3\. destroy()方法：当Servlet对象退出生命周期时，负责释放占用的资源；
-
-```
+1. init(ServletConfig)方法：负责初始化Servlet对象，在Servlet的生命周期中，该方法执行一次；该方法执行在单线程的环境下，因此开发者不用考虑线程安全的问题；
+2. service(ServletRequest req,ServletResponse res)方法：负责响应客户的请求；为了提高效率，Servlet规范要求一个Servlet实例必须能够同时服务于多个客户端请求，即service()方法运行在多线程的环境下，Servlet开发者必须保证该方法的线程安全性；
+3. destroy()方法：当Servlet对象退出生命周期时，负责释放占用的资源；
 
 编程注意事项说明：
 
@@ -192,36 +120,28 @@ Servlet工作原理时序图
 3.  虽然service()方法运行在多线程的环境下，并不一定要同步该方法。而是要看这个方法在执行过程中访问的资源类型及对资源的访问方式。分析如下：
 
 ```
-1\. 如果service()方法没有访问Servlet的成员变量也没有访问全局的资源比如静态变量、文件、数据库连接等，而是只使用了当前线程自己的资源，比如非指向全局资源的临时变量、request和response对象等。该方法本身就是线程安全的，不必进行任何的同步控制。
+1. 如果service()方法没有访问Servlet的成员变量也没有访问全局的资源比如静态变量、文件、数据库连接等，而是只使用了当前线程自己的资源，比如非指向全局资源的临时变量、request和response对象等。该方法本身就是线程安全的，不必进行任何的同步控制。
 
-2\. 如果service()方法访问了Servlet的成员变量，但是对该变量的操作是只读操作，该方法本身就是线程安全的，不必进行任何的同步控制。
+2. 如果service()方法访问了Servlet的成员变量，但是对该变量的操作是只读操作，该方法本身就是线程安全的，不必进行任何的同步控制。
 
-3\. 如果service()方法访问了Servlet的成员变量，并且对该变量的操作既有读又有写，通常需要加上同步控制语句。
+3. 如果service()方法访问了Servlet的成员变量，并且对该变量的操作既有读又有写，通常需要加上同步控制语句。
 
-4\. 如果service()方法访问了全局的静态变量，如果同一时刻系统中也可能有其它线程访问该静态变量，如果既有读也有写的操作，通常需要加上同步控制语句。
+4. 如果service()方法访问了全局的静态变量，如果同一时刻系统中也可能有其它线程访问该静态变量，如果既有读也有写的操作，通常需要加上同步控制语句。
 
-5\. 如果service()方法访问了全局的资源，比如文件、数据库连接等，通常需要加上同步控制语句。
-
+5. 如果service()方法访问了全局的资源，比如文件、数据库连接等，通常需要加上同步控制语句。
 ```
 
 在创建一个 Java servlet 时，一般需要子类 HttpServlet。该类中的方法允许您访问请求和响应包装器（wrapper），您可以用这个包装器来处理请求和创建响应。Servlet的生命周期，简单的概括这就分为四步：
 
 ```
 Servlet类加载--->实例化--->服务--->销毁；
-
 ```
-
-
-
-
 
 ![](https://upload-images.jianshu.io/upload_images/6807865-2868e60f05e4c34d.png?imageMogr2/auto-orient/strip|imageView2/2/w/700/format/webp)
 
 
 
 Servlet生命周期
-
-
 
 **创建Servlet对象的时机：**
 
@@ -235,7 +155,7 @@ Servlet生命周期
 
 **Servlet容器停止或者重新启动**：Servlet容器调用Servlet对象的destroy方法来释放资源。以上所讲的就是Servlet对象的生命周期。那么Servlet容器如何知道创建哪一个Servlet对象？Servlet对象如何配置？实际上这些信息是通过读取web.xml配置文件来实现的。
 
-```
+```xml
 <servlet>
     <!-- Servlet对象的名称 -->
     <servlet-name>action<servlet-name>
@@ -258,6 +178,7 @@ Servlet生命周期
     <!-- Servlet容器启动时加载Servlet对象的顺序 -->
     <load-on-startup>2</load-on-startup>
 </servlet>
+        
 <!-- 要与servlet中的servlet-name配置节内容对应 -->
 <servlet-mapping>
     <servlet-name>action</servlet-name>
@@ -271,17 +192,11 @@ Servlet生命周期
 
 在整个Servlet的生命周期过程中，**创建Servlet实例、调用实例的init()和destroy()方法都只进行一次**，当初始化完成后，Servlet容器会将该实例保存在内存中，通过调用它的service()方法，为接收到的请求服务。下面给出Servlet整个生命周期过程的UML序列图，如图所示：
 
-
-
-
-
 ![](https://upload-images.jianshu.io/upload_images/6807865-aec8736ee84fab58.png?imageMogr2/auto-orient/strip|imageView2/2/w/664/format/webp)
 
 
 
 Servlet生命周期
-
-
 
 > 如果需要让Servlet容器在启动时即加载Servlet，可以在web.xml文件中配置<load-on-startup>元素。
 
@@ -291,19 +206,15 @@ Listener 使用的非常广泛，它是基于观察者模式设计的，Listener
 
 
 
-
-
 ![](https://upload-images.jianshu.io/upload_images/6807865-3cd97763331db274.png?imageMogr2/auto-orient/strip|imageView2/2/w/495/format/webp)
 
 
 
 Servlet中的Listener
 
-
-
 它们基本上涵盖了整个 Servlet 生命周期中，你感兴趣的每种事件。这些 Listener 的实现类可以配置在 web.xml 中的 <listener> 标签中。当然也可以在应用程序中动态添加 Listener，需要注意的是 ServletContextListener 在容器启动之后就不能再添加新的，因为它所监听的事件已经不会再出现。掌握这些 Listener 的使用，能够让我们的程序设计的更加灵活。
 
-# Cookie与Session
+## Cookie与Session
 
 Servlet 能够给我们提供两部分数据，一个是在 Servlet 初始化时调用 init 方法时设置的 ServletConfig，这个类基本上含有了 Servlet 本身和 Servlet 所运行的 Servlet 容器中的基本信息。还有一部分数据是由 ServletRequest 类提供，从提供的方法中发现主要是描述这次请求的 HTTP 协议的信息。关于这一块还有一个让很多人迷惑的 Session 与 Cookie。
 
@@ -318,8 +229,7 @@ Session 与 Cookie 的作用都是为了保持访问用户与后端服务器的�
 第一种情况下，当浏览器不支持 Cookie 功能时，浏览器会将用户的 SessionCookieName 重写到用户请求的 URL 参数中，它的传递格式如：
 
 ```
- /path/Servlet?name=value&name2=value2&JSESSIONID=value3
-
+/path/Servlet?name=value&name2=value2&JSESSIONID=value3
 ```
 
 接着 Request 根据这个 JSESSIONID 参数拿到 Session ID 并设置到 request.setRequestedSessionId 中。
@@ -340,21 +250,9 @@ Session 与 Cookie 的作用都是为了保持访问用户与后端服务器的�
 
 Session相关类图
 
-
-
 上从图中可以看出从 request.getSession 中获取的 HttpSession 对象实际上是 StandardSession 对象的门面对象，这与前面的 Request 和 Servlet 是一样的原理。下图是 Session 工作的时序图：
 
-
-
-
-
 ![](https://upload-images.jianshu.io/upload_images/6807865-0f293008a947ad0e.png?imageMogr2/auto-orient/strip|imageView2/2/w/568/format/webp)
-
-
-
-Session工作的时序图
-
-
 
 还有一点与 Session 关联的 Cookie 与其它 Cookie 没有什么不同，这个配置的配置可以通过 web.xml 中的 session-config 配置项来指定。
 
@@ -370,38 +268,5 @@ Session工作的时序图
 <https://www.runoob.com/>
 
 https://blog.csdn.net/android_hl/article/details/53228348
-
-## 微信公众号
-
-### 个人公众号：程序员黄小斜
-
-​
-黄小斜是 985 硕士，阿里巴巴Java工程师，在自学编程、技术求职、Java学习等方面有丰富经验和独到见解，希望帮助到更多想要从事互联网行业的程序员们。
-​
-作者专注于 JAVA 后端技术栈，热衷于分享程序员干货、学习经验、求职心得，以及自学编程和Java技术栈的相关干货。
-​
-黄小斜是一个斜杠青年，坚持学习和写作，相信终身学习的力量，希望和更多的程序员交朋友，一起进步和成长！
-
-**原创电子书:**
-关注微信公众号【程序员黄小斜】后回复【原创电子书】即可领取我原创的电子书《菜鸟程序员修炼手册：从技术小白到阿里巴巴Java工程师》这份电子书总结了我2年的Java学习之路，包括学习方法、技术总结、求职经验和面试技巧等内容，已经帮助很多的程序员拿到了心仪的offer！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取，包括Java、python、C++、大数据、机器学习、前端、移动端等方向的技术资料。
-
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
-
-
-### 技术公众号：Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的微信公众号【Java技术江湖】
-
-这是一位阿里 Java 工程师的技术小站。作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-
-**Java工程师必备学习资源:** 
-关注公众号后回复”Java“即可领取 Java基础、进阶、项目和架构师等免费学习资料，更有数据库、分布式、微服务等热门技术学习视频，内容丰富，兼顾原理和实践，另外也将赠送作者原创的Java学习指南、Java程序员面试指南等干货资源
-
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
 
 ​                     
