@@ -5,7 +5,7 @@
 软件测试中，主要有3大种类：
 
 *   [单元测试](https://en.wikipedia.org/wiki/Unit_testing)
-    单元测试主要是用于测试程序模块，确保代码运行正确。单元测试是由开发者编写并进行运行测试。一般使用的测试框架是 [JUnit](http://junit.org/junit4/) 或者 [TestNG](https://github.com/cbeust/testng)。测试用例一般是针对方法 级别的测试。
+    单元测试主要是用于测试程序模块，确保代码运行正确。单元测试是由开发者编写并进行运行测试。一般使用的测试框架是 [JUnit](http://junit.org/junit4/) 或者 [TestNG](https://github.com/cbeust/testng)。测试用例一般是针对方法级别的测试。
 *   [集成测试](https://en.wikipedia.org/wiki/Integration_testing)
     集成测试用于检测系统是否能正常工作。集成测试也是由开发者共同进行测试，与单元测试专注测试个人代码组件不同的是，集成测试是系统进行跨组件测试。
 *   [功能性测试](https://en.wikipedia.org/wiki/Functional_testing)
@@ -51,15 +51,15 @@ JUnit有它自己的JUnit扩展生态圈，多数Java的开发环境都已经集
 
 #### 3.1 注解
 
-@Test ：该注释表示，用其附着的公共无效方法（即用public修饰的void类型的方法 ）可以作为一个测试用例；
+**@Test ：该注释表示，用其附着的公共无效方法（即用public修饰的void类型的方法 ）可以作为一个测试用例；**
 
-@Before ：该注释表示，用其附着的方法必须在类中的每个测试之前执行，以便执行测试某些必要的先决条件；
+@Before ：该注释表示，用其附着的方法必须在类中的**每个测试之前执行**，以便执行测试某些必要的先决条件；
 
-@BeforeClass ：该注释表示，用其附着的静态方法必须执行一次并在类的所有测试之前，发生这种情况时一般是测试计算共享配置方法，如连接到数据库；
+@BeforeClass ：该注释表示，**用其附着的静态方法必须执行一次并在类的所有测试之前，发生这种情况时一般是测试计算共享配置方法，如连接到数据库；**
 
 @After ：该注释表示，用其附着的方法在执行每项测试后执行，如执行每一个测试后重置某些变量，删除临时变量等；
 
-@AfterClass ：该注释表示，当需要执行所有的测试在JUnit测试用例类后执行，AfterClass注解可以使用以清理建立方法，如断开数据库连接，注意：附有此批注（类似于BeforeClass）的方法必须定义为静态；
+@AfterClass ：该注释表示，当需要执行所有的测试在JUnit测试用例类后执行，**AfterClass注解可以使用以清理建立方法，如断开数据库连接，注意：附有此批注（类似于BeforeClass）的方法必须定义为静态；**
 
 @Ignore ：该注释表示，当想暂时禁用特定的测试执行可以使用忽略注释，每个被注解为@Ignore的方法将不被执行。
 
@@ -125,7 +125,6 @@ void assertArrayEquals([String message], expectedArray, resultArray)
 
 ```java
 //用 JUnit 3.X 进行测试
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -175,15 +174,13 @@ public class TestOperation extends TestCase {
 
 - @Test(timeout = xxx) 注解：设置当前测试方法在一定时间内运行完，否则返回错误；
 
-- @Test(expected = Exception.class) 注解：设置被测试的方法是否有异常抛出。抛出异常类型为：Exception.class；
+- **@Test(expected = Exception.class) 注解：设置被测试的方法是否有异常抛出。抛出异常类型为：Exception.class；**
 
 此外，我们可以通过阅读上面的第二部分“2 注解”了解更多的注解。
 
 
 ```java
-/
-* 用 JUnit 4.X 进行测试
-*/
+//用 JUnit 4.X 进行测试
 import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -191,42 +188,51 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 public class TestOperation {
+ 
   private Operation operation;
+  
   @BeforeClass
   public static void globalInit() { // 在所有方法执行之前执行
     System.out.println("@BeforeClass标注的方法，在所有方法执行之前执行...");
   }
+    
   @AfterClass
   public static void globalDestory() { // 在所有方法执行之后执行
     System.out.println("@AfterClass标注的方法，在所有方法执行之后执行...");
   }
+    
   @Before
   public void setUp() { // 在每个测试方法之前执行
     System.out.println("@Before标注的方法，在每个测试方法之前执行...");
     operation = new Operation();
   }
+    
   @After
   public void tearDown() { // 在每个测试方法之后执行
     System.out.println("@After标注的方法，在每个测试方法之后执行...");
   }
+    
   @Test(timeout=600)
   public void testAdd() { // 设置限定测试方法的运行时间 如果超出则返回错误
     System.out.println("测试 add 方法...");
     int result = operation.add(2, 3);
     assertEquals(5, result);
   }
+    
   @Test
   public void testSubtract() {
     System.out.println("测试 subtract 方法...");
     int result = operation.subtract(1, 2);
     assertEquals(-1, result);
   }
+    
   @Test
   public void testMultiply() {
     System.out.println("测试 multiply 方法...");
     int result = operation.multiply(2, 3);
     assertEquals(6, result);
   }
+    
   @Test
   public void testDivide() {
     System.out.println("测试 divide 方法...");
@@ -238,12 +244,14 @@ public class TestOperation {
     }
     assertEquals(3, result);
   }
+    
   @Test(expected = Exception.class)
   public void testDivideAgain() throws Exception {
     System.out.println("测试 divide 方法，除数为 0 的情况...");
     operation.divide(6, 0);
     fail("test Error");
   }
+    
   public static void main(String[] args) {
   }
 }
@@ -258,15 +266,13 @@ public class TestOperation {
 
 在 JUnit 3.X 中，还强制要求测试方法的命名为“ testXxxx ”这种格式；
 
-在 JUnit 4.X 中，则不要求测试方法的命名格式，但作者还是建议测试方法统一命名为“ testXxxx ”这种格式，简洁明了。
+**在 JUnit 4.X 中，则不要求测试方法的命名格式，但作者还是建议测试方法统一命名为“ testXxxx ”这种格式，简洁明了。**
 
-此外，在上面的两个示例中，我们只给出了测试类，但是在这之前，还应该有一个被测试类，也就是我们真正要实现功能的类。现在，作者将给出上面示例中被测试的类，即 Operation 类：
+**此外，在上面的两个示例中，我们只给出了测试类，但是在这之前，还应该有一个被测试类，也就是我们真正要实现功能的类。**现在，作者将给出上面示例中被测试的类，即 Operation 类：
 
 
 ```java
-/
-* 定义了加减乘除的法则
-*/
+//定义了加减乘除的法则
 public class Operation {
   public static void main(String[] args) {
     System.out.println("a + b = " + add(1,2));
@@ -275,15 +281,19 @@ public class Operation {
     System.out.println("a / b = " + divide(4,2));
     System.out.println("a / b = " + divide(1,0));
   }
+    
   public static int add(int a, int b) {
     return a + b;
   }
+    
   public static int subtract(int a, int b) {
     return a - b;
   }
+    
   public static int multiply(int a, int b) {
     return a * b;
   }
+    
   public static int divide(int a, int b) {
     return a / b;
   }
@@ -301,29 +311,28 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import java.util.ArrayList;
 import java.util.Collection;
-/
- * 1、创建一个测试类，继承TestCase类
- */
+
+
+//1、创建一个测试类，继承TestCase类
 public class SimpleTestDemo extends TestCase {
+  
   public SimpleTestDemo(String name) {
     super(name);
   }
-  /
-   * 2、写一个测试方法，断言期望的结果
-   */
+
+  //2、写一个测试方法，断言期望的结果
   public void testEmptyCollection(){
     Collection collection = new ArrayList();
     assertTrue(collection.isEmpty());
   }
-  /
-   * 3、写一个suite()方法，它会使用反射动态的创建一个包含所有的testXxxx方法的测试套件
-   */
+    
+  //3、写一个suite()方法，它会使用反射动态的创建一个包含所有的testXxxx方法的测试套件
   public static Test suit(){
     return new TestSuite(SimpleTestDemo.class);
   }
-  /
-   * 4、写一个main()方法，以文本运行器的方式方便的运行测试
-   */
+     
+
+  //4、写一个main()方法，以文本运行器的方式方便的运行测试
   public static void main(String[] args) {
     junit.textui.TestRunner.run(suit());
   }
@@ -336,18 +345,18 @@ public class SimpleTestDemo extends TestCase {
 
 因此，个人建议：要养成编写测试代码的习惯，码一点、测一点；再码一点，再测一点，如此循环。在我们不断编写与测试代码的过程中，我们将会对类的行为有一个更为深入的了解，从而可以有效的提高我们的工作效率。下面，作者就给出一些具体的编写测试代码的技巧和较好的实践方法：
 
-1\. 不要用 TestCase 的构造函数初始化 Fixture，而要用 setUp() 和 tearDown() 方法；
-2\. 不要依赖或假定测试运行的顺序，因为 JUnit 会利用 Vector 保存测试方法，所以不同的平台会按不同的顺序从 Vector 中取出测试方法；
-3\. 避免编写有副作用的 TestCase，例如：如果随后的测试依赖于某些特定的交易数据，就不要提交交易数据，只需要简单的回滚就可以了；
-4\. 当继承一个测试类时，记得调用父类的 setUp() 和 tearDown() 方法；
-5\. 将测试代码和工作代码放在一起，同步编译和更新；
-6\. 测试类和测试方法应该有一致的命名方案，如在工作类名前加上 test 从而形成测试类名；
-7\. 确保测试与时间无关，不要使用过期的数据进行测试，以至于导致在随后的维护过程中很难重现测试；
-8\. 如果编写的软件面向国际市场，那么编写测试时一定要考虑国际化的因素；
-9\. 尽可能地利用 JUnit 提供地 assert 和 fail 方法以及异常处理的方法，其可以使代码更为简洁；
-10\. 测试要尽可能地小，执行速度快；
-11\. 不要硬性规定数据文件的路径；
-12\. 使用文档生成器做测试文档。
+1. 不要用 TestCase 的构造函数初始化 Fixture，而要用 setUp() 和 tearDown() 方法；
+2. 不要依赖或假定测试运行的顺序，因为 JUnit 会利用 Vector 保存测试方法，所以不同的平台会按不同的顺序从 Vector 中取出测试方法；
+3. 避免编写有副作用的 TestCase，例如：如果随后的测试依赖于某些特定的交易数据，就不要提交交易数据，只需要简单的回滚就可以了；
+4.  当继承一个测试类时，记得调用父类的 setUp() 和 tearDown() 方法；
+5. 将测试代码和工作代码放在一起，同步编译和更新；
+6. 测试类和测试方法应该有一致的命名方案，如在工作类名前加上 test 从而形成测试类名；
+7. 确保测试与时间无关，不要使用过期的数据进行测试，以至于导致在随后的维护过程中很难重现测试；
+8. 如果编写的软件面向国际市场，那么编写测试时一定要考虑国际化的因素；
+9. 尽可能地利用 JUnit 提供地 assert 和 fail 方法以及异常处理的方法，其可以使代码更为简洁；
+10. 测试要尽可能地小，执行速度快；
+11. 不要硬性规定数据文件的路径；
+12. 使用文档生成器做测试文档。
 
 ### 7 大单元测试框架
 ![](http://img.mp.itc.cn/upload/20170601/4310fd169d4d464db44fa73f25a241c3.jpg)
@@ -409,7 +418,3 @@ Mockito被设计为用于Java的开源测试框架，MIT许可证。Mockito允�
 #### 8 Powermock
 
 PowerMock是用于对源代码进行单元测试的Java框架，它可以作为其他模拟框架的扩展，比如原型Mockito或EasyMock，但具有更强大的功能。PowerMock利用自定义的类加载器和字节码操纵器来实现静态方法，构造函数，最终类和方法以及私有方法等的模拟。它主要是为了扩展现有的API，使用少量的方法和注解来实现额外的功能。
-
-
-
-​                     
