@@ -358,10 +358,10 @@ public class SimpleTestDemo extends TestCase {
 11. 不要硬性规定数据文件的路径；
 12. 使用文档生成器做测试文档。
 
-### 7 大单元测试框架
+## 单元测试框架
 ![](http://img.mp.itc.cn/upload/20170601/4310fd169d4d464db44fa73f25a241c3.jpg)
 
-#### 1.Arquillian
+### 1.Arquillian
 
 Arquillian是一个基于JVM的高度可扩展的测试平台，允许开发人员创建Java的自动化集成，功能和验收测试。Arquillian允许你在运行态时执行测试。Arquillian可用于管理容器（或容器）的生命周期，绑定测试用例，依赖类和资源。它还能够将压缩包部署到容器中，并在容器中执行测试并捕获结果并创建报告。
 
@@ -369,7 +369,7 @@ Arquillian集成了熟悉的测试框架，如JUnit 4、TestNG 5，并允许使�
 
 ![](http://img.mp.itc.cn/upload/20170601/8c78fe84d7fa46b9b6dd9fc8ab001e00.jpg)
 
-#### 2.JTEST
+### 2.JTEST
 
 JTest也被称为“Parasoft JTest”，是Parasoft公司生产的自动化Java软件测试和静态分析软件。 JTest包括用于单元测试用例生成和执行，静态代码分析，数据流静态分析和度量分析，回归测试，运行时错误检测的功能。
 
@@ -377,13 +377,13 @@ JTest也被称为“Parasoft JTest”，是Parasoft公司生产的自动化Java�
 
 ![](http://img.mp.itc.cn/upload/20170601/582197f6e97549bd894380f2b7320cc9.jpg)
 
-#### 3.The Grinder
+### 3.The Grinder
 
 “The Grinder”是一个Java负载测试框架。并且通过使用大量负载注射器来为分布式测试提供便利。Grinder可以对具有Java API的任何内容加载测试。这包括HTTP Web服务器，SOAP、REST Web服务、应用程序服务器，包括自定义协议。测试脚本用强大的Jython和Clojure语言编写。Grinder的GUI控制台允许对多个负载注射器进行监控和控制，并自动管理客户端连接和Cookie，SSL，代理感知和连接限制。您可以在这里找到关于磨床功能的更多深入信息。
 
 ![](http://img.mp.itc.cn/upload/20170601/2d5c47277d254ad783c08b5f03a42372_th.jpg)
 
-#### 4.TestNG
+### 4.TestNG
 
 ![](http://img.mp.itc.cn/upload/20170601/0e1f6408b31d4665b4cc75b47750d58d.jpg)
 
@@ -393,13 +393,13 @@ TestNG有各种工具和插件（如Eclipse，IDEA，Maven等）支持。
 
 ![](http://img.mp.itc.cn/upload/20170601/21bc4cc5fd924b16b29be4880f9cfeab_th.jpg)
 
-#### 5.JUnit
+### 5.JUnit
 
 JUnit是为Java编程语言设计的单元测试框架。JUnit在测试驱动开发框架的开发中发挥了重要作用。它是单元测试框架之一，统称为由SUnit起源的xUnit。
 
 ![](http://img.mp.itc.cn/upload/20170601/9a6d602756f94c1ea8682fc811d679ef.jpg)
 
-#### 6.JWalk
+### 6.JWalk
 
 JWalk被设计为用于Java编程语言的单元测试工具包。它被设计为支持称为“Lazy系统单元测试”的测试范例。
 
@@ -409,12 +409,12 @@ JWalkTester工具对任何由程序员提供的编译的Java类执行任何测�
 
 ![](http://img.mp.itc.cn/upload/20170601/34c2bae3fea44fd9a2ec54c7447207d5.jpg)
 
-#### 7.Mockito
+### 7.Mockito
 
 Mockito被设计为用于Java的开源测试框架，MIT许可证。Mockito允许程序员为了测试驱动开发（TDD）或行为驱动开发（BDD）而在自动化单元测试中创建和测试双对象（Mock对象）。
 
 ![](http://img.mp.itc.cn/upload/20170601/cdef7a64440c499a865249fcbc91e38e.jpg)
 
-#### 8 Powermock
+### 8 Powermock
 
 PowerMock是用于对源代码进行单元测试的Java框架，它可以作为其他模拟框架的扩展，比如原型Mockito或EasyMock，但具有更强大的功能。PowerMock利用自定义的类加载器和字节码操纵器来实现静态方法，构造函数，最终类和方法以及私有方法等的模拟。它主要是为了扩展现有的API，使用少量的方法和注解来实现额外的功能。
