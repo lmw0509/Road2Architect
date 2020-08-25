@@ -1,46 +1,3 @@
-# Table of Contents
-
-  * [Spring Boot 概述](#spring-boot-概述)
-      * [什么是 Spring Boot](#什么是-spring-boot)
-      * [使用 Spring Boot 有什么好处](#使用-spring-boot-有什么好处)
-  * [Spring Boot 快速搭建](#spring-boot-快速搭建)
-      * [第一步：新建项目](#第一步：新建项目)
-      * [第二步：HelloController](#第二步：hellocontroller)
-      * [第三步：利用 IDEA 启动 Spring Boot](#第三步：利用-idea-启动-spring-boot)
-  * [解析 Spring Boot 项目](#解析-spring-boot-项目)
-      * [解析 pom.xml 文件](#解析-pomxml-文件)
-      * [应用入口类](#应用入口类)
-      * [Spring Boot 的配置文件](#spring-boot-的配置文件)
-      * [Spring Boot 热部署](#spring-boot-热部署)
-  * [Spring Boot 使用](#spring-boot-使用)
-      * [Spring Boot 支持 JSP](#spring-boot-支持-jsp)
-      * [集成 MyBatis](#集成-mybatis)
-  * [springMVC和springboot的区别](#springmvc和springboot的区别)
-  * [微信公众号](#微信公众号)
-    * [个人公众号：程序员黄小斜](#个人公众号：程序员黄小斜)
-    * [技术公众号：Java技术江湖](#技术公众号：java技术江湖)
-
-
-本文转载自互联网，侵删
-本系列文章将整理到我在GitHub上的《Java面试指南》仓库，更多精彩内容请到我的仓库里查看
-> https://github.com/h2pl/Java-Tutorial
-
-喜欢的话麻烦点下Star哈
-
-本系列文章将同步到我的个人博客：
-> www.how2playlife.com
-
-更多Java技术文章将陆续在微信公众号【Java技术江湖】更新，敬请关注。
-
-本文是《走进JavaWeb技术世界》系列博文的其中一篇，本文部分内容来源于网络，为了把本文主题讲得清晰透彻，也整合了很多我认为不错的技术博客内容，引用其中了一些比较好的博客文章，如有侵权，请联系作者。
-
-该系列博文会告诉你如何从入门到进阶，从servlet到框架，从ssm再到SpringBoot，一步步地学习JavaWeb基础知识，并上手进行实战，接着了解JavaWeb项目中经常要使用的技术和组件，包括日志组件、Maven、Junit，等等内容，以便让你更完整地了解整个JavaWeb技术体系，形成自己的知识框架。为了更好地总结和检验你的学习成果，本系列文章也会提供每个知识点对应的面试题以及参考答案。
-
-如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。
-
-**文末赠送8000G的Java架构师学习资料，需要的朋友可以到文末了解领取方式，资料包括Java基础、进阶、项目和架构师等免费学习资料，更有数据库、分布式、微服务等热门技术学习视频，内容丰富，兼顾原理和实践，另外也将赠送作者原创的Java学习指南、Java程序员面试指南等干货资源）**
-<!-- more -->
-
 
 ![](https://upload-images.jianshu.io/upload_images/7896890-9323041dd0ce883e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
@@ -52,24 +9,24 @@
 
 #### 什么是 Spring Boot
 
-*   它使用 “习惯优于配置” （项目中存在大量的配置，此外还内置一个习惯性的配置，让你无须）的理念让你的项目快速运行起来。
+*   它使用"习惯优于配置"的理念让你的项目快速运行起来。
 *   它并不是什么新的框架，而是默认配置了很多框架的使用方式，就像 Maven 整合了所有的 jar 包一样，Spring Boot 整合了所有框架（引自：[springboot(一)：入门篇——纯洁的微笑](http://www.ityouknow.com/springboot/2016/01/06/springboot(%E4%B8%80)-%E5%85%A5%E9%97%A8%E7%AF%87.html)）
 
-#### 使用 Spring Boot 有什么好处
+#### 使用 Spring Boot 的好处
 
 回顾我们之前的 SSM 项目，搭建过程还是比较繁琐的，需要：
 
-*   1）配置 web.xml，加载 spring 和 spring mvc
-*   2）配置数据库连接、配置日志文件
-*   3）配置家在配置文件的读取，开启注解
-*   4）配置mapper文件
+*   配置 web.xml，加载 spring 和 spring mvc
+*   配置数据库连接、配置日志文件
+*   配置家在配置文件的读取，开启注解
+*   配置mapper文件
 *   **.....**
 
-而使用 Spring Boot 来开发项目则只需要非常少的几个配置就可以搭建起来一个 Web 项目，并且利用 IDEA 可以自动生成生成，这简直是太爽了...
+而使用 Spring Boot 来开发项目则只需要非常少的几个配置就可以搭建起来一个 Web 项目，并且利用 IDEA 可以自动生成生成，这简直是太爽了
 
-*   划重点：简单、快速、方便地搭建项目；对主流开发框架的无配置集成；极大提高了开发、部署效率。
-
-* * *
+*   划重点：简单、快速、方便地搭建项目；
+*   对主流开发框架的无配置集成；
+*   极大提高了开发、部署效率。
 
 ## Spring Boot 快速搭建
 
@@ -106,7 +63,7 @@
 
 在【cn.wmyskxz.springboot】包下新建一个【HelloController】：
 
-```
+```java
 package cn.wmyskxz.springboot;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -158,7 +115,7 @@ public class HelloController {
 
 让我们来看看默认生成的 pom.xml 文件中到底有一些什么特别：
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -211,7 +168,7 @@ public class HelloController {
 
 我们可以看到一个比较陌生一些的标签 `<parent>` ，这个标签是在配置 Spring Boot 的父级依赖：
 
-```
+```xml
 <parent>
     <groupId>org.springframework.boot</groupId>
     spring-boot-starter-parent
@@ -226,9 +183,17 @@ public class HelloController {
 
 #### 应用入口类
 
-Spring Boot 项目通常有一个名为 *Application 的入口类，入口类里有一个 main 方法， **这个 main 方法其实就是一个标准的 Javay 应用的入口方法。**
+Spring Boot 项目通常有一个名为 *Application 的入口类，入口类里有一个 main 方法， **这个 main 方法其实就是一个标准的 Java应用的入口方法。**
 
-**@SpringBootApplication** 是 Spring Boot 的核心注解，它是一个组合注解，该注解组合了：**@Configuration、@EnableAutoConfiguration、@ComponentScan；** 若不是用 @SpringBootApplication 注解也可以使用这三个注解代替。
+**@SpringBootApplication** 是 Spring Boot 的核心注解，它是一个组合注解，该注解组合了：
+
+- **@Configuration**
+
+- **@EnableAutoConfiguration**
+
+- **@ComponentScan；**
+
+若不是用 @SpringBootApplication 注解也可以使用这三个注解代替。
 
 *   其中，**@EnableAutoConfiguration 让 Spring Boot 根据类路径中的 jar 包依赖为当前项目进行自动配置**，例如，添加了 spring-boot-starter-web 依赖，会自动添加 Tomcat 和 Spring MVC 的依赖，那么 Spring Boot 会对 Tomcat 和 Spring MVC 进行自动配置。
 *   **Spring Boot 还会自动扫描 @SpringBootApplication 所在类的同级包以及下级包里的 Bean** ，所以入口类建议就配置在 grounpID + arctifactID 组合的包名下（这里为 cn.wmyskxz.springboot 包）
@@ -292,7 +257,7 @@ Spring Boot 的全局配置文件的作用是对一些默认配置的配置值�
 
 我们往 pom.xml 中添加一个依赖就可以了：
 
-```
+```xml
 <dependency>
     <groupId>org.springframework.boot</groupId>
     spring-boot-devtools
@@ -318,7 +283,7 @@ Spring Boot 的默认视图支持是 Thymeleaf 模板引擎，但是这个我们
 
 > *   第一步：修改 pom.xml 增加对 JSP 文件的支持
 
-```
+```xml
 <!-- servlet依赖. -->
 <dependency>
     <groupId>javax.servlet</groupId>
@@ -370,8 +335,7 @@ Spring Boot 的默认视图支持是 Thymeleaf 模板引擎，但是这个我们
 
 > *   第一步：修改 pom.xml 增加对 MySql和 MyBatis 的支持
 
-```
-
+```xml
 <!-- mybatis -->
 <dependency>
     <groupId>org.mybatis.spring.boot</groupId>
@@ -396,7 +360,7 @@ Spring Boot 的默认视图支持是 Thymeleaf 模板引擎，但是这个我们
 
 在【cn.wmyskxz.springboot】下新建一个【pojo】包，然后在其下创建一个 Student 类：
 
-```
+```java
 public class Student {
 
     private Integer id;
@@ -412,7 +376,7 @@ public class Student {
 
 在【cn.wmyskxz.springboot】下新建一个【mapper】包，然后在其下创建一个 StudentMapper 映射类：
 
-```
+```java
 package cn.wmyskxz.springboot.mapper;
 
 import cn.wmyskxz.springboot.pojo.Student;
@@ -433,7 +397,7 @@ public interface StudentMapper {
 
 在【cn.wmyskxz.springboot】下新建一个【controller】包，然后在其下创建一个 StudentController ：
 
-```
+```java
 package cn.wmyskxz.springboot.controller;
 
 import cn.wmyskxz.springboot.mapper.StudentMapper;
@@ -470,7 +434,7 @@ public class StudentController {
 
 我们简化一下 JSP 的文件，仅显示两个字段的数据：
 
-```
+```java
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
 
@@ -500,9 +464,7 @@ public class StudentController {
 
 ## springMVC和springboot的区别
 
-Spring 框架就像一个家族，有众多衍生产品例如 boot、security、jpa等等。但他们的基础都是Spring 的 ioc和 aop ioc 提供了依赖注入的容器 aop ，解决了面向横切面的编程，然后在此两者的基础上实现了其他延伸产品的高级功能。Spring MVC是基于 Servlet 的一个 MVC 框架 主要解决 WEB 开发的问题，因为 Spring 的配置非常复杂，各种XML、 JavaConfig、hin处理起来比较繁琐。于是为了简化开发者的使用，从而创造性地推出了Spring boot，约定优于配置，简化了spring的配置流程。
-
-
+Spring 框架就像一个家族，有众多衍生产品例如 boot、security、jpa等等。但他们的基础都是Spring 的 ioc和 aop。ioc 提供了依赖注入的容器 ，aop解决了面向横切面的编程，然后在此两者的基础上实现了其他延伸产品的高级功能。Spring MVC是基于 Servlet 的一个 MVC 框架 主要解决 WEB 开发的问题，因为 Spring 的配置非常复杂，各种XML、 JavaConfig、hin处理起来比较繁琐。于是为了简化开发者的使用，从而创造性地推出了Spring boot，约定优于配置，简化了spring的配置流程。
 
 说得更简便一些：Spring 最初利用“工厂模式”（DI）和“代理模式”（AOP）解耦应用组件。大家觉得挺好用，于是按照这种模式搞了一个 MVC框架（一些用Spring 解耦的组件），用开发 web 应用（ SpringMVC ）。然后有发现每次开发都写很多样板代码，为了简化工作流程，于是开发出了一些“懒人整合包”（starter），这套就是 Spring Boot。
 
@@ -510,7 +472,7 @@ Spring 框架就像一个家族，有众多衍生产品例如 boot、security、
 
 Spring MVC提供了一种轻度耦合的方式来开发web应用。
 
-Spring MVC是Spring的一个模块，式一个web框架。通过Dispatcher Servlet, ModelAndView 和 View Resolver，开发web应用变得很容易。解决的问题领域是网站应用程序或者服务开发——URL路由、Session、模板引擎、静态Web资源等等。
+Spring MVC是Spring的一个模块，是一个web框架。通过Dispatcher Servlet, ModelAndView 和 View Resolver，开发web应用变得很容易。解决的问题领域是网站应用程序或者服务开发——URL路由、Session、模板引擎、静态Web资源等等。
 
 **Spring Boot的功能**
 
@@ -528,39 +490,4 @@ Spring 是一个“引擎”；
 
 Spring MVC 是基于Spring的一个 MVC 框架 ；
 
-Spring Boot 是基于Spring4的条件注册的一套快速开发整合包。
-
-## 微信公众号
-
-### 个人公众号：程序员黄小斜
-
-​
-黄小斜是 985 硕士，阿里巴巴Java工程师，在自学编程、技术求职、Java学习等方面有丰富经验和独到见解，希望帮助到更多想要从事互联网行业的程序员们。
-​
-作者专注于 JAVA 后端技术栈，热衷于分享程序员干货、学习经验、求职心得，以及自学编程和Java技术栈的相关干货。
-​
-黄小斜是一个斜杠青年，坚持学习和写作，相信终身学习的力量，希望和更多的程序员交朋友，一起进步和成长！
-
-**原创电子书:**
-关注微信公众号【程序员黄小斜】后回复【原创电子书】即可领取我原创的电子书《菜鸟程序员修炼手册：从技术小白到阿里巴巴Java工程师》这份电子书总结了我2年的Java学习之路，包括学习方法、技术总结、求职经验和面试技巧等内容，已经帮助很多的程序员拿到了心仪的offer！
-
-**程序员3T技术学习资源：** 一些程序员学习技术的资源大礼包，关注公众号后，后台回复关键字 **“资料”** 即可免费无套路获取，包括Java、python、C++、大数据、机器学习、前端、移动端等方向的技术资料。
-
-
-![](https://img-blog.csdnimg.cn/20190829222750556.jpg)
-
-
-### 技术公众号：Java技术江湖
-
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的微信公众号【Java技术江湖】
-
-这是一位阿里 Java 工程师的技术小站。作者黄小斜，专注 Java 相关技术：SSM、SpringBoot、MySQL、分布式、中间件、集群、Linux、网络、多线程，偶尔讲点Docker、ELK，同时也分享技术干货和学习经验，致力于Java全栈开发！
-
-
-**Java工程师必备学习资源:** 
-关注公众号后回复”Java“即可领取 Java基础、进阶、项目和架构师等免费学习资料，更有数据库、分布式、微服务等热门技术学习视频，内容丰富，兼顾原理和实践，另外也将赠送作者原创的Java学习指南、Java程序员面试指南等干货资源
-
-
-![我的公众号](https://img-blog.csdnimg.cn/20190805090108984.jpg)
-
-​                     
+Spring Boot 是基于Spring4的条件注册的一套快速开发整合包。   
