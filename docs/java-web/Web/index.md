@@ -9,7 +9,7 @@
 - [x] 走进JavaWeb技术世界11：单元测试框架Junit
 - [ ] 走进JavaWeb技术世界12：从手动编译打包到项目构建工具Maven
 - [ ] 走进JavaWeb技术世界14：Mybatis入门
-- [ ] 走进JavaWeb技术世界16：极简配置的SpringBoot
+- [x] 走进JavaWeb技术世界16：极简配置的SpringBoot
 
 
 
