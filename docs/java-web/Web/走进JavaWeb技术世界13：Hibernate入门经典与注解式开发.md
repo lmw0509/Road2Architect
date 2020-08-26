@@ -1029,6 +1029,8 @@ public class HibernateAnnotationTest {
 
 ## 参考文章
 
+https://mp.weixin.qq.com/s/TSEN8mkLsiCMaBBqzaw8wg
+
 https://segmentfault.com/a/1190000009707894
 
 https://www.cnblogs.com/hysum/p/7100874.html
