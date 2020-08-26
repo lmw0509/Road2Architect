@@ -3,7 +3,7 @@
 
 Maven是一个项目管理和综合工具。 Maven提供了开发人员构建一个完整的生命周期框架。开发者团队可以自动完成项目的基础工具建设， Maven使用标准的目录结构和默认构建生命周期。
 
-在多个开发者团队环境时， Maven可以设置按标准在非常短的时间里完成配置工作。 由于大部分项目的设置都很简单， 并且可重复使用， Maven让开发人员的工作更轻松， 同时创建报表， 检查， 构建和测试自动化设置。
+在多个开发者团队环境时，Maven可以设置按标准在非常短的时间里完成配置工作。 由于大部分项目的设置都很简单， 并且可重复使用， Maven让开发人员的工作更轻松， 同时创建报表， 检查， 构建和测试自动化设置。
 
 用过GitHub的同学看到这里应该感觉似曾相识，对，Maven和git的作用很相似，都是为了方便项目的创建与管理。
 
@@ -11,7 +11,7 @@ Maven是一个项目管理和综合工具。 Maven提供了开发人员构建一
 
 ### Maven发展史
 
-Maven设计之初， 是为了简化Jakarta Turbine项目的建设。 在几个项目， 每个项目包含了不同的Ant构建文件。 JAR检查到CVS。 Apache组织开发Maven可以建立多个项目， 发布项目信息， 项目部署， 在几个项目中JAR文件提供团队合作和帮助。
+Maven设计之初， 是为了简化Jakarta Turbine项目的建设。 在几个项目，每个项目包含了不同的Ant构建文件。 JAR检查到CVS。 Apache组织开发Maven可以建立多个项目， 发布项目信息， 项目部署， 在几个项目中JAR文件提供团队合作和帮助。
 
 Maven的经历了Maven-> Maven2 -> Maven3的发展。
 
@@ -36,17 +36,17 @@ Maven作为一个构建工具，不仅能帮我们自动化构建，还能够抽
 
 Maven不仅是构建工具，还是一个依赖管理工具和项目管理工具，它提供了中央仓库，能帮我自动下载构件。
 
-### maven目录
+### Maven目录
 
 [![image.png](http://www.pianshen.com/images/307/3244327db95e1096a8f82cf2fc66e62b.png "image.png")](http://upload-images.jianshu.io/upload_images/5811881-8a4c77bcc9a4565a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240 "image.png")
 
-*   bin目录：
+*   bin目录
     该目录包含了mvn运行的脚本，这些脚本用来配置java命令，准备好classpath和相关的Java系统属性，然后执行Java命令。
-*   boot目录:
+*   boot目录
     该目录只包含一个文件，该文件为plexus-classworlds-2.5.2.jar。plexus-classworlds是一个类加载器框架，相对于默认的java类加载器，它提供了更加丰富的语法以方便配置，Maven使用该框架加载自己的类库。
-*   conf目录:
+*   conf目录
     该目录包含了一个非常重要的文件settings.xml。直接修改该文件，就能在机器上全局地定制Maven的行为，一般情况下，我们更偏向于复制该文件至~/.m2/目录下（~表示用户目录），然后修改该文件，在用户范围定制Maven的行为。
-*   lib目录:
+*   lib目录
     该目录包含了所有Maven运行时需要的Java类库，Maven本身是分模块开发的，因此用户能看到诸如maven-core-3.0.jar、maven-model-3.0.jar之类的文件，此外这里还包含一些Maven用到的第三方依赖如commons-cli-1.2.jar、commons-lang-2.6.jar等等。
 
 ### Maven常用命令说明
@@ -98,13 +98,14 @@ http://tengj.top/2018/01/01/maven/#%E4%BE%9D%E8%B5%96%E7%9A%84%E9%85%8D%E7%BD%AE
 <project>
 ...
 <dependencies>
-    <dependency>
+   <dependency>
         <groupId>实际项目</groupId>
 　　　　 <artifactId>模块</artifactId>
 　　　　 <version>版本</version>
 　　　　 <type>依赖类型</type>
 　　　　 <scope>依赖范围</scope>
 　　　　 <optional>依赖是否可选</optional>
+       
 　　　　 <!—主要用于排除传递性依赖-->
 　　　　 <exclusions>
 　　　　     <exclusion>
@@ -212,18 +213,18 @@ Maven的主要功能主要分为依赖管理系统、多模块构建、一致的
 
 同时，存储这些组件的仓库有远程仓库和本地仓库之分，远程仓库可以是使用世界公用的central仓库，也可以使用Apache Nexus自建的私有仓库；本地仓库则在本地计算机上。通过Maven安装目录下的settings.xml文件可以配置本地仓库的路径，以及采用的远程仓库地址。Gradle在设计时沿用了Maven这种依赖管理体系，同时也引入了改进，让依赖变得更加简洁：
 
-```xml
+```groovy
 dependencies {
-// This dependency is exported to consumers, that is to say found on their compile classpath.
-api 'org.apache.commons:commons-math3:3.6.1'
-// This dependency is used internally, and not exposed to consumers on their own compile classpath.
-implementation 'com.google.guava:guava:23.0'
+    // This dependency is exported to consumers, that is to say found on their compile classpath.
+    api 'org.apache.commons:commons-math3:3.6.1'
+    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
+    implementation 'com.google.guava:guava:23.0'
 
-// Use JUnit test framework
-testImplementation 'junit:junit:4.12'
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
 
-compile 'org.hibernate:hibernate-core:3.6.7.Final'
-testCompile ‘junit:junit:4.+'
+    compile 'org.hibernate:hibernate-core:3.6.7.Final'
+    testCompile ‘junit:junit:4.+'
 }
 ```
 
@@ -235,9 +236,9 @@ testCompile ‘junit:junit:4.+'
 
 Gradle也支持多模块构建，在parent的build.gradle中可以使用allprojects和subprojects代码块分别定义应用于所有项目或子项目中的配置。对于子模块中的定义放置在settings.gradle文件中，每一个模块代表project的对象实例，在parent的build.gradle中通过allproject或subprojects对这些对象进行操作，相比Maven更显灵活。
 
-```xml
+```groovy
 allprojects {
-task nice << { task -> println "I'm $task.project.name" }
+	task nice << { task -> println "I'm $task.project.name" }
 }
 ```
 
