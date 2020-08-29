@@ -689,7 +689,11 @@ JDK7还有个LinkedTransferQueue，在普通线程安全的BlockingQueue的基�
 ## 参考文章
 
 https://blog.csdn.net/zzw1531439090/article/details/87872424
+
 https://blog.csdn.net/weixin_40374341/article/details/86496343
+
 https://www.cnblogs.com/uodut/p/7067162.html
+
 https://www.jb51.net/article/135672.htm
+
 https://www.cnblogs.com/suiyue-/p/6052456.html
