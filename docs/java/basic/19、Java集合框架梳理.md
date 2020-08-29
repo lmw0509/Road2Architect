@@ -236,7 +236,7 @@ public class List接口 {
 
 ## Set接口
 
-> Set是一种不包括重复元素的Collection。**它维持它自己的内部排序，所以随机访问没有任何意义。**与List一样，它同样运行null的存在但是仅有一个。由于Set接口的特殊性，所有传入Set集合中的元素都必须不同，同时要注意任何可变对象，如果在对集合中元素进行操作时，导致e1.equals(e2)==true，则必定会产生某些问题。实现了Set接口的集合有：EnumSet、HashSet、TreeSet。
+> Set是一种不包括重复元素的Collection。**它维持它自己的内部排序，所以随机访问没有任何意义。** 与List一样，它同样运行null的存在但是仅有一个。由于Set接口的特殊性，所有传入Set集合中的元素都必须不同，同时要注意任何可变对象，如果在对集合中元素进行操作时，导致e1.equals(e2)==true，则必定会产生某些问题。实现了Set接口的集合有：EnumSet、HashSet、TreeSet。
 
 **EnumSet**
 
@@ -324,7 +324,7 @@ public class Set接口 {
 
 ## Map接口
 
->   Map与List、Set接口不同，它是由一系列键值对组成的集合，提供了key到Value的映射。**同时它也没有继承Collection。**在Map中它保证了key与value之间的一一对应关系。也就是说一个key对应一个value，所以它不能存在相同的key值，当然value值可以相同。实现map的有：HashMap、TreeMap、HashTable、Properties、EnumMap。
+>   Map与List、Set接口不同，它是由一系列键值对组成的集合，提供了key到Value的映射。**同时它也没有继承Collection。** 在Map中它保证了key与value之间的一一对应关系。也就是说一个key对应一个value，所以它不能存在相同的key值，当然value值可以相同。实现map的有：HashMap、TreeMap、HashTable、Properties、EnumMap。
 
 **HashMap**
 
@@ -634,7 +634,7 @@ Queue是在两端出入的List，所以也可以用数组或链表来实现。
 #### 普通队列
 
 LinkedList
-是的，以双向链表实现的LinkedList既是List，也是Queue。
+**以双向链表实现的LinkedList既是List，也是Queue。**
 
 ArrayDeque
 以循环数组实现的双向Queue。大小是2的倍数，默认是16。
