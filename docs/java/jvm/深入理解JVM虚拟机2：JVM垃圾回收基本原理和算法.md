@@ -40,10 +40,10 @@ Java 垃圾回收是一项自动化的过程，用来管理程序所使用的运
 
 ### 触发时机
 
-上面大家也看到了，**GC类型分类是和收集器有关的，**那么当然了，对于不同的收集器，GC触发时机也是不一样的，作者就针对默认的serial GC来说:
+上面大家也看到了，**GC类型分类是和收集器有关的，** 那么当然了，对于不同的收集器，GC触发时机也是不一样的，作者就针对默认的serial GC来说:
 
 *   young GC：当young gen中的eden区分配满的时候触发。注意young GC中有部分存活对象会晋升到old gen，所以young GC后old gen的占用量通常会有所升高。
-*   full GC：当准备要触发一次young GC时，如果发现统计数据之前young GC的平均晋升大小比目前old gen剩余的空间大，则不会触发young GC而是转为触发full GC（因为HotSpot VM的GC里，除了CMS的concurrent collection之外，其它能收集old gen的GC都会同时收集整个GC堆，包括young gen，所以不需要事先触发一次单独的young GC）；或者，如果有perm gen的话，要在perm gen分配空间但已经没有足够空间时，也要触发一次full GC；或者System.gc()、heap dump带GC，默认也是触发full GC。
+*   full GC：**当准备要触发一次young GC时，如果发现统计数据之前young GC的平均晋升大小比目前old gen剩余的空间大，则不会触发young GC而是转为触发full GC** （因为HotSpot VM的GC里，除了CMS的concurrent collection之外，其它能收集old gen的GC都会同时收集整个GC堆，包括young gen，所以不需要事先触发一次单独的young GC）；或者，如果有perm gen的话，要在perm gen分配空间但已经没有足够空间时，也要触发一次full GC；或者System.gc()、heap dump带GC，默认也是触发full GC。
 
 ### FULL GC触发条件详解
 
