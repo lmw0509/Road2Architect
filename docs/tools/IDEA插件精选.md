@@ -36,6 +36,8 @@
 
 - FindBugs-IDEA  
 
+- Git Commit Template
+
 
 
 
