@@ -336,3 +336,220 @@ todo
 
 ## 待办
 springboot和springcloud
+Pretty Savage - BLACKPINK
+空心 - 光泽
+Coming Home - Dash Berlin,Bo Bruce
+Call Me Maybe - Carly Rae Jepsen
+大风吹 - 刘惜君,王赫野
+넘버나인 (No.9) - T-ara
+Speak Softly Love - The Original Movies Orchestra
+Exodus - Maksim Mrvica
+Croatian Rhapsody - Maksim Mrvica
+The Mass - Era
+韩妹带你摇 - 枫宇辰
+EGM - 潮音病人
+夜场顶级 - 林金煌
+Thumbs Up (S2 & SJ Remix Ver.) - MOMOLAND
+넘버나인 (No.9) - T-ara
+둘이서 - 蔡妍
+PLANET - Lambsey
+Mr.Taxi - 少女时代
+Gee - 少女时代
+Miniskirt - AOA
+사뿐사뿐 - AOA
+마리오네트 - Stellar
+위아래 - EXID
+Trap（Feat.圭贤＆泰民） - 刘宪华,圭贤 (규현),泰民 (태민)
+Jealousy - French Kiss
+Read All About It - DJ成总
+Every Breath you take - The Hitters
+Way Back - Vicetone,Cozi Zuehlsdorff
+Kkgm - 舞曲帝
+耳朵怀孕 - 绪尘
+泰语童声ให้เคอรี่มาส่งได้บ่ - 拼音师
+Unstoppable - Sia
+Burning - Maria Arredondo
+Trouble Is a Friend(Album Version) - Lenka
+Extreme Ways (Bourne's Legacy) - Moby
+I Know You - Skylar Grey
+Earned It(Fifty Shades Of Grey) - The Weeknd
+I Don't Wanna Live Forever (Fifty Shades Darker) - ZAYN,Taylor Swift
+Love Me Like You Do - Ellie Goulding
+Walk Thru Fire - Vicetone,Meron Ryan
+Dream It Possible - Delacey
+Monsters - Katie Sky
+I Am You - Kim Taylor
+The Nights - Avicii
+You Need To Calm Down - Taylor Swift
+Welcome To New York - Taylor Swift
+Blank Space - Taylor Swift
+End Game - Taylor Swift,Ed Sheeran,Future
+Perfect - Ed Sheeran
+Shape of You - Ed Sheeran
+Thinking Out Loud - Ed Sheeran
+I'm Yours - Jason Mraz
+Marry You - Bruno Mars
+Sweet but Psycho - Ava Max
+Move Your Body - Sia
+The Cure - Lady Gaga
+Poker Face - Lady Gaga
+Bad Romance - Lady Gaga
+bad guy - Billie Eilish
+Uptown Funk - Mark Ronson,Bruno Mars
+Someone Like You - Adele
+Dance Monkey - Tones and I
+Fight Song - Rachel Platten
+Baby - Justin Bieber,Ludacris
+Sugar - Maroon 5
+Moves Like Jagger - Maroon 5,Christina Aguilera
+Despacito - Luis Fonsi,Daddy Yankee
+See You Again (feat. Charlie Puth) - Wiz Khalifa,Charlie Puth
+Reality - Lost Frequencies,Janieck Devy
+Nothin' on You - B.o.B,Bruno Mars
+All Falls Down - Alan Walker,Noah Cyrus,Digital Farm Animals,Juliander
+The Spectre - Alan Walker
+Señorita - Shawn Mendes,Camila Cabello
+Sold Out - Hawk Nelson
+Dancing With Your Ghost - Sasha Sloan
+Let Me Down Slowly - Alec Benjamin,Alessia Cara
+Lost Control - Alan Walker,Sorana
+Demons - Imagine Dragons
+Diamonds - Rihanna
+That Girl - Olly Murs
+Faded - Alan Walker,Iselin Solheim
+Ferrari - Bebe Rexha
+Wild - Monogem
+I Want You To Know - Pegato,Hella
+Love You Like a Love Song - Selena Gomez & The Scene
+As Long As You Love Me - Justin Bieber,Big Sean
+MELANCHOLY - White Cherry
+Lendo Calendo - 水冰月
+Salt - Ava Max
+还有多少个十年 - 沈宁
+Alcastar - 69
+太空旋律 - 十三叔
+风的季节 - Soler
+17岁 - 刘德华
+Astronomia - 新旭
+P.L.M.P - 小猫多鱼
+用力活着 - 张茜
+花心 - 周华健
+云与海 - 阿YueYue
+爆了 - 承利
+下半生 - 郭燕
+Come on sexy girl - 虞姬,圈妹
+Come On Sexy Girl - DJRE
+手放开 - 李圣杰
+我还想她 - 林俊杰
+寂寞沙洲冷 - 周传雄
+曾经的你 - 许巍
+让泪化作相思雨 - 南合文斗
+爱就一个字 - 张信哲
+咱们结婚吧 - 齐晨
+没有理由 - DJYU
+Take Me Higher - 六少飞
+温柔很容易让人沉溺其中而无法自拔 - 沁沁
+预谋 - DJ
+他一定很爱你 - DJ龙总
+EA7为你化蝶 - 南宫辞
+等一分钟 - 徐誉滕
+兄弟 - 任贤齐
+心太软 - 任贤齐
+虞兮叹（DJ沈念） - 闻人听書_
+虞兮叹 - 闻人听書_
+偏偏喜欢你 - 陈百强
+燕无歇 - 蒋雪儿
+飞鸟 - 任贤齐
+红昭愿 - 音阙诗听
+光明 - 赵梓婷
+光明 - 谭艳
+野子 - 苏运莹
+平凡之路 - 朴树
+董小姐 - 宋冬野
+南山南 - 马頔
+星辰大海 - 黄霄雲
+渐冷 - 雪二
+一曲相思 - 半阳
+再见只是陌生人 - 庄心妍
+你的酒馆对我打了烊 - 陈雪凝
+天下有情人 - 周华健,齐豫
+怒放的生命 - 汪峰
+殇雪 - 云菲菲
+野狼disco - 宝石Gem
+像风一样自由 - 许巍
+单车 - 陈奕迅
+倔强 - 五月天
+追梦人 - 凤飞飞
+去大理 - 郝云
+芒种 - 音阙诗听,赵方婧
+一生回味一面 - DJ小鱼儿
+你的万水千山（DJ片段） - 阿亮AI
+探清水河 - 张云雷
+思念成霜 - 阿悠悠
+云与海 - 阿YueYue
+醉红尘 - 魏新雨
+不过人间 - 艺星,海来阿木
+旧梦一场 - 阿悠悠
+百花香 - 魏新雨,网友顽童
+人为情叹 - 阿悠悠
+桃花运 - 半吨兄弟
+你还要我怎样 - 薛之谦
+演员 - 薛之谦
+人生何处不相逢 - 陈慧娴
+心要让你听见 - 小阿枫
+电灯胆 - 邓丽欣
+漫步人生路 - 邓丽君
+热血燃烧 - 郑伊健,陈小春
+你怎么说 - 邓丽君
+醒不来的梦 - 回小仙
+不配怀念 - 小倩
+爱情堡垒 - 杨小壮
+一个人挺好 - 杨小壮
+执迷不悟 - 小乐哥
+酒醉的蝴蝶 - 孙艺琪
+难念的经 - 周华健
+套马杆 - 乌兰托娅
+挪威的森林 - 伍佰
+理想三旬 - 陈鸿宇
+被遗忘的时光 - 蔡琴
+千千阙歌 - 陈慧娴
+爱情好无奈 - 六哲
+白月光与朱砂痣 - 大籽
+素颜 - 许嵩,何曼婷
+有何不可 - 许嵩
+单身情歌 - 林志炫
+半壶纱 - 刘珂矣
+忘川彼岸 - 零一九零贰
+夜空中最亮的星 - 逃跑计划
+辞九门回忆 - DJ阿超,T.G.A.阿航
+爱上你是一个错 - 杨培安
+爱情错觉 - 半吨兄弟
+错错错 - 六哲,陈娟儿
+迷失幻境 - IN-K,王忻辰
+鬼迷心窍 - 李宗盛
+游山恋 - 海伦
+灰色轨迹 - BEYOND
+感谢你曾来过 - Ayo97,周思涵
+余情未了 - 魏新雨
+风筝误 - 刘珂矣
+一生所爱 - 卢冠廷,莫文蔚
+伤心太平洋 - 任贤齐
+告白气球 - 周杰伦
+你是人间四月天 - 唐子臣
+笑纳 - 花僮
+我在景德镇等你 - 徐千雅
+荣耀 - 王晓天
+广东爱情故事 - 广东雨神
+爱笑的眼睛 - 林俊杰
+一千年以后 - 林俊杰
+背对背拥抱 - 林俊杰
+江南 - 林俊杰
+我多喜欢你，你会知道 - 王俊琪
+一笑倾城 - 汪苏泷
+梦不落雨林 - 张艺兴
+知否知否 - 胡夏,郁可唯
+月夜 - 双笙 (陈元汐),妖扬
+时光话 - 赵露思
+海底旋律 - 9妹
+后会无期 - 汪苏泷,徐良
+爱情主演 - 寐加岛
